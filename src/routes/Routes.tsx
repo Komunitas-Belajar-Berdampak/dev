@@ -1,10 +1,17 @@
+import DefaultLayout from '@/components/layouts/Default';
+import Home from '@/components/pages/Home';
 import type { RouteObject } from 'react-router-dom';
-import Home from '../components/pages/Home';
 
 const routes: RouteObject[] = [
   {
-    path: '/',
-    element: <Home />,
+    element: <DefaultLayout />,
+    children: [
+      {
+        path: '/',
+        index: true,
+        element: <Home />,
+      },
+    ],
   },
 ];
 
