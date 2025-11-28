@@ -1,8 +1,22 @@
+import Title from '@/components/shared/Title';
+
+const cobaBreadcrumbItems = [
+  {
+    label: 'Dashboard',
+    href: '/',
+  },
+  {
+    label: 'Courses',
+    href: '/courses',
+  },
+  { label: 'Detail' },
+];
+
 const Home = () => {
   return (
-    <div className='p-5'>
-      <h1>Home Page</h1>
-    </div>
+    <>
+      <Title title='Dashboard' items={cobaBreadcrumbItems} />
+    </>
   );
 };
 

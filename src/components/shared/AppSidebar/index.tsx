@@ -1,8 +1,10 @@
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import menuItems from './menu-items';
 
 const AppSidebar = () => {
+  const location = useLocation();
+
   return (
     <Sidebar collapsible='icon' className='border-black/10'>
       <SidebarHeader>
@@ -21,16 +23,20 @@ const AppSidebar = () => {
       <SidebarContent className='px-2'>
         <SidebarGroup>
           <SidebarMenu>
-            {menuItems.map((item) => (
-              <SidebarMenuItem key={item.title} className='py-1'>
-                <SidebarMenuButton asChild>
-                  <Link to={item.path} className='flex items-center gap-4'>
-                    {item.icon}
-                    <span className='text-sm font-medium tracking-wide hover:font-semibold'>{item.title}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
+            {menuItems.map((item) => {
+              const isActive = location.pathname === item.path;
+
+              return (
+                <SidebarMenuItem key={item.title} className='py-1'>
+                  <SidebarMenuButton asChild isActive={isActive}>
+                    <Link to={item.path} className='flex items-center gap-4'>
+                      {item.icon}
+                      <span className='text-sm tracking-wide hover:font-semibold'>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>

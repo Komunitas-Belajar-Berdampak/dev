@@ -1,8 +1,10 @@
+import Title from '@/components/shared/Title';
+
 const Courses = () => {
   return (
-    <div className='container p-5'>
-      <h1>Courses Page</h1>
-    </div>
+    <>
+      <Title title='Courses' />
+    </>
   );
 };
 

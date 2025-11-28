@@ -10,7 +10,10 @@ const DefaultLayout = () => {
 
       <main className='flex-1 min-h-screen'>
         <Header />
-        <Outlet />
+
+        <div className='py-5 px-5 md:px-12 container'>
+          <Outlet />
+        </div>
       </main>
     </SidebarProvider>
   );
