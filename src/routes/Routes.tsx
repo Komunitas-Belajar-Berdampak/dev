@@ -1,9 +1,21 @@
+import AuthLayout from '@/components/layouts/Auth';
 import DefaultLayout from '@/components/layouts/Default';
 import Courses from '@/components/pages/Courses';
 import Home from '@/components/pages/Home';
+import Login from '@/components/pages/Login';
 import type { RouteObject } from 'react-router-dom';
 
 const routes: RouteObject[] = [
+  {
+    element: <AuthLayout />,
+    path: '/auth/login',
+    children: [
+      {
+        index: true,
+        element: <Login />,
+      },
+    ],
+  },
   {
     element: <DefaultLayout />,
     children: [
