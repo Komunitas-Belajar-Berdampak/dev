@@ -1,11 +1,11 @@
-import * as React from 'react';
+import { useEffect, useState } from 'react';
 
 const DESKTOP_BREAKPOINT = 1024;
 
 export function useIsDesktop() {
-  const [isDesktop, setIsDesktop] = React.useState<boolean | undefined>(undefined);
+  const [isDesktop, setIsDesktop] = useState<boolean | undefined>(undefined);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const mql = window.matchMedia(`(min-width: ${DESKTOP_BREAKPOINT}px)`);

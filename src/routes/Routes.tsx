@@ -7,6 +7,16 @@ import type { RouteObject } from 'react-router-dom';
 
 const routes: RouteObject[] = [
   {
+    element: <AuthLayout />,
+    path: '/auth/login',
+    children: [
+      {
+        index: true,
+        element: <Login />,
+      },
+    ],
+  },
+  {
     element: <DefaultLayout />,
     children: [
       {
@@ -17,16 +27,6 @@ const routes: RouteObject[] = [
       {
         path: '/courses',
         element: <Courses />,
-      },
-    ],
-  },
-  {
-    element: <AuthLayout />,
-    path: '/auth/login',
-    children: [
-      {
-        index: true,
-        element: <Login />,
       },
     ],
   },
