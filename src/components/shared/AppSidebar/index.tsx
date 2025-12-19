@@ -1,9 +1,16 @@
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { Link, useLocation } from 'react-router-dom';
 import menuItems from './menu-items';
+import { getCurrentUserRole } from '@/lib/auth';
 
 const AppSidebar = () => {
   const location = useLocation();
+
+  const role = getCurrentUserRole();
+
+  const filteredMenuItems = menuItems.filter((item) =>
+    item.role.includes(role)
+  );
 
   return (
     <Sidebar collapsible='icon' className='border-black/10'>
@@ -23,7 +30,7 @@ const AppSidebar = () => {
       <SidebarContent className='px-2'>
         <SidebarGroup>
           <SidebarMenu>
-            {menuItems.map((item) => {
+            {filteredMenuItems.map((item) => {
               const isActive = location.pathname === item.path;
 
               return (
