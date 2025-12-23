@@ -11,7 +11,7 @@ interface Props {
   onDelete?: () => void;
 }
 
-export default function FakultasActionDropdown({
+export default function ProgramStudiActionDropdown({
   onEdit,
   onDelete,
 }: Props) {
@@ -23,13 +23,13 @@ export default function FakultasActionDropdown({
         </button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuContent align="end" className="w-64">
         <DropdownMenuItem
           onClick={onEdit}
           className="cursor-pointer text-base-700"
         >
           <Icon icon="mdi:pencil" className="mr-2" />
-          Edit Fakultas
+          Edit Program Studi
         </DropdownMenuItem>
 
         <DropdownMenuItem
@@ -37,7 +37,7 @@ export default function FakultasActionDropdown({
           className="cursor-pointer text-red-600 focus:text-red-600"
         >
           <Icon icon="iconamoon:trash-fill" className="mr-2" />
-          Delete Fakultas
+          Delete Program Studi
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

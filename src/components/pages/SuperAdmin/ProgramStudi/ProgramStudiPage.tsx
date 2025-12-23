@@ -9,8 +9,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import ProgramStudiTable from "./ProgramStudiTable";
 
-const UserPage = () => {
+const ProgramStudiPage = () => {
   return (
     <div
       className="
@@ -52,12 +53,12 @@ const UserPage = () => {
         </Breadcrumb>
       </div>
 
-      {/* TABLE
+      {/* TABLE */}
       <div className="overflow-x-auto">
-        <UserTable />
-      </div> */}
+        <ProgramStudiTable />
+      </div>
     </div>
   );
 };
 
-export default UserPage;
+export default ProgramStudiPage;

@@ -21,68 +21,52 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-import UserActionDropdown from "./UserActionDropdown";
+import MataKuliahActionDropdown from "../Matakuliah/MatakuliahActionDropdown";
+import type { Matakuliah } from "./types/matakuliah";
 
-import AddUserModal from "./Modal/AddUserModal";
-import EditUserModal from "./Modal/EditUserModal";
-import DeleteUserModal from "./Modal/DeleteUserModal";
+import AddMatakuliahModal from "./Modal/AddMatakuliahModal";
+import EditMatakuliahModal from "./Modal/EditMatakuliahModal";
+import DeleteMatakuliahModal from "./Modal/DeleteMatakuliahModal";
 
-import type { UserEntity, UserTableRow } from "./types/user";
+/**
+ * Dummy data
+ */
+const DATA: Matakuliah[] = [
+  {
+    id: "1",
+    kodeMatkul: "IN243",
+    namaMatkul: "Analitik Kebijakan",
+    sks: 4,
+    kelas: "A",
+    status: "aktif",
+    idPeriode: "p1",
+    namaPeriode: "2025/2026 - Ganjil - Semester 7",
+    idPengajar: "d1",
+    namaPengajar: "Dr. Andi Wijaya",
+    idMahasiswa: ["m1", "m2"],
+    deskripsi: "Mata kuliah analisis kebijakan publik",
+  },
+];
 
-// === DUMMY BACKEND DATA ===
-const USER_ENTITIES: UserEntity[] = Array.from({ length: 42 }, (_, i) => ({
-  _id: String(i + 1),
-  nrp: `22304${i.toString().padStart(3, "0")}`,
-  nama: `User ${i + 1}`,
-  angkatan: i % 2 === 0 ? "2023" : undefined,
-  idProdi: "prodi-ti",
-  email: `user${i}@kampus.ac.id`,
-  alamat: "Jl. Sumantri No 42",
-  jenisKelamin: i % 2 === 0 ? "pria" : "wanita",
-  status: i % 3 === 0 ? "tidak aktif" : "aktif",
-  roleId: i % 2 === 0 ? ["role-mahasiswa"] : ["role-dosen"],
-}));
-
-// === MAPPER (BACKEND → TABLE) ===
-function mapUserToTable(user: UserEntity): UserTableRow {
-  return {
-    id: user._id,
-    nrp: user.nrp,
-    nama: user.nama,
-    angkatan: user.angkatan ?? "-",
-    prodi: "Teknik Informatika", // nanti mapping idProdi → nama
-    status: user.status === "aktif" ? "Aktif" : "Non Aktif",
-    role: user.roleId.includes("role-dosen") ? "Dosen" : "Mahasiswa",
-  };
-}
-
-const USERS: UserTableRow[] = USER_ENTITIES.map(mapUserToTable);
-
-
-export default function UserTable() {
+export default function MatakuliahTable() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
   const limit = 10;
 
-  const filteredUsers = USERS.filter(
-    (u) =>
-      u.nama.toLowerCase().includes(search.toLowerCase()) ||
-      u.nrp.includes(search)
+  const filtered = DATA.filter(
+    (m) =>
+      m.namaMatkul.toLowerCase().includes(search.toLowerCase()) ||
+      m.kodeMatkul.includes(search)
   );
 
-  const totalPages = Math.ceil(filteredUsers.length / limit);
-
-  const paginatedUsers = filteredUsers.slice(
-    (page - 1) * limit,
-    page * limit
-  );
+  const totalPages = Math.ceil(filtered.length / limit);
+  const paginated = filtered.slice((page - 1) * limit, page * limit);
 
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
-  const [selectedUser, setSelectedUser] =
-    useState<UserTableRow | null>(null);
+  const [selected, setSelected] = useState<Matakuliah | null>(null);
 
   return (
     <div className="bg-white w-full">
@@ -90,13 +74,13 @@ export default function UserTable() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
         <div className="flex w-full sm:w-auto gap-2">
           <Input
-            placeholder="Search..."
+            placeholder="Search matakuliah..."
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full sm:w-64 border border-black/20 text-blue-800"
+            className="w-full sm:w-72 border border-black/20 text-blue-800"
           />
           <Button
             size="icon"
@@ -111,33 +95,36 @@ export default function UserTable() {
           className="w-full sm:w-auto border-2 border-black shadow-[3px_3px_0_0_#000]"
         >
           <Icon icon="mdi:plus" className="mr-2" />
-          Add User
+          Add Matakuliah
         </Button>
       </div>
 
       {/* TABLE */}
       <div className="relative -mx-4 sm:mx-0">
         <div className="overflow-x-auto max-w-[calc(100vw-2rem)] sm:max-w-full">
-          <Table className="min-w-[900px] text-blue-800">
+          <Table className="min-w-[1100px] text-blue-800">
             <TableHeader>
               <TableRow className="border-b border-black/10">
                 <TableHead className="font-bold text-blue-900">
-                  NRP
+                  Kode
                 </TableHead>
                 <TableHead className="font-bold text-blue-900">
-                  Nama
+                  Nama Matakuliah
                 </TableHead>
                 <TableHead className="font-bold text-blue-900">
-                  Angkatan
+                  SKS
                 </TableHead>
                 <TableHead className="font-bold text-blue-900">
-                  Program Studi
+                  Kelas
+                </TableHead>
+                <TableHead className="font-bold text-blue-900">
+                  Periode
+                </TableHead>
+                <TableHead className="font-bold text-blue-900">
+                  Pengajar
                 </TableHead>
                 <TableHead className="font-bold text-blue-900">
                   Status
-                </TableHead>
-                <TableHead className="font-bold text-blue-900">
-                  Role
                 </TableHead>
                 <TableHead className="font-bold text-blue-900 text-center">
                   Aksi
@@ -146,33 +133,34 @@ export default function UserTable() {
             </TableHeader>
 
             <TableBody>
-              {paginatedUsers.map((user) => (
+              {paginated.map((item) => (
                 <TableRow
-                  key={user.id}
+                  key={item.id}
                   className="h-14 border-b border-black/5"
                 >
-                  <TableCell>{user.nrp}</TableCell>
+                  <TableCell>{item.kodeMatkul}</TableCell>
                   <TableCell className="font-medium">
-                    {user.nama}
+                    {item.namaMatkul}
                   </TableCell>
-                  <TableCell>{user.angkatan}</TableCell>
-                  <TableCell>{user.prodi}</TableCell>
+                  <TableCell>{item.sks}</TableCell>
+                  <TableCell>{item.kelas}</TableCell>
+                  <TableCell>{item.namaPeriode}</TableCell>
+                  <TableCell>{item.namaPengajar}</TableCell>
                   <TableCell>
-                    {user.status === "Aktif" ? (
+                    {item.status === "aktif" ? (
                       <Badge variant="success">Aktif</Badge>
                     ) : (
-                      <Badge variant="danger">Non Aktif</Badge>
+                      <Badge variant="secondary">Tidak Aktif</Badge>
                     )}
                   </TableCell>
-                  <TableCell>{user.role}</TableCell>
                   <TableCell className="text-center">
-                    <UserActionDropdown
+                    <MataKuliahActionDropdown
                       onEdit={() => {
-                        setSelectedUser(user);
+                        setSelected(item);
                         setOpenEdit(true);
                       }}
                       onDelete={() => {
-                        setSelectedUser(user);
+                        setSelected(item);
                         setOpenDelete(true);
                       }}
                     />
@@ -184,19 +172,17 @@ export default function UserTable() {
         </div>
       </div>
 
-
       {/* MODALS */}
-      <AddUserModal open={openAdd} onClose={() => setOpenAdd(false)} />
-      <EditUserModal
+      <AddMatakuliahModal
+        open={openAdd}
+        onClose={() => setOpenAdd(false)}
+      />
+      <EditMatakuliahModal
         open={openEdit}
         onClose={() => setOpenEdit(false)}
-        user={
-          selectedUser
-            ? USER_ENTITIES.find((u) => u._id === selectedUser.id) || null
-            : null
-        }
+        data={selected}
       />
-      <DeleteUserModal
+      <DeleteMatakuliahModal
         open={openDelete}
         onClose={() => setOpenDelete(false)}
         onConfirm={() => setOpenDelete(false)}

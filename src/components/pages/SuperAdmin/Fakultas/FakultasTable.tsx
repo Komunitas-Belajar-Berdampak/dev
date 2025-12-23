@@ -22,6 +22,9 @@ import {
 
 import type { Fakultas } from "./types/fakultas";
 import FakultasActionDropdown from "../Fakultas/FakultasActionDropdown";
+import AddFakultasModal from "../Fakultas/Modal/AddFakultasModal";
+import EditFakultasModal from "../Fakultas/Modal/EditFakultasModal";
+import DeleteFakultasModal from "../Fakultas/Modal/DeleteFakultasModal";
 
 /**
  * Dummy data
@@ -67,6 +70,11 @@ export default function FakultasTable() {
     page * limit
   );
 
+  const [openAdd, setOpenAdd] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [openDelete, setOpenDelete] = useState(false);
+  const [selectedFakultas, setSelectedFakultas] = useState<Fakultas | null>(null);
+
   return (
     <div className="bg-white w-full">
       {/* TOP ACTION */}
@@ -93,6 +101,7 @@ export default function FakultasTable() {
 
         {/* ADD */}
         <Button
+          onClick={() => setOpenAdd(true)}
           className="
             w-full sm:w-auto
             border-2 border-black
@@ -155,8 +164,14 @@ export default function FakultasTable() {
 
                     <TableCell className="text-center">
                       <FakultasActionDropdown
-                        onEdit={() => console.log("edit", item)}
-                        onDelete={() => console.log("delete", item)}
+                        onEdit={() => {
+                        setSelectedFakultas(item);
+                        setOpenEdit(true);
+                      }}
+                        onDelete={() => {
+                          setSelectedFakultas(item);
+                          setOpenDelete(true);
+                        }}
                       />
                     </TableCell>
                   </TableRow>
@@ -166,6 +181,21 @@ export default function FakultasTable() {
           </Table>
         </div>
       </div>
+
+      <AddFakultasModal open={openAdd} onClose={() => setOpenAdd(false)} />
+      <EditFakultasModal open={openEdit}
+        onClose={() => setOpenEdit(false)}
+        fakultas={
+          selectedFakultas
+            ? null // Replace USER_ENTITIES with the correct data source or remove this logic
+            : null
+        } />
+      <DeleteFakultasModal
+        open={openDelete}
+        onClose={() => setOpenDelete(false)}
+        onConfirm={() => setOpenDelete(false)}
+      />
+
 
       {/* PAGINATION */}
       {totalPages > 1 && (

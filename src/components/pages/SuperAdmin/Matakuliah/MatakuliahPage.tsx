@@ -9,6 +9,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import MatakuliahTable from "./MatakuliahTable";
 
 const UserPage = () => {
   return (
@@ -52,10 +53,10 @@ const UserPage = () => {
         </Breadcrumb>
       </div>
 
-      {/* TABLE
+      {/* TABLE */}
       <div className="overflow-x-auto">
-        <UserTable />
-      </div> */}
+        <MatakuliahTable />
+      </div>
     </div>
   );
 };

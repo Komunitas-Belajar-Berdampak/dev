@@ -13,12 +13,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { User } from "@/components/pages/SuperAdmin/Users/types/user";
+import type { UserEntity } from "@/components/pages/SuperAdmin/Users/types/user";
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  user?: User | null;
+  user?: UserEntity | null;
 }
 
 export default function EditUserModal({ open, onClose, user }: Props) {
@@ -53,7 +53,7 @@ export default function EditUserModal({ open, onClose, user }: Props) {
             <label className="text-sm font-medium">
               NIK / NRP <span className="text-red-500">*</span>
             </label>
-            <Input value={user.nik} disabled />
+            <Input value={user.nrp} disabled />
           </div>
 
           {/* Nama */}
@@ -87,7 +87,7 @@ export default function EditUserModal({ open, onClose, user }: Props) {
                   focus:ring-ring focus:ring-offset-2
                 "
               >
-                <SelectValue placeholder={user.prodi} />
+                <SelectValue placeholder={user.idProdi} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ti">Teknik Informatika</SelectItem>
@@ -142,7 +142,7 @@ export default function EditUserModal({ open, onClose, user }: Props) {
               Status <span className="text-red-500">*</span>
             </label>
             <Select
-              defaultValue={user.status === "Aktif" ? "aktif" : "nonaktif"}
+              defaultValue={user.status.toLowerCase() === "aktif" ? "aktif" : "nonaktif"}
             >
               <SelectTrigger
                 className="
@@ -167,7 +167,7 @@ export default function EditUserModal({ open, onClose, user }: Props) {
             <label className="text-sm font-medium">
               Role <span className="text-red-500">*</span>
             </label>
-            <Select defaultValue={user.role.toLowerCase()}>
+            <Select defaultValue={user.roleId[0]?.toLowerCase() || ""}>
               <SelectTrigger
                 className="
                   w-full h-10 rounded-md border border-input
@@ -177,7 +177,7 @@ export default function EditUserModal({ open, onClose, user }: Props) {
                   focus:ring-ring focus:ring-offset-2
                 "
               >
-                <SelectValue placeholder={user.role} />
+                <SelectValue placeholder={user.roleId} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="mahasiswa">Mahasiswa</SelectItem>
