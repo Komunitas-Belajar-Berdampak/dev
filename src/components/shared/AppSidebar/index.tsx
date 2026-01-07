@@ -9,7 +9,9 @@ const AppSidebar = () => {
   const role = getCurrentUserRole();
 
   const filteredMenuItems = menuItems.filter((item) =>
-    item.role.includes(role)
+    item.role.includes(role) &&
+    location.pathname.startsWith(item.scope === "admin" ? "/super-admin" : item.scope === "dosen" ? "/dosen" : "")
+
   );
 
   return (
@@ -19,7 +21,6 @@ const AppSidebar = () => {
           <SidebarMenuItem>
             <SidebarMenuButton asChild size={'lg'}>
               <Link to={'/'} className='flex gap-3'>
-                {/* buat logo */}
                 <div className='size-8 flex justify-center items-center rounded-md bg-primary' />
                 <span className='font-bold text-xl md:group-data-[collapsible=icon]:hidden'>KBB</span>
               </Link>

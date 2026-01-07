@@ -11,9 +11,10 @@ export default function ProtectedRoute({
   children,
   allowedRoles,
 }: ProtectedRouteProps) {
-  const userRole: Role = 'admin'; // 🔴 dummy (sementara)
+  const adminRole: Role = 'admin';
+  const dosenRole: Role = 'dosen';
 
-  if (!allowedRoles.includes(userRole)) {
+  if (!allowedRoles.includes(adminRole) && !allowedRoles.includes(dosenRole)) {
     return <Navigate to="/" replace />;
   }
 

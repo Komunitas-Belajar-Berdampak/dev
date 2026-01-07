@@ -7,63 +7,102 @@ type MenuItem = {
   path: string;
   icon: ReactElement;
   role: Role[];
+  scope: 'admin' | 'dosen' | 'mahasiswa';
 };
 
 const menuItems: MenuItem[] = [
-  {
-    title: 'Dashboard',
-    path: '/',
-    icon: <Icon icon='akar-icons:dashboard' />,
-    role: ['mahasiswa', 'dosen'],
-  },
+  // {
+  //   title: 'Dashboard',
+  //   path: '/',
+  //   icon: <Icon icon='akar-icons:dashboard' />,
+  //   role: ['mahasiswa', 'dosen'],
+  // },
   {
     title: 'Home',
     path: '/super-admin',
     icon: <Icon icon='akar-icons:dashboard' />,
     role: ['admin'],
+    scope: 'admin',
   },
-  {
-    title: 'Courses',
-    path: '/courses',
-    icon: <Icon icon='tabler:book' />,
-    role: ['dosen', 'mahasiswa'],
-  },
-  {
-    title: 'Study Groups',
-    path: '/study-groups',
-    icon: <Icon icon='fluent:people-community-16-regular' />,
-    role: ['dosen', 'mahasiswa'],
-  },
+  // {
+  //   title: 'Courses',
+  //   path: '/courses',
+  //   icon: <Icon icon='tabler:book' />,
+  //   role: ['dosen', 'mahasiswa'],
+  // },
+  // {
+  //   title: 'Study Groups',
+  //   path: '/study-groups',
+  //   icon: <Icon icon='fluent:people-community-16-regular' />,
+  //   role: ['dosen', 'mahasiswa'],
+  // },
 
   {
     title: 'Data User',
     path: '/super-admin/users',
     icon: <Icon icon='mdi:account-multiple' />,
     role: ['admin'],
+    scope: 'admin',
   },
   {
     title: 'Data Fakultas',
     path: '/super-admin/faculties',
     icon: <Icon icon='mdi:account-multiple' />,
     role: ['admin'],
+    scope: 'admin',
   },
   {
     title: 'Data Program Studi',
     path: '/super-admin/majors',
     icon: <Icon icon='mdi:account-multiple' />,
     role: ['admin'],
+    scope: 'admin',
   },
   {
     title: 'Data Tahun Akademik dan Semester',
     path: '/super-admin/academic_terms',
     icon: <Icon icon='mdi:account-multiple' />,
     role: ['admin'],
+    scope: 'admin',
   },
   {
     title: 'Data Matakuliah',
     path: '/super-admin/courses',
     icon: <Icon icon='mdi:account-multiple' />,
     role: ['admin'],
+    scope: 'admin',
+  },
+
+  {
+    title: 'Home Page',
+    path: '/dosen',
+    icon: <Icon icon='akar-icons:dashboard' />,
+    role: ['dosen'],
+    scope: 'dosen',
+  },
+
+  {
+    title: 'Dashboard',
+    path: '/dosen/dashboard',
+    icon: <Icon icon='akar-icons:dashboard' />,
+    role: ['dosen'],
+    scope: 'dosen',
+  },
+
+  {
+    title: 'Courses',
+    path: '/dosen/courses',
+    icon: <Icon icon='tabler:book' />,
+    role: ['dosen'],
+    scope: 'dosen',
+  },
+
+  {
+    title: 'Study Groups',
+    path: '/dosen/study-groups',
+    icon: <Icon icon='fluent:people-community-16-regular' />,
+    role: ['dosen'],
+    scope: 'dosen',
   },
 
 ];
