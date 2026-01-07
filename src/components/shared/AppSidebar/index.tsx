@@ -1,18 +1,14 @@
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { getCurrentUserRole } from '@/lib/auth';
 import { Link, useLocation } from 'react-router-dom';
 import menuItems from './menu-items';
-import { getCurrentUserRole } from '@/lib/auth';
 
 const AppSidebar = () => {
   const location = useLocation();
 
   const role = getCurrentUserRole();
 
-  const filteredMenuItems = menuItems.filter((item) =>
-    item.role.includes(role) &&
-    location.pathname.startsWith(item.scope === "admin" ? "/super-admin" : item.scope === "dosen" ? "/dosen" : "")
-
-  );
+  const filteredMenuItems = menuItems.filter((item) => item.role.includes(role));
 
   return (
     <Sidebar collapsible='icon' className='border-black/10'>
@@ -33,7 +29,6 @@ const AppSidebar = () => {
           <SidebarMenu>
             {filteredMenuItems.map((item) => {
               const isActive = location.pathname === item.path;
-
               return (
                 <SidebarMenuItem key={item.title} className='py-1'>
                   <SidebarMenuButton asChild isActive={isActive}>

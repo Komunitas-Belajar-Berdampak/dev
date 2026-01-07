@@ -6,15 +6,26 @@ import { Outlet } from 'react-router-dom';
 const DefaultLayout = () => {
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <div className='flex min-h-screen w-full'>
+        {/* SIDEBAR */}
+        <AppSidebar />
 
-      <main className='flex-1 min-h-screen'>
-        <Header />
+        {/* MAIN CONTENT */}
+        <main className='flex-1 flex flex-col min-h-screen bg-background'>
+          <Header />
 
-        <div className='py-5 px-5 md:px-12 container'>
-          <Outlet />
-        </div>
-      </main>
+          <div
+            className='
+              flex-1
+              w-full
+              px-4 sm:px-6 lg:px-8
+              py-4 sm:py-6
+            '
+          >
+            <Outlet />
+          </div>
+        </main>
+      </div>
     </SidebarProvider>
   );
 };
