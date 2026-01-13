@@ -1,7 +1,9 @@
 import AuthLayout from '@/components/layouts/Auth';
 import DefaultLayout from '@/components/layouts/Default';
-import Dosen from '@/components/pages/Dosen/Dosen';
+import MatakuliahLayout from '@/components/pages/Dosen/Matakuliah/index';
+import Dosen from '@/components/pages/Dosen/DosenCourses';
 import Login from '@/components/pages/Login';
+import MatakuliahDetail from '@/components/pages/Dosen/Matakuliah/Detail/MatakuliahDetail';
 import FakultasPage from '@/components/pages/SuperAdmin/Fakultas/FakultasPage';
 import MatakuliahPage from '@/components/pages/SuperAdmin/Matakuliah/MatakuliahPage';
 import ProgramStudiPage from '@/components/pages/SuperAdmin/ProgramStudi/ProgramStudiPage';
@@ -67,6 +69,17 @@ const routes: RouteObject[] = [
             path: '',
             index: true,
             element: <Dosen />,
+          },
+
+          {
+            path: "/dosen/matakuliah",
+            element: <MatakuliahLayout />,
+            children: [
+              {
+                path: ":id",
+                element: <MatakuliahDetail />,
+              },
+            ],
           },
         ],
       },
