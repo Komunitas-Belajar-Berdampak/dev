@@ -10,6 +10,7 @@ import ProgramStudiPage from '@/components/pages/SuperAdmin/ProgramStudi/Program
 import SuperAdmin from '@/components/pages/SuperAdmin/SuperAdmin';
 import TahunAkademikDanSemesterPage from '@/components/pages/SuperAdmin/TahunAkademikDanSemester/TahunAkademikDanSemesterPage';
 import PertemuanDetail from '@/components/pages/Dosen/Matakuliah/Pertemuan/PertemuanDetail';
+import MahasiswaList from '@/components/pages/Dosen/Matakuliah/Mahasiswa/MahasiswaList';
 import UserPage from '@/components/pages/SuperAdmin/Users/UserPage';
 import { Navigate, type RouteObject } from 'react-router-dom';
 
@@ -83,6 +84,10 @@ const routes: RouteObject[] = [
               {
                 path: ':matkulId/pertemuan/:pertemuanId',
                 element: <PertemuanDetail />,
+              },
+              {
+                path: ":matkulId/mahasiswa",
+                element: <MahasiswaList />,
               },
             ],
           },

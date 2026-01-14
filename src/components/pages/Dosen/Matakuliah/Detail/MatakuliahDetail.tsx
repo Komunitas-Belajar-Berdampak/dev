@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { matakuliahDetailDummy } from "../dummy";
@@ -9,6 +9,7 @@ import Title from "@/components/shared/Title";
 export default function MatakuliahDetail() {
   const { id } = useParams<{ id: string }>();
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   const data = matakuliahDetailDummy.find(
     (item) => item.id === id
@@ -48,16 +49,24 @@ export default function MatakuliahDetail() {
 
         {open && (
           <div className="absolute right-0 top-12 z-50 w-56 rounded-xl border border-gray-200 bg-white shadow-lg text-sm overflow-hidden">
-            <button className="w-full px-4 py-3 text-left hover:bg-gray-50">
+            <button 
+              onClick={() => navigate(`/dosen/matakuliah/${id}/materi-tugas`)}
+              className="w-full px-4 py-3 text-left hover:bg-gray-50">
               View Materi & Tugas
             </button>
-            <button className="w-full px-4 py-3 text-left hover:bg-gray-50">
+            <button 
+              onClick={() => navigate(`/dosen/matakuliah/${id}/edit-deskripsi`)}
+              className="w-full px-4 py-3 text-left hover:bg-gray-50">
               Edit Deskripsi
             </button>
-            <button className="w-full px-4 py-3 text-left hover:bg-gray-50">
+            <button 
+              onClick={() => navigate(`/dosen/matakuliah/${id}/dashboard`)}
+              className="w-full px-4 py-3 text-left hover:bg-gray-50">
               View Dashboard
             </button>
-            <button className="w-full px-4 py-3 text-left hover:bg-gray-50">
+            <button 
+              onClick={() => navigate(`/dosen/matakuliah/${id}/mahasiswa`)}
+              className="w-full px-4 py-3 text-left hover:bg-gray-50">
               View Mahasiswa
             </button>
           </div>
