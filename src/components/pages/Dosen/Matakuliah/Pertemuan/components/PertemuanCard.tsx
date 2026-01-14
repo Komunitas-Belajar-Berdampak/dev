@@ -3,12 +3,12 @@ import { useNavigate, useParams } from "react-router-dom";
 
 export default function PertemuanCard({ data }: { data: Pertemuan }) {
   const navigate = useNavigate();
-  const { matkulId } = useParams();
+  const { id } = useParams();
 
   return (
     <div
       onClick={() =>
-        navigate(`/dosen/matakuliah/${matkulId}/pertemuan/${data.id}`)
+        navigate(`/dosen/matakuliah/${id}/pertemuan/${data.id}`)
       }
       className="
         rounded-2xl
