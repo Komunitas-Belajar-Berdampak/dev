@@ -1,6 +1,5 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Link } from 'react-router-dom';
-import { Fragment } from 'react/jsx-runtime';
 
 type TitleProps = {
   title: string;
@@ -28,21 +27,19 @@ const Title = (props: TitleProps) => {
               const isLast = index === items.length - 1;
 
               return (
-                <Fragment key={index}>
-                  <BreadcrumbItem>
-                    {!isLast && item.href ? (
-                      <BreadcrumbLink asChild>
-                        <Link to={item.href} className='text-primary font-medium tracking-wide'>
-                          {item.label}
-                        </Link>
-                      </BreadcrumbLink>
-                    ) : (
-                      <BreadcrumbPage className='text-primary font-semibold tracking-wide'>{item.label}</BreadcrumbPage>
-                    )}
-                  </BreadcrumbItem>
+                <BreadcrumbItem key={index}>
+                  {!isLast && item.href ? (
+                    <BreadcrumbLink asChild>
+                      <Link to={item.href} className='text-primary font-medium tracking-wide'>
+                        {item.label}
+                      </Link>
+                    </BreadcrumbLink>
+                  ) : (
+                    <BreadcrumbPage className='text-primary font-semibold tracking-wide'>{item.label}</BreadcrumbPage>
+                  )}
 
                   {!isLast && <BreadcrumbSeparator />}
-                </Fragment>
+                </BreadcrumbItem>
               );
             })}
           </BreadcrumbList>
