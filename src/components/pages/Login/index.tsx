@@ -1,17 +1,23 @@
+import { login } from '@/api/auth';
 import Announcement from '@/components/shared/Announcement';
 import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldGroup, FieldLabel, FieldSet } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { useIsDesktop } from '@/hooks/use-desktop';
+import { setToken, setUser } from '@/lib/authStorage';
+import { roleHomePath } from '@/lib/homepath';
 import { userSchema, type UserSchemaType } from '@/schemas/user';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
 import { CircleDashed } from 'lucide-react';
 import { Activity } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 const Login = () => {
   const isDesktop = useIsDesktop();
+  const navigate = useNavigate();
 
   const form = useForm<UserSchemaType>({
     resolver: zodResolver(userSchema),
@@ -21,14 +27,27 @@ const Login = () => {
     },
   });
 
-  const onSubmit = (data: UserSchemaType) => {
-    console.log(data);
-    // buat nanti kalau success deh
-    toast.success('Login successful', { toasterId: 'auth' });
+  const { mutate, isPending } = useMutation({
+    mutationFn: (payload: UserSchemaType) => login(payload.nrp, payload.password),
+    onSuccess: (data) => {
+      const { token, user } = data.data;
 
-    // buat nanti kalau error deh
-    toast.error('Error test', { toasterId: 'auth' });
-    form.reset();
+      console.log(user.namaRole);
+      setToken(token);
+      setUser(user);
+
+      toast.success('Login berhasil', { toasterId: 'auth' });
+      form.reset();
+
+      navigate(roleHomePath(user.namaRole), { replace: true });
+    },
+    onError: () => {
+      toast.error('Login gagal', { toasterId: 'auth' });
+    },
+  });
+
+  const onSubmit = (data: UserSchemaType) => {
+    mutate(data);
   };
 
   return (
@@ -76,8 +95,8 @@ const Login = () => {
                 )}
               />
             </FieldGroup>
-            <Button type='submit' className='w-full'>
-              Login
+            <Button type='submit' className='w-full' disabled={isPending}>
+              {isPending ? 'Logging in...' : 'Login'}
             </Button>
           </FieldSet>
         </form>
