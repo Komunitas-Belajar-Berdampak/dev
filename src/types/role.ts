@@ -1,1 +1,1 @@
-export type Role = 'admin' | 'mahasiswa' | 'dosen';
+export type Role = 'SUPER_ADMIN' | 'MAHASISWA' | 'DOSEN';

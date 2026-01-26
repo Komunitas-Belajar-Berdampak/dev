@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getToken, removeToken, removeUser } from './authStorage';
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -8,27 +9,22 @@ export const api = axios.create({
   },
 });
 
-// Request interceptor (untuk attach token, dll)
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+api.interceptors.request.use((config) => {
+  const token = getToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
-// Response interceptor (untuk handle error globally)
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Handle unauthorized
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      removeToken();
+      removeUser();
+      window.location.href = '/auth/login';
     }
     return Promise.reject(error);
-  }
+  },
 );

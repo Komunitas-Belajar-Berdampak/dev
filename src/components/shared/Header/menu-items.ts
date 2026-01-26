@@ -1,11 +1,11 @@
 const menuItems = [
   {
     title: 'Profile',
-    link: '',
+    link: '/profile',
   },
   {
     title: 'Settings',
-    link: '',
+    link: '/settings',
   },
   {
     title: 'Logout',
