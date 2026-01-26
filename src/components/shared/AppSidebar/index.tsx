@@ -1,14 +1,14 @@
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { getCurrentUserRole } from '@/lib/auth';
+import { getUser } from '@/lib/authStorage';
 import { Link, useLocation } from 'react-router-dom';
 import menuItems from './menu-items';
 
 const AppSidebar = () => {
   const location = useLocation();
 
-  const role = getCurrentUserRole();
+  const user = getUser();
 
-  const filteredMenuItems = menuItems.filter((item) => item.role.includes(role));
+  const filteredMenuItems = menuItems.filter((item) => user?.namaRole && item.role.includes(user.namaRole));
 
   return (
     <Sidebar collapsible='icon' className='border-black/10'>
