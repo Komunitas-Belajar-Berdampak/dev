@@ -3,6 +3,8 @@ import DefaultLayout from '@/components/layouts/Default';
 import Dosen from '@/components/pages/Dosen/DosenCourses';
 import MatakuliahDetail from '@/components/pages/Dosen/Matakuliah/Detail/MatakuliahDetail';
 import MatakuliahLayout from '@/components/pages/Dosen/Matakuliah/index';
+import StudyGroupLayout from '@/components/pages/Dosen/StudyGroup';
+import StudyGroupMain from '@/components/pages/Dosen/StudyGroup/Main/StudyGroupMain';
 import ErrorPage from '@/components/pages/Error';
 import Login from '@/components/pages/Login';
 import FakultasPage from '@/components/pages/SuperAdmin/Fakultas/FakultasPage';
@@ -88,6 +90,17 @@ const routes: RouteObject[] = [
               {
                 path: ':id',
                 element: <MatakuliahDetail />,
+              },
+            ],
+          },
+          {
+            path: 'study-groups',
+            element: <StudyGroupLayout />,
+            children: [
+              {
+                index: true,
+                path: '',
+                element: <StudyGroupMain />,
               },
             ],
           },
