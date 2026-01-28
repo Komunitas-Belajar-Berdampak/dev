@@ -1,9 +1,10 @@
 import AuthLayout from '@/components/layouts/Auth';
 import DefaultLayout from '@/components/layouts/Default';
-import MatakuliahLayout from '@/components/pages/Dosen/Matakuliah/index';
 import Dosen from '@/components/pages/Dosen/DosenCourses';
-import Login from '@/components/pages/Login';
 import MatakuliahDetail from '@/components/pages/Dosen/Matakuliah/Detail/MatakuliahDetail';
+import MatakuliahLayout from '@/components/pages/Dosen/Matakuliah/index';
+import ErrorPage from '@/components/pages/Error';
+import Login from '@/components/pages/Login';
 import FakultasPage from '@/components/pages/SuperAdmin/Fakultas/FakultasPage';
 import MatakuliahPage from '@/components/pages/SuperAdmin/Matakuliah/MatakuliahPage';
 import ProgramStudiPage from '@/components/pages/SuperAdmin/ProgramStudi/ProgramStudiPage';
@@ -12,11 +13,18 @@ import TahunAkademikDanSemesterPage from '@/components/pages/SuperAdmin/TahunAka
 import PertemuanDetail from '@/components/pages/Dosen/Matakuliah/Pertemuan/PertemuanDetail';
 import MahasiswaList from '@/components/pages/Dosen/Matakuliah/Mahasiswa/MahasiswaList';
 import UserPage from '@/components/pages/SuperAdmin/Users/UserPage';
-import { Navigate, type RouteObject } from 'react-router-dom';
+import { type RouteObject } from 'react-router-dom';
+import GuestRoute from './GuestRoute';
+import ProtectedRoute from './ProtectedRoute';
+import RoleRedirect from './RoleRedirect';
 
 const routes: RouteObject[] = [
   {
-    element: <AuthLayout />,
+    element: (
+      <GuestRoute>
+        <AuthLayout />
+      </GuestRoute>
+    ),
     path: '/auth/login',
     children: [
       {
@@ -29,12 +37,11 @@ const routes: RouteObject[] = [
     element: <DefaultLayout />,
     children: [
       {
-        path: '/',
         index: true,
-        // sementara diarahkan ke admin dlu aja pertama kali * nnti gnti /admin /dosen sesuai role
-        element: <Navigate to={'/dosen'} replace />,
+        element: <RoleRedirect />,
       },
       {
+        element: <ProtectedRoute allowedRoles={['SUPER_ADMIN']} />,
         path: '/admin',
         children: [
           {
@@ -65,6 +72,7 @@ const routes: RouteObject[] = [
         ],
       },
       {
+        element: <ProtectedRoute allowedRoles={['DOSEN']} />,
         path: '/dosen',
         children: [
           {
@@ -72,13 +80,15 @@ const routes: RouteObject[] = [
             index: true,
             element: <Dosen />,
           },
-
           {
-            path: "/dosen/matakuliah",
+            path: 'courses',
             element: <MatakuliahLayout />,
             children: [
               {
-                path: ":id",
+                index: true,
+              },
+              {
+                path: ':id',
                 element: <MatakuliahDetail />,
               },
               {
@@ -93,7 +103,21 @@ const routes: RouteObject[] = [
           },
         ],
       },
+      {
+        element: <ProtectedRoute allowedRoles={['MAHASISWA']} />,
+        path: '/mahasiswa',
+        children: [
+          {
+            path: '',
+            index: true,
+          },
+        ],
+      },
     ],
+  },
+  {
+    path: '*',
+    element: <ErrorPage />,
   },
 ];
 
