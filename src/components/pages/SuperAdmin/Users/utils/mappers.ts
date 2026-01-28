@@ -8,7 +8,7 @@ export const toUserTableRow = (u: UserEntity): UserTableRow => ({
   nrp: u.nrp,
   nama: u.nama,
   angkatan: u.angkatan ?? "-",
-  prodi: u.idProdi ?? "-",
+  prodi: u.prodi ?? "-",
   status: statusToFE(u.status),
   role: u.role,
 });

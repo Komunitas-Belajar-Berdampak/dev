@@ -7,6 +7,7 @@ export interface UserEntity {
   nama: string;
   angkatan: string | null;
   idProdi: string | null;
+  prodi: string | null;
   email: string;
   alamat?: string;
   jenisKelamin: JenisKelamin;
