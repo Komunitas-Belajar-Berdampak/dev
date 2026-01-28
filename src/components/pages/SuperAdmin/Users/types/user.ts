@@ -1,4 +1,3 @@
-// === BACKEND-LIKE ENTITY (nanti dari API) ===
 export type UserStatusBE = "aktif" | "tidak aktif";
 export type JenisKelamin = "pria" | "wanita";
 
@@ -6,17 +5,17 @@ export interface UserEntity {
   _id: string;
   nrp: string;
   nama: string;
-  angkatan?: string;
-  idProdi: string;        // ObjectId (string di frontend)
+  angkatan: string | null;
+  idProdi: string | null;
   email: string;
   alamat?: string;
   jenisKelamin: JenisKelamin;
   status: UserStatusBE;
-  roleId: string[];       // ObjectId role
-  fotoProfil?: string;
+  roleIds: string[];
+  role: string;
+  fotoProfil?: string | null;
 }
 
-// === FRONTEND TABLE (UI FRIENDLY) ===
 export type UserStatusFE = "Aktif" | "Non Aktif";
 
 export interface UserTableRow {
