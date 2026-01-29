@@ -1,9 +1,10 @@
 import { api } from "@/lib/axios";
-import type { UserEntity } from "../types/user";
+import type { CreateUserPayload, UserEntity } from "../types/user";
 
 function normalizeUsers(payload: any): UserEntity[] {
   if (Array.isArray(payload)) return payload;
   if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload?.data?.data)) return payload.data.data;
   if (Array.isArray(payload?.data?.items)) return payload.data.items;
   if (Array.isArray(payload?.users)) return payload.users;
   return [];
@@ -16,22 +17,22 @@ export const UsersService = {
   },
 
   async getUserById(id: string) {
-    const res = await api.get<UserEntity>(`/users/${id}`);
-    return res.data;
+    const res = await api.get<any>(`/users/${id}`);
+    return (res.data?.data ?? res.data) as UserEntity;
   },
 
-  async createUser(payload: Partial<UserEntity>) {
-    const res = await api.post(`/users`, payload);
-    return res.data;
+  async createUser(payload: CreateUserPayload) {
+    const res = await api.post<any>("/users", payload);
+    return res.data?.data ?? res.data;
   },
 
   async updateUser(id: string, payload: Partial<UserEntity>) {
-    const res = await api.put(`/users/${id}`, payload);
-    return res.data;
+    const res = await api.put<any>(`/users/${id}`, payload);
+    return res.data?.data ?? res.data;
   },
 
   async deleteUser(id: string) {
-    const res = await api.delete(`/users/${id}`);
-    return res.data;
+    const res = await api.delete<any>(`/users/${id}`);
+    return res.data?.data ?? res.data;
   },
 };

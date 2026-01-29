@@ -24,7 +24,7 @@ export function useUsers() {
           (query.error as any)?.message ??
           "Failed to fetch users"
         : null,
-      refetch: query.refetch,
+      refetch: () => query.refetch(),
       isFetching: query.isFetching,
     }),
     [users, query.isLoading, query.error, query.refetch, query.isFetching],

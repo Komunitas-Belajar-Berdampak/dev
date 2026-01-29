@@ -13,38 +13,45 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 
 import UserActionDropdown from "./UserActionDropdown";
-
 import AddUserModal from "./Modal/AddUserModal";
 import EditUserModal from "./Modal/EditUserModal";
 import DeleteUserModal from "./Modal/DeleteUserModal";
 
 import { useUsers } from "./hooks/useUsers";
 import type { UserEntity, UserTableRow } from "./types/user";
-import { toUserTableRow } from "./utils/mappers";
 
-function UserTableSkeleton() {
+function mapUserToTable(user: UserEntity): UserTableRow {
+  return {
+    id: user._id,
+    nrp: user.nrp,
+    nama: user.nama,
+    angkatan: user.angkatan ?? "-",
+    prodi: user.prodi ?? "-",
+    status: user.status === "aktif" ? "Aktif" : "Non Aktif",
+    role: user.role ?? "-",
+  };
+}
+
+function UsersTableSkeleton() {
   const rows = Array.from({ length: 10 });
 
   return (
     <div className="bg-white w-full">
+      {/* Top bar skeleton */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
         <div className="flex w-full sm:w-auto gap-2">
-          <Skeleton className="h-10 w-full sm:w-64 border border-black/20" />
+          <div className="w-full sm:w-64">
+            <Skeleton className="h-10 w-full" />
+          </div>
           <Skeleton className="h-10 w-10 border-2 border-black shadow-[3px_3px_0_0_#000]" />
         </div>
+
         <Skeleton className="h-10 w-full sm:w-36 border-2 border-black shadow-[3px_3px_0_0_#000]" />
       </div>
 
+      {/* Table skeleton */}
       <div className="relative -mx-4 sm:mx-0">
         <div className="overflow-x-auto max-w-[calc(100vw-2rem)] sm:max-w-full">
           <Table className="min-w-[900px] text-blue-800">
@@ -53,10 +60,14 @@ function UserTableSkeleton() {
                 <TableHead className="font-bold text-blue-900">NRP</TableHead>
                 <TableHead className="font-bold text-blue-900">Nama</TableHead>
                 <TableHead className="font-bold text-blue-900">Angkatan</TableHead>
-                <TableHead className="font-bold text-blue-900">Program Studi</TableHead>
+                <TableHead className="font-bold text-blue-900">
+                  Program Studi
+                </TableHead>
                 <TableHead className="font-bold text-blue-900">Status</TableHead>
                 <TableHead className="font-bold text-blue-900">Role</TableHead>
-                <TableHead className="font-bold text-blue-900 text-center">Aksi</TableHead>
+                <TableHead className="font-bold text-blue-900 text-center">
+                  Aksi
+                </TableHead>
               </TableRow>
             </TableHeader>
 
@@ -66,31 +77,23 @@ function UserTableSkeleton() {
                   <TableCell>
                     <Skeleton className="h-4 w-20" />
                   </TableCell>
-
-                  <TableCell className="font-medium">
-                    <Skeleton className="h-4 w-48" />
-                  </TableCell>
-
-                  <TableCell>
-                    <Skeleton className="h-4 w-16" />
-                  </TableCell>
-
                   <TableCell>
                     <Skeleton className="h-4 w-44" />
                   </TableCell>
-
                   <TableCell>
-                    <Skeleton className="h-6 w-16 rounded-full" />
+                    <Skeleton className="h-4 w-16" />
                   </TableCell>
-
                   <TableCell>
-                    <Skeleton className="h-4 w-28" />
+                    <Skeleton className="h-4 w-40" />
                   </TableCell>
-
+                  <TableCell>
+                    <Skeleton className="h-6 w-20 rounded-full" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-16" />
+                  </TableCell>
                   <TableCell className="text-center">
-                    <div className="flex justify-center">
-                      <Skeleton className="h-9 w-9 rounded-md" />
-                    </div>
+                    <Skeleton className="h-8 w-8 inline-block rounded-md" />
                   </TableCell>
                 </TableRow>
               ))}
@@ -99,23 +102,22 @@ function UserTableSkeleton() {
         </div>
       </div>
 
+      {/* Pagination skeleton (optional, biar layout gak loncat) */}
       <div className="mt-10 flex justify-center sm:justify-end">
         <div className="flex gap-2">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-9 w-9" />
-          ))}
+          <Skeleton className="h-10 w-20" />
+          <Skeleton className="h-10 w-20" />
         </div>
       </div>
     </div>
   );
 }
 
-
 export default function UserTable() {
   const { users: userEntities, loading, error, refetch } = useUsers();
 
   const USERS: UserTableRow[] = useMemo(
-    () => userEntities.map(toUserTableRow),
+    () => (userEntities ?? []).map(mapUserToTable),
     [userEntities],
   );
 
@@ -142,8 +144,9 @@ export default function UserTable() {
       ? userEntities.find((u) => u._id === selectedUser.id) ?? null
       : null;
 
+  // ✅ Loading -> skeleton (hapus "Loading...")
   if (loading) {
-    return <UserTableSkeleton />;
+    return <UsersTableSkeleton />;
   }
 
   if (error) {
@@ -197,12 +200,8 @@ export default function UserTable() {
               <TableRow className="border-b border-black/10">
                 <TableHead className="font-bold text-blue-900">NRP</TableHead>
                 <TableHead className="font-bold text-blue-900">Nama</TableHead>
-                <TableHead className="font-bold text-blue-900">
-                  Angkatan
-                </TableHead>
-                <TableHead className="font-bold text-blue-900">
-                  Program Studi
-                </TableHead>
+                <TableHead className="font-bold text-blue-900">Angkatan</TableHead>
+                <TableHead className="font-bold text-blue-900">Program Studi</TableHead>
                 <TableHead className="font-bold text-blue-900">Status</TableHead>
                 <TableHead className="font-bold text-blue-900">Role</TableHead>
                 <TableHead className="font-bold text-blue-900 text-center">
@@ -212,48 +211,59 @@ export default function UserTable() {
             </TableHeader>
 
             <TableBody>
-              {paginatedUsers.map((user) => (
-                <TableRow
-                  key={user.id}
-                  className="h-14 border-b border-black/5"
-                >
-                  <TableCell>{user.nrp}</TableCell>
-                  <TableCell className="font-medium">{user.nama}</TableCell>
-                  <TableCell>{user.angkatan}</TableCell>
-                  <TableCell>{user.prodi}</TableCell>
-                  <TableCell>
-                    {user.status === "Aktif" ? (
-                      <Badge variant="success">Aktif</Badge>
-                    ) : (
-                      <Badge variant="danger">Non Aktif</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>{user.role}</TableCell>
-                  <TableCell className="text-center">
-                    <UserActionDropdown
-                      onEdit={() => {
-                        setSelectedUser(user);
-                        setOpenEdit(true);
-                      }}
-                      onDelete={() => {
-                        setSelectedUser(user);
-                        setOpenDelete(true);
-                      }}
-                    />
+              {paginatedUsers.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-12">
+                    Data tidak ditemukan
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                paginatedUsers.map((user) => (
+                  <TableRow key={user.id} className="h-14 border-b border-black/5">
+                    <TableCell>{user.nrp}</TableCell>
+                    <TableCell className="font-medium">{user.nama}</TableCell>
+                    <TableCell>{user.angkatan}</TableCell>
+                    <TableCell>{user.prodi}</TableCell>
+                    <TableCell>
+                      {user.status === "Aktif" ? (
+                        <Badge variant="success">Aktif</Badge>
+                      ) : (
+                        <Badge variant="danger">Non Aktif</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>{user.role}</TableCell>
+                    <TableCell className="text-center">
+                      <UserActionDropdown
+                        onEdit={() => {
+                          setSelectedUser(user);
+                          setOpenEdit(true);
+                        }}
+                        onDelete={() => {
+                          setSelectedUser(user);
+                          setOpenDelete(true);
+                        }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </div>
       </div>
 
-      <AddUserModal open={openAdd} onClose={() => setOpenAdd(false)} />
+      <AddUserModal
+        open={openAdd}
+        onClose={() => setOpenAdd(false)}
+        onSuccess={() => refetch()}
+      />
+
       <EditUserModal
         open={openEdit}
         onClose={() => setOpenEdit(false)}
         user={selectedUserEntity}
       />
+
       <DeleteUserModal
         open={openDelete}
         onClose={() => setOpenDelete(false)}
@@ -262,32 +272,22 @@ export default function UserTable() {
 
       {totalPages > 1 && (
         <div className="mt-10 flex justify-center sm:justify-end">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => setPage((p) => Math.max(p - 1, 1))}
-                />
-              </PaginationItem>
-
-              {Array.from({ length: totalPages }).map((_, i) => (
-                <PaginationItem key={i}>
-                  <PaginationLink
-                    isActive={page === i + 1}
-                    onClick={() => setPage(i + 1)}
-                  >
-                    {i + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setPage((p) => Math.max(p - 1, 1))}
+              disabled={page === 1}
+            >
+              Prev
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+              disabled={page === totalPages}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       )}
     </div>
