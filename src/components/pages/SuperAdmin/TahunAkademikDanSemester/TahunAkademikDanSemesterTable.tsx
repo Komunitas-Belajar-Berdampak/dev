@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 
 import {
@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Pagination,
   PaginationContent,
@@ -23,40 +24,84 @@ import {
 
 import TahunAkademikDanSemesterActionDropdown from "../TahunAkademikDanSemester/TahunAkademikDanSemesterActionDropdown";
 
-import type { TahunAkademikDanSemester } from "./types/tahun-akademik-dan-semester";
-
 import AddTahunAkademikDanSemesterModal from "./Modal/AddTahunAkademikDanSemesterModal";
 import EditTahunAkademikDanSemesterModal from "./Modal/EditTahunAkademikDanSemesterModal";
 import DeleteTahunAkademikDanSemesterModal from "./Modal/DeleteTahunAkademikDanSemesterModal";
 
-/**
- * Dummy data
- */
-const DATA: TahunAkademikDanSemester[] = [
-  {
-    id: "1",
-    periode: "2024/2025 - Genap - Semester 6",
-    startDate: "2025-01-15",
-    endDate: "2025-06-30",
-    status: "tidak aktif",
-  },
-  {
-    id: "2",
-    periode: "2025/2026 - Ganjil - Semester 7",
-    startDate: "2025-08-12",
-    endDate: "2025-12-20",
-    status: "aktif",
-  },
-];
+import { useTahunAkademikDanSemester } from "./hooks/useTahunAkademikDanSemester";
+import type {
+  TahunAkademikDanSemesterEntity,
+  TahunAkademikDanSemesterTableRow,
+} from "./types/tahun-akademik-dan-semester";
+import { toTahunAkademikDanSemesterTableRow } from "./utils/mappers";
+
+function TahunAkademikDanSemesterTableSkeleton() {
+  return (
+    <div className="bg-white w-full">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
+        <div className="flex w-full sm:w-auto gap-2">
+          <Skeleton className="h-10 w-full sm:w-72" />
+          <Skeleton className="h-10 w-10" />
+        </div>
+        <Skeleton className="h-10 w-full sm:w-40" />
+      </div>
+
+      <div className="relative -mx-4 sm:mx-0">
+        <div className="overflow-x-auto max-w-[calc(100vw-2rem)] sm:max-w-full">
+          <div className="min-w-[800px]">
+            <div className="grid grid-cols-5 gap-3 border-b border-black/10 pb-3">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="h-5 w-full" />
+              ))}
+            </div>
+
+            <div className="mt-4 space-y-3">
+              {Array.from({ length: 10 }).map((_, row) => (
+                <div key={row} className="grid grid-cols-5 gap-3 items-center">
+                  <Skeleton className="h-8 w-full" />
+                  <Skeleton className="h-8 w-full" />
+                  <Skeleton className="h-8 w-full" />
+                  <Skeleton className="h-8 w-24" />
+                  <div className="justify-self-center">
+                    <Skeleton className="h-9 w-9 rounded-md" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-10 flex justify-center sm:justify-end">
+        <div className="flex gap-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-9 w-9" />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function TahunAkademikDanSemesterTable() {
+  const {
+    academicTerms: entities,
+    loading,
+    error,
+    refetch,
+  } = useTahunAkademikDanSemester();
+
+  const rows: TahunAkademikDanSemesterTableRow[] = useMemo(
+    () => entities.map((t: TahunAkademikDanSemesterEntity) => toTahunAkademikDanSemesterTableRow(t)),
+    [entities],
+  );
+
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-
   const limit = 10;
 
-  const filtered = DATA.filter((d) =>
-    d.periode.toLowerCase().includes(search.toLowerCase())
+  const filtered = rows.filter((d) =>
+    d.periode.toLowerCase().includes(search.toLowerCase()),
   );
 
   const totalPages = Math.ceil(filtered.length / limit);
@@ -65,12 +110,31 @@ export default function TahunAkademikDanSemesterTable() {
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
-  const [selected, setSelected] =
-    useState<TahunAkademikDanSemester | null>(null);
+  const [selected, setSelected] = useState<TahunAkademikDanSemesterTableRow | null>(null);
+
+  const selectedEntity: TahunAkademikDanSemesterEntity | null =
+    selected
+      ? entities.find((t) => t._id === selected.id) ?? null
+      : null;
+
+  if (loading) return <TahunAkademikDanSemesterTableSkeleton />;
+
+  if (error) {
+    return (
+      <div className="bg-white w-full p-6">
+        <div className="mb-4 text-red-600">{error}</div>
+        <Button
+          onClick={() => refetch()}
+          className="border-2 border-black shadow-[3px_3px_0_0_#000]"
+        >
+          Coba lagi
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white w-full">
-      {/* TOP ACTION */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
         <div className="flex w-full sm:w-auto gap-2">
           <Input
@@ -99,24 +163,15 @@ export default function TahunAkademikDanSemesterTable() {
         </Button>
       </div>
 
-      {/* TABLE */}
       <div className="relative -mx-4 sm:mx-0">
         <div className="overflow-x-auto max-w-[calc(100vw-2rem)] sm:max-w-full">
           <Table className="min-w-[800px] text-blue-800">
             <TableHeader>
               <TableRow className="border-b border-black/10">
-                <TableHead className="font-bold text-blue-900">
-                  Periode
-                </TableHead>
-                <TableHead className="font-bold text-blue-900">
-                  Mulai
-                </TableHead>
-                <TableHead className="font-bold text-blue-900">
-                  Selesai
-                </TableHead>
-                <TableHead className="font-bold text-blue-900">
-                  Status
-                </TableHead>
+                <TableHead className="font-bold text-blue-900">Periode</TableHead>
+                <TableHead className="font-bold text-blue-900">Mulai</TableHead>
+                <TableHead className="font-bold text-blue-900">Selesai</TableHead>
+                <TableHead className="font-bold text-blue-900">Status</TableHead>
                 <TableHead className="font-bold text-blue-900 text-center">
                   Aksi
                 </TableHead>
@@ -124,67 +179,61 @@ export default function TahunAkademikDanSemesterTable() {
             </TableHeader>
 
             <TableBody>
-              {paginated.map((item) => (
-                <TableRow
-                  key={item.id}
-                  className="h-14 border-b border-black/5"
-                >
-                  <TableCell className="font-medium">
-                    {item.periode}
-                  </TableCell>
-                  <TableCell>
-                    {item.startDate
-                      ? new Date(item.startDate).toLocaleDateString("id-ID")
-                      : "-"}
-                  </TableCell>
-                  <TableCell>
-                    {item.endDate
-                      ? new Date(item.endDate).toLocaleDateString("id-ID")
-                      : "-"}
-                  </TableCell>
-                  <TableCell>
-                    {item.status === "aktif" ? (
-                      <Badge variant="success">Aktif</Badge>
-                    ) : (
-                      <Badge variant="danger">Tidak Aktif</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <TahunAkademikDanSemesterActionDropdown
-                      onEdit={() => {
-                        setSelected(item);
-                        setOpenEdit(true);
-                      }}
-                      onDelete={() => {
-                        setSelected(item);
-                        setOpenDelete(true);
-                      }}
-                    />
+              {paginated.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-12">
+                    Data tidak ditemukan
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                paginated.map((item) => (
+                  <TableRow key={item.id} className="h-14 border-b border-black/5">
+                    <TableCell className="font-medium">{item.periode}</TableCell>
+                    <TableCell>{item.startDate}</TableCell>
+                    <TableCell>{item.endDate}</TableCell>
+                    <TableCell>
+                      {item.status === "Aktif" ? (
+                        <Badge variant="success">Aktif</Badge>
+                      ) : (
+                        <Badge variant="danger">Tidak Aktif</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <TahunAkademikDanSemesterActionDropdown
+                        onEdit={() => {
+                          setSelected(item);
+                          setOpenEdit(true);
+                        }}
+                        onDelete={() => {
+                          setSelected(item);
+                          setOpenDelete(true);
+                        }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </div>
       </div>
 
-      {/* MODALS */}
       <AddTahunAkademikDanSemesterModal
         open={openAdd}
         onClose={() => setOpenAdd(false)}
       />
+
       <EditTahunAkademikDanSemesterModal
         open={openEdit}
         onClose={() => setOpenEdit(false)}
-        data={selected}
+        data={selectedEntity}
       />
+
       <DeleteTahunAkademikDanSemesterModal
         open={openDelete}
         onClose={() => setOpenDelete(false)}
         onConfirm={() => setOpenDelete(false)}
       />
-
-      {/* PAGINATION */}
       {totalPages > 1 && (
         <div className="mt-10 flex justify-center sm:justify-end">
           <Pagination>
@@ -208,9 +257,7 @@ export default function TahunAkademikDanSemesterTable() {
 
               <PaginationItem>
                 <PaginationNext
-                  onClick={() =>
-                    setPage((p) => Math.min(p + 1, totalPages))
-                  }
+                  onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
                 />
               </PaginationItem>
             </PaginationContent>
