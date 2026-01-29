@@ -33,35 +33,69 @@ import type { UserEntity, UserTableRow } from "./types/user";
 import { toUserTableRow } from "./utils/mappers";
 
 function UserTableSkeleton() {
+  const rows = Array.from({ length: 10 });
+
   return (
     <div className="bg-white w-full">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
         <div className="flex w-full sm:w-auto gap-2">
-          <Skeleton className="h-10 w-full sm:w-64" />
-          <Skeleton className="h-10 w-10" />
+          <Skeleton className="h-10 w-full sm:w-64 border border-black/20" />
+          <Skeleton className="h-10 w-10 border-2 border-black shadow-[3px_3px_0_0_#000]" />
         </div>
-        <Skeleton className="h-10 w-full sm:w-36" />
+        <Skeleton className="h-10 w-full sm:w-36 border-2 border-black shadow-[3px_3px_0_0_#000]" />
       </div>
 
       <div className="relative -mx-4 sm:mx-0">
         <div className="overflow-x-auto max-w-[calc(100vw-2rem)] sm:max-w-full">
-          <div className="min-w-[900px]">
-            <div className="grid grid-cols-7 gap-3 border-b border-black/10 pb-3">
-              {Array.from({ length: 7 }).map((_, i) => (
-                <Skeleton key={i} className="h-5 w-full" />
-              ))}
-            </div>
+          <Table className="min-w-[900px] text-blue-800">
+            <TableHeader>
+              <TableRow className="border-b border-black/10">
+                <TableHead className="font-bold text-blue-900">NRP</TableHead>
+                <TableHead className="font-bold text-blue-900">Nama</TableHead>
+                <TableHead className="font-bold text-blue-900">Angkatan</TableHead>
+                <TableHead className="font-bold text-blue-900">Program Studi</TableHead>
+                <TableHead className="font-bold text-blue-900">Status</TableHead>
+                <TableHead className="font-bold text-blue-900">Role</TableHead>
+                <TableHead className="font-bold text-blue-900 text-center">Aksi</TableHead>
+              </TableRow>
+            </TableHeader>
 
-            <div className="mt-4 space-y-3">
-              {Array.from({ length: 10 }).map((_, row) => (
-                <div key={row} className="grid grid-cols-7 gap-3 items-center">
-                  {Array.from({ length: 7 }).map((_, col) => (
-                    <Skeleton key={col} className="h-8 w-full" />
-                  ))}
-                </div>
+            <TableBody>
+              {rows.map((_, i) => (
+                <TableRow key={i} className="h-14 border-b border-black/5">
+                  <TableCell>
+                    <Skeleton className="h-4 w-20" />
+                  </TableCell>
+
+                  <TableCell className="font-medium">
+                    <Skeleton className="h-4 w-48" />
+                  </TableCell>
+
+                  <TableCell>
+                    <Skeleton className="h-4 w-16" />
+                  </TableCell>
+
+                  <TableCell>
+                    <Skeleton className="h-4 w-44" />
+                  </TableCell>
+
+                  <TableCell>
+                    <Skeleton className="h-6 w-16 rounded-full" />
+                  </TableCell>
+
+                  <TableCell>
+                    <Skeleton className="h-4 w-28" />
+                  </TableCell>
+
+                  <TableCell className="text-center">
+                    <div className="flex justify-center">
+                      <Skeleton className="h-9 w-9 rounded-md" />
+                    </div>
+                  </TableCell>
+                </TableRow>
               ))}
-            </div>
-          </div>
+            </TableBody>
+          </Table>
         </div>
       </div>
 
@@ -75,6 +109,7 @@ function UserTableSkeleton() {
     </div>
   );
 }
+
 
 export default function UserTable() {
   const { users: userEntities, loading, error, refetch } = useUsers();

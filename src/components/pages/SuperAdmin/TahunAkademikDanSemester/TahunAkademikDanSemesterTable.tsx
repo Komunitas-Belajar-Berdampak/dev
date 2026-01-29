@@ -36,39 +36,59 @@ import type {
 import { toTahunAkademikDanSemesterTableRow } from "./utils/mappers";
 
 function TahunAkademikDanSemesterTableSkeleton() {
+  const rows = Array.from({ length: 10 });
+
   return (
     <div className="bg-white w-full">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
         <div className="flex w-full sm:w-auto gap-2">
-          <Skeleton className="h-10 w-full sm:w-72" />
-          <Skeleton className="h-10 w-10" />
+          <Skeleton className="h-10 w-full sm:w-72 border border-black/20" />
+          <Skeleton className="h-10 w-10 border-2 border-black shadow-[3px_3px_0_0_#000]" />
         </div>
-        <Skeleton className="h-10 w-full sm:w-40" />
+        <Skeleton className="h-10 w-full sm:w-40 border-2 border-black shadow-[3px_3px_0_0_#000]" />
       </div>
 
       <div className="relative -mx-4 sm:mx-0">
         <div className="overflow-x-auto max-w-[calc(100vw-2rem)] sm:max-w-full">
-          <div className="min-w-[800px]">
-            <div className="grid grid-cols-5 gap-3 border-b border-black/10 pb-3">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-5 w-full" />
-              ))}
-            </div>
+          <Table className="min-w-[800px] text-blue-800">
+            <TableHeader>
+              <TableRow className="border-b border-black/10">
+                <TableHead className="font-bold text-blue-900">Periode</TableHead>
+                <TableHead className="font-bold text-blue-900">Mulai</TableHead>
+                <TableHead className="font-bold text-blue-900">Selesai</TableHead>
+                <TableHead className="font-bold text-blue-900">Status</TableHead>
+                <TableHead className="font-bold text-blue-900 text-center">Aksi</TableHead>
+              </TableRow>
+            </TableHeader>
 
-            <div className="mt-4 space-y-3">
-              {Array.from({ length: 10 }).map((_, row) => (
-                <div key={row} className="grid grid-cols-5 gap-3 items-center">
-                  <Skeleton className="h-8 w-full" />
-                  <Skeleton className="h-8 w-full" />
-                  <Skeleton className="h-8 w-full" />
-                  <Skeleton className="h-8 w-24" />
-                  <div className="justify-self-center">
-                    <Skeleton className="h-9 w-9 rounded-md" />
-                  </div>
-                </div>
+            <TableBody>
+              {rows.map((_, i) => (
+                <TableRow key={i} className="h-14 border-b border-black/5">
+                  <TableCell className="font-medium">
+                    <Skeleton className="h-4 w-[420px] max-w-full" />
+                  </TableCell>
+
+                  <TableCell>
+                    <Skeleton className="h-4 w-28" />
+                  </TableCell>
+
+                  <TableCell>
+                    <Skeleton className="h-4 w-28" />
+                  </TableCell>
+
+                  <TableCell>
+                    <Skeleton className="h-6 w-20 rounded-full" />
+                  </TableCell>
+
+                  <TableCell className="text-center">
+                    <div className="flex justify-center">
+                      <Skeleton className="h-9 w-9 rounded-md" />
+                    </div>
+                  </TableCell>
+                </TableRow>
               ))}
-            </div>
-          </div>
+            </TableBody>
+          </Table>
         </div>
       </div>
 
@@ -82,6 +102,7 @@ function TahunAkademikDanSemesterTableSkeleton() {
     </div>
   );
 }
+
 
 export default function TahunAkademikDanSemesterTable() {
   const {
