@@ -4,7 +4,7 @@ import Dosen from '@/components/pages/Dosen/DosenCourses';
 import MatakuliahDetail from '@/components/pages/Dosen/Matakuliah/Detail/MatakuliahDetail';
 import MatakuliahLayout from '@/components/pages/Dosen/Matakuliah/index';
 import StudyGroupLayout from '@/components/pages/Dosen/StudyGroup';
-import StudyGroupList from '@/components/pages/Dosen/StudyGroup/List/StudyGroupList';
+import StudyGroupList from '@/components/pages/Dosen/StudyGroup/List';
 import StudyGroupMain from '@/components/pages/Dosen/StudyGroup/Main';
 import ErrorPage from '@/components/pages/Error';
 import Login from '@/components/pages/Login';
@@ -104,7 +104,7 @@ const routes: RouteObject[] = [
                 element: <StudyGroupMain />,
               },
               {
-                path: ':id',
+                path: ':namaMatkul/:idMatkul',
                 element: <StudyGroupList />,
               },
             ],

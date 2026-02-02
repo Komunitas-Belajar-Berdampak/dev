@@ -1,5 +1,4 @@
 import Circle from '@/components/ui/circle';
-import TitleSubtitle from '@/components/ui/title-subtitle';
 import type { Course } from '@/types/course';
 import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
@@ -13,9 +12,14 @@ const StudyGroupList = ({ courses }: StudyGroupListProps) => {
     <div className='flex flex-col w-full gap-4 py-10'>
       {courses.map((course) => (
         <Fragment key={course.id}>
-          <Link className='flex gap-6 items-center' to={`/dosen/study-groups/${encodeURIComponent(course.id)}`}>
+          <Link className='flex gap-6 items-center' to={`/dosen/study-groups/${course.namaMatkul}/${encodeURIComponent(course.id)}`}>
             <Circle />
-            <TitleSubtitle title={`${course.kodeMatkul} - ${course.namaMatkul}`} subtitle={course.periode} />
+            <div className='flex flex-col'>
+              <p className='text-primary font-bold text-sm'>
+                {course.kodeMatkul} - {course.namaMatkul}
+              </p>
+              <p className='text-accent text-sm'>{course.periode}</p>
+            </div>
           </Link>
 
           <div className='border-t border-accent w-full' />

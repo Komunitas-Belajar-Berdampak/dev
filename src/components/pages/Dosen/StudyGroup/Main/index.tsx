@@ -1,7 +1,7 @@
 import Title from '@/components/shared/Title';
 import StudyGroupMainContent from './StudyGroupMainContent';
 
-const breadcrumbItems = [{ label: 'Study Groups', href: '/study-groups' }];
+const breadcrumbItems = [{ label: 'Study Groups', href: '/dosen/study-groups' }];
 
 const StudyGroupMain = () => {
   return (

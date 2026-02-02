@@ -3,6 +3,7 @@ import Filter from '@/components/shared/Filter';
 import NoData from '@/components/shared/NoData';
 import Pagination from '@/components/shared/Pagination';
 import Search from '@/components/shared/Search';
+import ErrorMessage from '@/components/ui/error';
 import { getVisibleCourses, type CourseSortOption } from '@/lib/course-utils';
 import type { ApiResponse } from '@/types/api';
 import type { Course } from '@/types/course';
@@ -63,7 +64,7 @@ const StudyGroupMainContent = () => {
 
       {/* STUDY GROUP LIST */}
       {isLoading && <StudyGroupListSkeleton count={3} />}
-      {!isLoading && isError && <p className='text-accent text-sm py-10'>Tidak dapat memuat data.</p>}
+      {!isLoading && isError && <ErrorMessage message='Tidak dapat memuat data.' />}
       {!isLoading && !isError && visibleCourses.length === 0 && <NoData message='Tidak ada mata kuliah yang sesuai dengan pencarian.' />}
       {!isLoading && !isError && visibleCourses.length > 0 && <StudyGroupList courses={visibleCourses} />}
 

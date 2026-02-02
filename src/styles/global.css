@@ -184,4 +184,8 @@
     font-family: 'Poppins', sans-serif;
     letter-spacing: var(--tracking-normal);
   }
+
+  button {
+    @apply cursor-pointer;
+  }
 }
