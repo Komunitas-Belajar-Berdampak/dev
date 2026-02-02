@@ -3,7 +3,6 @@ import Filter from '@/components/shared/Filter';
 import NoData from '@/components/shared/NoData';
 import Pagination from '@/components/shared/Pagination';
 import Search from '@/components/shared/Search';
-import Title from '@/components/shared/Title';
 import { getVisibleCourses, type CourseSortOption } from '@/lib/course-utils';
 import type { ApiResponse } from '@/types/api';
 import type { Course } from '@/types/course';
@@ -13,9 +12,7 @@ import { toast } from 'sonner';
 import StudyGroupList from './components/StudyGroupList';
 import StudyGroupListSkeleton from './components/StudyGroupListSkeleton';
 
-const breadcrumbItems = [{ label: 'Study Groups', href: '/study-groups' }];
-
-const StudyGroupMain = () => {
+const StudyGroupMainContent = () => {
   const [sort, setSort] = useState<CourseSortOption>('nama-asc');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -44,8 +41,6 @@ const StudyGroupMain = () => {
 
   return (
     <>
-      <Title title='Study Groups' items={breadcrumbItems} />
-
       {/* SEARCH & FILTER */}
       <div className='flex flex-wrap items-center justify-between gap-4'>
         {/* SEARCH */}
@@ -81,4 +76,4 @@ const StudyGroupMain = () => {
   );
 };
 
-export default StudyGroupMain;
+export default StudyGroupMainContent;
