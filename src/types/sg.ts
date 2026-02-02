@@ -7,3 +7,13 @@ export type StudyGroupbyCourse = {
   totalRequest: number;
   totalKontribusi: number;
 };
+
+export type StudyGroupDetail = {
+  id: string;
+  nama: string;
+  deskripsi?: string;
+  kapasitas: number;
+  anggota?: string[];
+  status: boolean;
+  totalKontribusi: number;
+};

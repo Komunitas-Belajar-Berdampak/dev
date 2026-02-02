@@ -3,7 +3,7 @@ import type { ApiResponse } from '@/types/api';
 import type { MembershipByStudyGroup } from '@/types/membership';
 
 const getMembershipsByStudyGroup = async (studyGroupId: string) => {
-  const res = await api.get<ApiResponse<MembershipByStudyGroup[]>>(`/memberships/${studyGroupId}`);
+  const res = await api.get<ApiResponse<MembershipByStudyGroup>>(`/memberships/${studyGroupId}`);
   return res.data;
 };
 

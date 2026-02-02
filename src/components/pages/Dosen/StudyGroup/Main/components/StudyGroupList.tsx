@@ -12,7 +12,7 @@ const StudyGroupList = ({ courses }: StudyGroupListProps) => {
     <div className='flex flex-col w-full gap-4 py-10'>
       {courses.map((course) => (
         <Fragment key={course.id}>
-          <Link className='flex gap-6 items-center' to={`/dosen/study-groups/${course.namaMatkul}/${encodeURIComponent(course.id)}`}>
+          <Link className='flex gap-6 items-center' to={`/dosen/study-groups/${course.namaMatkul}/${course.id}`}>
             <Circle />
             <div className='flex flex-col'>
               <p className='text-primary font-bold text-sm'>

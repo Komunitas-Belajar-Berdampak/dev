@@ -6,5 +6,5 @@ export type MembershipByStudyGroup = {
     nrp: string;
     nama: string;
     status: 'PENDING' | 'APPROVED' | 'REJECTED';
-  };
+  }[];
 };

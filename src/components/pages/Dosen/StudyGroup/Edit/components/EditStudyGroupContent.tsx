@@ -1,5 +1,5 @@
 import { getCourseById } from '@/api/course';
-import { addStudyGroupByCourse } from '@/api/sg';
+import { editStudyGroupById, getStudyGroupById } from '@/api/sg';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Combobox, ComboboxChip, ComboboxChips, ComboboxChipsInput, ComboboxContent, ComboboxEmpty, ComboboxItem, ComboboxList, ComboboxValue, useComboboxAnchor } from '@/components/ui/combobox';
@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { studyGroupSchema, type StudyGroupSchemaType } from '@/schemas/sg';
 import type { ApiResponse } from '@/types/api';
 import type { CourseById } from '@/types/course';
+import type { StudyGroupDetail } from '@/types/sg';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
@@ -16,37 +17,55 @@ import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-type AddStudyGroupContentProps = {
+type EditStudyGroupContentProps = {
   idMatkul: string;
   namaMatkul: string;
+  idSg: string;
+  namaSg: string;
 };
 
-const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
+const EditStudyGroupContent = ({ idMatkul, idSg }: EditStudyGroupContentProps) => {
   const navigate = useNavigate();
   const anchor = useComboboxAnchor();
 
-  // ambil data mata kuliah buat dapet si mahasiswa yang ngmbil matkul itu
-  const { data, isLoading } = useQuery<ApiResponse<CourseById>>({
+  // ambil data mata kuliah buat dapet si mahasisa yang ngambil matkul itu
+  const { data: courseData, isLoading } = useQuery<ApiResponse<CourseById>>({
     queryKey: ['courseById', idMatkul],
     queryFn: () => getCourseById(idMatkul),
   });
+  const mahasiswaCourse = courseData?.data.mahasiswa;
 
-  const mahasiswaCourse = data?.data.mahasiswa;
+  // ambil data study group detail
+  const { data: studyGroupData } = useQuery<ApiResponse<StudyGroupDetail>>({
+    queryKey: ['studyGroupById', idSg],
+    queryFn: () => getStudyGroupById(idSg),
+  });
 
-  const nrpItems = useMemo(() => mahasiswaCourse?.map((m) => m.nrp) ?? [], [mahasiswaCourse]);
-  const namaByNrp = useMemo(() => new Map(mahasiswaCourse?.map((m) => [m.nrp, m.nama])), [mahasiswaCourse]);
+  const studygroup = studyGroupData?.data;
+  const anggota = studygroup?.anggota;
 
-  // kirim data ke api
+  // filter mahasiswa yang udah jadi member biar gak ditampilin di add member
+  const mahasiswaAvailable = useMemo(() => {
+    if (!mahasiswaCourse) return [];
+    if (!anggota) return mahasiswaCourse;
+    const anggotaSet = new Set(anggota);
+    return mahasiswaCourse.filter((m) => !anggotaSet.has(m.nrp));
+  }, [mahasiswaCourse, anggota]);
+
+  const nrpItems = useMemo(() => mahasiswaAvailable.map((m) => m.nrp) ?? [], [mahasiswaAvailable]);
+  const namaByNrp = useMemo(() => new Map(mahasiswaAvailable.map((m) => [m.nrp, m.nama])), [mahasiswaAvailable]);
+
+  // kirim data ke
   const { mutate, isPending } = useMutation({
-    mutationFn: (payload: StudyGroupSchemaType) => addStudyGroupByCourse(idMatkul, payload),
+    mutationFn: (payload: StudyGroupSchemaType) => editStudyGroupById(idSg, payload),
     onSuccess: () => {
-      toast.success('Study Group berhasil ditambahkan', { toasterId: 'global' });
+      toast.success('Study Group berhasil diedit', { toasterId: 'global' });
       form.reset();
 
       navigate(-1);
     },
     onError: () => {
-      toast.error('Gagal menambahkan Study Group', { toasterId: 'global' });
+      toast.error('Gagal mengedit Study Group', { toasterId: 'global' });
     },
   });
 
@@ -81,7 +100,7 @@ const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
                       <FieldLabel htmlFor={field.name} className='text-gray-500'>
                         Nama Study Group*
                       </FieldLabel>
-                      <Input {...field} id={field.name} aria-invalid={fieldState.invalid} type='text' placeholder='Masukkan nama study group anda' className='text-xs md:text-sm text-black' />
+                      <Input {...field} value={studygroup?.nama} id={field.name} aria-invalid={fieldState.invalid} type='text' placeholder='Masukkan nama study group anda' className='text-xs md:text-sm text-black' />
                       {fieldState.invalid && <FieldError errors={[fieldState.error]} className='text-xs' />}
                     </Field>
                   )}
@@ -95,7 +114,7 @@ const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
                       <FieldLabel htmlFor={field.name} className='text-gray-500'>
                         Kapasitas Maksimal Anggota*
                       </FieldLabel>
-                      <Select onValueChange={(v) => field.onChange(Number(v))}>
+                      <Select onValueChange={(v) => field.onChange(Number(v))} value={studygroup?.kapasitas?.toString()}>
                         <SelectTrigger>
                           <SelectValue placeholder='Pilih kapasitas' />
                         </SelectTrigger>
@@ -122,7 +141,7 @@ const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
                       <FieldLabel htmlFor={field.name} className='text-gray-500'>
                         Deskripsi (optional)
                       </FieldLabel>
-                      <Input {...field} id={field.name} aria-invalid={fieldState.invalid} type='text' placeholder='Masukkan deskripsi study group anda' className='text-xs md:text-sm text-black' />
+                      <Input {...field} value={studygroup?.deskripsi} id={field.name} aria-invalid={fieldState.invalid} type='text' placeholder='Masukkan deskripsi study group anda' className='text-xs md:text-sm text-black' />
                       {fieldState.invalid && <FieldError errors={[fieldState.error]} className='text-xs' />}
                     </Field>
                   )}
@@ -137,7 +156,7 @@ const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
                         Masukkan Anggota (Optional)
                       </FieldLabel>
 
-                      <Combobox multiple autoHighlight items={nrpItems} onValueChange={field.onChange}>
+                      <Combobox multiple autoHighlight items={nrpItems} onValueChange={field.onChange} value={studygroup?.anggota}>
                         <ComboboxChips ref={anchor} className={'w-full'}>
                           <ComboboxValue>
                             {(values) => (
@@ -178,7 +197,7 @@ const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid} className='mt-4' orientation={'horizontal'}>
-                    <Checkbox id={field.name} name={field.name} checked={field.value} onCheckedChange={field.onChange} />
+                    <Checkbox id={field.name} name={field.name} checked={studygroup?.status} onCheckedChange={field.onChange} />
                     <FieldLabel htmlFor={field.name} className='text-gray-500'>
                       Permintaan Bergabung (Mahasiswa request join untuk bergabung ke study group)
                     </FieldLabel>
@@ -190,8 +209,8 @@ const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
           </FieldGroup>
 
           <Field orientation={'horizontal'} className='flex w-full justify-end gap-4'>
-            <Button type='submit' size={'lg'} className='mt-6 shadow-sm'>
-              {isPending ? 'Adding...' : 'Add Study Group'}
+            <Button type='submit' size={'lg'} className='mt-6 shadow-sm px-8'>
+              {isPending ? 'Editing...' : 'Save'}
             </Button>
 
             <Button variant={'secondary'} size={'lg'} type='button' className='mt-6 shadow-sm border bg-accent hover:opacity-85' onClick={() => navigate(-1)}>
@@ -203,4 +222,5 @@ const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
     </div>
   );
 };
-export default AddStudyGroupContent;
+
+export default EditStudyGroupContent;

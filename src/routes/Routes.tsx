@@ -5,6 +5,7 @@ import MatakuliahDetail from '@/components/pages/Dosen/Matakuliah/Detail/Matakul
 import MatakuliahLayout from '@/components/pages/Dosen/Matakuliah/index';
 import StudyGroupLayout from '@/components/pages/Dosen/StudyGroup';
 import AddStudyGroup from '@/components/pages/Dosen/StudyGroup/Add';
+import EditStudyGroup from '@/components/pages/Dosen/StudyGroup/Edit';
 import StudyGroupList from '@/components/pages/Dosen/StudyGroup/List';
 import StudyGroupMain from '@/components/pages/Dosen/StudyGroup/Main';
 import ErrorPage from '@/components/pages/Error';
@@ -112,7 +113,10 @@ const routes: RouteObject[] = [
                 path: ':namaMatkul/:idMatkul/add',
                 element: <AddStudyGroup />,
               },
-              
+              {
+                path: ':namaMatkul/:idMatkul/:namaSg/:idSg/edit',
+                element: <EditStudyGroup />,
+              },
             ],
           },
         ],
