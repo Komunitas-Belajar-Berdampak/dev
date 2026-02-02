@@ -1,5 +1,5 @@
 import Title from '@/components/shared/Title';
-import StudyGroupMainContent from './StudyGroupMainContent';
+import StudyGroupMainContent from './components/StudyGroupMainContent';
 
 const breadcrumbItems = [{ label: 'Study Groups', href: '/dosen/study-groups' }];
 

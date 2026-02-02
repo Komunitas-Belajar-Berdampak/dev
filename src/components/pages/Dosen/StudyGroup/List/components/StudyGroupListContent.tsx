@@ -11,8 +11,8 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
-import StudyGroupListSkeleton from '../Main/components/StudyGroupListSkeleton';
-import StudyGroupList from './components/StudyGroupList';
+import StudyGroupListSkeleton from '../../Main/components/StudyGroupListSkeleton';
+import StudyGroupList from './StudyGroupList';
 
 type StudyGroupListProps = {
   idMatkul: string;

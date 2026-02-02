@@ -10,8 +10,8 @@ import type { Course } from '@/types/course';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
-import StudyGroupList from './components/StudyGroupList';
-import StudyGroupListSkeleton from './components/StudyGroupListSkeleton';
+import StudyGroupList from './StudyGroupList';
+import StudyGroupListSkeleton from './StudyGroupListSkeleton';
 
 const StudyGroupMainContent = () => {
   const [sort, setSort] = useState<CourseSortOption>('nama-asc');

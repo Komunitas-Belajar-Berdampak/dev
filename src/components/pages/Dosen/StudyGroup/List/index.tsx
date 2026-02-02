@@ -1,6 +1,6 @@
 import Title from '@/components/shared/Title';
 import { useParams } from 'react-router-dom';
-import StudyGroupListContent from './StudyGroupListContent';
+import StudyGroupListContent from './components/StudyGroupListContent';
 
 const StudyGroupList = () => {
   const { namaMatkul, idMatkul } = useParams<{ namaMatkul: string; idMatkul: string }>();
