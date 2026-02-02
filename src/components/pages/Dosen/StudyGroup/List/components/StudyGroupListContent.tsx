@@ -1,4 +1,3 @@
-import { getStudyGroupsbyCourse } from '@/api/sg';
 import NoData from '@/components/shared/NoData';
 import Pagination from '@/components/shared/Pagination';
 import Search from '@/components/shared/Search';
@@ -13,6 +12,7 @@ import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import StudyGroupListSkeleton from '../../Main/components/StudyGroupListSkeleton';
 import StudyGroupList from './StudyGroupList';
+import { getStudyGroupsByCourse } from '@/api/sg';
 
 type StudyGroupListProps = {
   idMatkul: string;
@@ -30,7 +30,7 @@ const StudyGroupListContent = ({ idMatkul, namaMatkul }: StudyGroupListProps) =>
     error,
   } = useQuery<ApiResponse<StudyGroupbyCourse[]>, Error>({
     queryKey: ['sg-by-course', idMatkul, page],
-    queryFn: () => getStudyGroupsbyCourse(idMatkul, page),
+    queryFn: () => getStudyGroupsByCourse(idMatkul, page),
     placeholderData: keepPreviousData,
   });
 
@@ -59,7 +59,7 @@ const StudyGroupListContent = ({ idMatkul, namaMatkul }: StudyGroupListProps) =>
 
         {/* Button */}
         <Link to={`/dosen/study-groups/${namaMatkul}/${encodeURIComponent(idMatkul)}/add`}>
-          <Button className='shadow'>
+          <Button className='shadow' size={'lg'}>
             <Icon icon='mdi:plus-box' />
             Add Study Group
           </Button>

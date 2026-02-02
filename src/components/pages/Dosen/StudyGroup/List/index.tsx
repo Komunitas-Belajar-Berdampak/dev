@@ -11,7 +11,7 @@ const StudyGroupList = () => {
     <>
       <Title title='Study Groups' items={breadcrumbItems} />
 
-      <StudyGroupListContent namaMatkul={namaMatkul!} idMatkul={idMatkul!} />
+      <StudyGroupListContent namaMatkul={String(namaMatkul)} idMatkul={String(idMatkul)} />
     </>
   );
 };

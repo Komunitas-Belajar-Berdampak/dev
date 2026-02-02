@@ -1,7 +1,9 @@
+import { api } from '@/lib/axios';
+import type { StudyGroupSchemaType } from '@/schemas/sg';
 import type { ApiResponse } from '@/types/api';
 import type { StudyGroupbyCourse } from '@/types/sg';
 
-const getStudyGroupsbyCourse = async (courseId: string, page: number = 1, limit: number = 20): Promise<ApiResponse<StudyGroupbyCourse[]>> => {
+const getStudyGroupsByCourse = async (courseId: string, page: number = 1, limit: number = 20): Promise<ApiResponse<StudyGroupbyCourse[]>> => {
   // const res = await api.get<ApiResponse<StudyGroupbyCourse[]>>(`/sg/${courseId}?page=${page}&limit=${limit}`);
 
   // pake data dummy dlu sblm benya blum siap
@@ -45,4 +47,9 @@ const getStudyGroupsbyCourse = async (courseId: string, page: number = 1, limit:
   return res.data;
 };
 
-export { getStudyGroupsbyCourse };
+const addStudyGroupByCourse = async (courseId: string, payload: StudyGroupSchemaType): Promise<ApiResponse<StudyGroupbyCourse>> => {
+  const res = await api.post<ApiResponse<StudyGroupbyCourse>>(`/sg/${courseId}`, payload);
+  return res.data;
+};
+
+export { addStudyGroupByCourse, getStudyGroupsByCourse };
