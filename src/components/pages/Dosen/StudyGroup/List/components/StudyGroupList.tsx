@@ -39,7 +39,7 @@ const StudyGroupList = ({ studygroups }: StudyGroupListProps) => {
 
               <div className='flex flex-row items-center justify-between'>
                 <p className='text-accent text-sm'>
-                  {sg.totalAnggota} / {sg.kapasitas} Anggota ({sg.totalRequest})
+                  {sg.totalAnggota} / {sg.kapasitas} Anggota ({sg.totalRequest} Requests)
                 </p>
                 <Link to={`${sg.nama}/${sg.id}/edit`} className='text-sm text-blue-500 underline ml-2' onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
                   <Edit size={15} className='text-primary' />
