@@ -27,23 +27,28 @@ const RequestJoinContent = ({ idSg }: RequestJoinContentProps) => {
 
   const { mutate: approve, isPending: isApproving } = useMutation({
     mutationFn: ({ membershipId, idStudyGroup }: { membershipId: string; idStudyGroup: string }) => approveMembershipRequest(membershipId, idStudyGroup),
-    onSuccess: async () => {
+    onSuccess: () => {
       toast.success('Membership request approved.', { toasterId: 'global' });
-      await refetch();
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to approve membership request.', { toasterId: 'global' });
+    },
+    onSettled: async () => {
+      await refetch();
     },
   });
 
   const { mutate: reject, isPending: isRejecting } = useMutation({
     mutationFn: ({ membershipId, idStudyGroup }: { membershipId: string; idStudyGroup: string }) => rejectMembershipRequest(membershipId, idStudyGroup),
-    onSuccess: async () => {
+    onSuccess: () => {
       toast.success('Membership request rejected.', { toasterId: 'global' });
-      await refetch();
+      refetch();
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to reject membership request.', { toasterId: 'global' });
+    },
+    onSettled: async () => {
+      await refetch();
     },
   });
 
