@@ -53,7 +53,7 @@ const StudyGroupDetailContent = ({ idSg, namaSg }: StudyGroupDetailContentProps)
         </TabsContent>
         <TabsContent value='members'>
           {/* dashboard kontribusi */}
-          <DashboardKontribusiContent />
+          <DashboardKontribusiContent totalKontribusi={data?.totalKontribusi ?? 0} anggota={data?.anggota ?? []} />
         </TabsContent>
         <TabsContent value='topik-pembahasan'>
           {/* topik pembahasan */}
