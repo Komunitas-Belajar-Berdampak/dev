@@ -11,7 +11,7 @@ import type { ApiResponse } from '@/types/api';
 import type { CourseById } from '@/types/course';
 import type { StudyGroupDetail } from '@/types/sg';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -27,30 +27,37 @@ type EditStudyGroupContentProps = {
 const EditStudyGroupContent = ({ idMatkul, idSg }: EditStudyGroupContentProps) => {
   const navigate = useNavigate();
   const anchor = useComboboxAnchor();
+  const queryClient = useQueryClient();
 
   // ambil data mata kuliah buat dapet si mahasisa yang ngambil matkul itu
   const { data: courseData, isLoading } = useQuery<ApiResponse<CourseById>>({
-    queryKey: ['courseById', idMatkul],
+    queryKey: ['course-by-id', idMatkul],
     queryFn: () => getCourseById(idMatkul),
   });
   const mahasiswaCourse = courseData?.data.mahasiswa;
 
   // ambil data study group detail
   const { data: studyGroupData } = useQuery<ApiResponse<StudyGroupDetail>>({
-    queryKey: ['studyGroupById', idSg],
+    queryKey: ['sg-detail', idSg],
     queryFn: () => getStudyGroupById(idSg),
   });
 
   const studygroup = studyGroupData?.data;
   const anggota = studygroup?.anggota;
 
+  const anggotaNrps = useMemo(() => {
+    if (!anggota) return [];
+    return anggota.map((a) => a.nrp);
+  }, [anggota]);
+
   // filter mahasiswa yang udah jadi member biar gak ditampilin di add member
   const mahasiswaAvailable = useMemo(() => {
     if (!mahasiswaCourse) return [];
-    if (!anggota) return mahasiswaCourse;
-    const anggotaSet = new Set(anggota);
+    if (!anggotaNrps.length) return mahasiswaCourse;
+
+    const anggotaSet = new Set(anggotaNrps);
     return mahasiswaCourse.filter((m) => !anggotaSet.has(m.nrp));
-  }, [mahasiswaCourse, anggota]);
+  }, [mahasiswaCourse, anggotaNrps]);
 
   const nrpItems = useMemo(() => mahasiswaAvailable.map((m) => m.nrp) ?? [], [mahasiswaAvailable]);
   const namaByNrp = useMemo(() => new Map(mahasiswaAvailable.map((m) => [m.nrp, m.nama])), [mahasiswaAvailable]);
@@ -58,9 +65,11 @@ const EditStudyGroupContent = ({ idMatkul, idSg }: EditStudyGroupContentProps) =
   // kirim data ke
   const { mutate, isPending } = useMutation({
     mutationFn: (payload: StudyGroupSchemaType) => editStudyGroupById(idSg, payload),
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('Study Group berhasil diedit', { toasterId: 'global' });
       form.reset();
+
+      await Promise.all([queryClient.invalidateQueries({ queryKey: ['sg-by-course', idMatkul] }), queryClient.invalidateQueries({ queryKey: ['sg-detail', idSg] })]);
 
       navigate(-1);
     },

@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import Circle from '@/components/ui/circle';
 import type { ApiResponse } from '@/types/api';
 import type { MembershipByStudyGroup } from '@/types/membership';
-import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Check, Mail, X } from 'lucide-react';
 import { useEffect, useMemo } from 'react';
 import { toast } from 'sonner';
@@ -14,7 +14,9 @@ type RequestJoinContentProps = {
 };
 
 const RequestJoinContent = ({ idSg }: RequestJoinContentProps) => {
-  const { data, isLoading, isError, error, isFetching, refetch } = useQuery<ApiResponse<MembershipByStudyGroup>, Error, MembershipByStudyGroup>({
+  const queryClient = useQueryClient();
+
+  const { data, isLoading, isError, error, isFetching } = useQuery<ApiResponse<MembershipByStudyGroup>, Error, MembershipByStudyGroup>({
     queryKey: ['memberships-by-sg', idSg],
     queryFn: () => getMembershipsByStudyGroup(idSg),
     placeholderData: keepPreviousData,
@@ -27,28 +29,24 @@ const RequestJoinContent = ({ idSg }: RequestJoinContentProps) => {
 
   const { mutate: approve, isPending: isApproving } = useMutation({
     mutationFn: ({ membershipId, idStudyGroup }: { membershipId: string; idStudyGroup: string }) => approveMembershipRequest(membershipId, idStudyGroup),
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('Membership request approved.', { toasterId: 'global' });
+
+      await Promise.all([queryClient.invalidateQueries({ queryKey: ['memberships-by-sg', idSg] }), queryClient.invalidateQueries({ queryKey: ['sg-detail', idSg] })]);
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to approve membership request.', { toasterId: 'global' });
-    },
-    onSettled: async () => {
-      await refetch();
     },
   });
 
   const { mutate: reject, isPending: isRejecting } = useMutation({
     mutationFn: ({ membershipId, idStudyGroup }: { membershipId: string; idStudyGroup: string }) => rejectMembershipRequest(membershipId, idStudyGroup),
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('Membership request rejected.', { toasterId: 'global' });
-      refetch();
+      await queryClient.invalidateQueries({ queryKey: ['memberships-by-sg', idSg] });
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to reject membership request.', { toasterId: 'global' });
-    },
-    onSettled: async () => {
-      await refetch();
     },
   });
 
