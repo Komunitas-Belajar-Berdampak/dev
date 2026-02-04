@@ -3,6 +3,11 @@ import DefaultLayout from '@/components/layouts/Default';
 import Dosen from '@/components/pages/Dosen/DosenCourses';
 import MatakuliahDetail from '@/components/pages/Dosen/Matakuliah/Detail/MatakuliahDetail';
 import MatakuliahLayout from '@/components/pages/Dosen/Matakuliah/index';
+import StudyGroupLayout from '@/components/pages/Dosen/StudyGroup';
+import AddStudyGroup from '@/components/pages/Dosen/StudyGroup/Add';
+import EditStudyGroup from '@/components/pages/Dosen/StudyGroup/Edit';
+import StudyGroupList from '@/components/pages/Dosen/StudyGroup/List';
+import StudyGroupMain from '@/components/pages/Dosen/StudyGroup/Main';
 import ErrorPage from '@/components/pages/Error';
 import Login from '@/components/pages/Login';
 import FakultasPage from '@/components/pages/SuperAdmin/Fakultas/FakultasPage';
@@ -98,6 +103,29 @@ const routes: RouteObject[] = [
               {
                 path: ":matkulId/mahasiswa",
                 element: <MahasiswaList />,
+              },
+            ],
+          },
+          {
+            path: 'study-groups',
+            element: <StudyGroupLayout />,
+            children: [
+              {
+                index: true,
+                path: '',
+                element: <StudyGroupMain />,
+              },
+              {
+                path: ':namaMatkul/:idMatkul',
+                element: <StudyGroupList />,
+              },
+              {
+                path: ':namaMatkul/:idMatkul/add',
+                element: <AddStudyGroup />,
+              },
+              {
+                path: ':namaMatkul/:idMatkul/:namaSg/:idSg/edit',
+                element: <EditStudyGroup />,
               },
             ],
           },
