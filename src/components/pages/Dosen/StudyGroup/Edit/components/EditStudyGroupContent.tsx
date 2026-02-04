@@ -1,5 +1,5 @@
 import { getCourseById } from '@/api/course';
-import { editStudyGroupById, getStudyGroupById } from '@/api/sg';
+import { editStudyGroupById, getStudyGroupById } from '@/api/study-group';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Combobox, ComboboxChip, ComboboxChips, ComboboxChipsInput, ComboboxContent, ComboboxEmpty, ComboboxItem, ComboboxList, ComboboxValue, useComboboxAnchor } from '@/components/ui/combobox';

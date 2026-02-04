@@ -1,3 +1,4 @@
+import { getStudyGroupsByCourse } from '@/api/study-group';
 import NoData from '@/components/shared/NoData';
 import Pagination from '@/components/shared/Pagination';
 import Search from '@/components/shared/Search';
@@ -12,7 +13,6 @@ import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import StudyGroupListSkeleton from '../../Main/components/StudyGroupListSkeleton';
 import StudyGroupList from './StudyGroupList';
-import { getStudyGroupsByCourse } from '@/api/sg';
 
 type StudyGroupListProps = {
   idMatkul: string;
