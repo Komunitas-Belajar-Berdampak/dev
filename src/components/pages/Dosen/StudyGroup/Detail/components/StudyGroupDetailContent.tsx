@@ -49,7 +49,7 @@ const StudyGroupDetailContent = ({ idSg, namaSg }: StudyGroupDetailContentProps)
         </TabsList>
         <TabsContent value='request-join'>
           {/* buat request join */}
-          <RequestJoinContent />
+          <RequestJoinContent idSg={idSg} />
         </TabsContent>
         <TabsContent value='members'>
           {/* dashboard kontribusi */}
