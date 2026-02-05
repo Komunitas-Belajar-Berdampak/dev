@@ -57,7 +57,7 @@ const StudyGroupDetailContent = ({ idSg, namaSg }: StudyGroupDetailContentProps)
         </TabsContent>
         <TabsContent value='topik-pembahasan'>
           {/* topik pembahasan */}
-          <TopikPembahasanContent />
+          <TopikPembahasanContent idSg={idSg} />
         </TabsContent>
       </Tabs>
     </>

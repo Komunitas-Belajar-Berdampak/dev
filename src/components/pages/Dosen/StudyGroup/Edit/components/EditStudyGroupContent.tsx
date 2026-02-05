@@ -86,7 +86,7 @@ const EditStudyGroupContent = ({ idMatkul, idSg }: EditStudyGroupContentProps) =
       kapasitas: 1,
       deskripsi: '',
       status: false,
-      anggota: [],
+      idMahasiswa: [],
     },
   });
 
@@ -157,7 +157,7 @@ const EditStudyGroupContent = ({ idMatkul, idSg }: EditStudyGroupContentProps) =
                 />
 
                 <Controller
-                  name='anggota'
+                  name='idMahasiswa'
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid} className='mt-4 ml-4 w-full'>

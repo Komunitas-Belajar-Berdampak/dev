@@ -1,4 +1,5 @@
 import { approveMembershipRequest, getMembershipsByStudyGroup, rejectMembershipRequest } from '@/api/membership';
+import NoData from '@/components/shared/NoData';
 import { Button } from '@/components/ui/button';
 import Circle from '@/components/ui/circle';
 import type { ApiResponse } from '@/types/api';
@@ -68,10 +69,10 @@ const RequestJoinContent = ({ idSg }: RequestJoinContentProps) => {
       {(isLoading || isFetching) && <StudyGroupListSkeleton />}
 
       {!isLoading && !isError && memberRequest.length === 0 ? (
-        <div className='flex flex-col p-12 border border-accent rounded-xl mt-8 justify-center items-center'>
+        <NoData variant={'border'}>
           <Mail size={48} className='mx-auto mb-4 text-accent' />
           <p className='text-center text-accent'>Tidak ada permintaan bergabung.</p>
-        </div>
+        </NoData>
       ) : (
         <div className='w-full pt-8 flex flex-col gap-6'>
           {memberRequest.map((member) => (

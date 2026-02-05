@@ -1,3 +1,4 @@
+import NoData from '@/components/shared/NoData';
 import Circle from '@/components/ui/circle';
 import type { StudyGroupDetail } from '@/types/sg';
 import { UserRoundX } from 'lucide-react';
@@ -11,10 +12,10 @@ const DashboardKontribusiContent = ({ totalKontribusi = 0, anggota = [] }: Dashb
   return (
     <>
       {!anggota.length ? (
-        <div className='flex flex-col p-12 border border-accent rounded-xl mt-8 justify-center items-center'>
+        <NoData variant='border'>
           <UserRoundX size={48} className='mx-auto mb-4 text-accent' />
           <p className='text-center text-accent'>Tidak ada anggota yang bergabung.</p>
-        </div>
+        </NoData>
       ) : (
         <div className='w-full flex flex-col pt-6'>
           {anggota.map((member) => (
