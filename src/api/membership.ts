@@ -3,24 +3,7 @@ import type { ApiResponse } from '@/types/api';
 import type { MembershipByStudyGroup } from '@/types/membership';
 
 const getMembershipsByStudyGroup = async (studyGroupId: string) => {
-  // const res = await api.get<ApiResponse<MembershipByStudyGroup>>(`/memberships/${studyGroupId}`);
-
-  // pake api dummy dlu karena backendya belum ready
-  const res = await new Promise<{ data: ApiResponse<MembershipByStudyGroup> }>((resolve) => {
-    setTimeout(() => {
-      resolve({
-        data: {
-          status: 'success',
-          message: 'Success',
-          data: {
-            id: studyGroupId,
-            totalRequest: 3,
-            mahasiswa: [],
-          },
-        },
-      });
-    }, 1000);
-  });
+  const res = await api.get<ApiResponse<MembershipByStudyGroup>>(`/memberships/${studyGroupId}`);
 
   return res.data;
 };
