@@ -20,6 +20,7 @@ import { type RouteObject } from 'react-router-dom';
 import GuestRoute from './GuestRoute';
 import ProtectedRoute from './ProtectedRoute';
 import RoleRedirect from './RoleRedirect';
+import StudyGroupDetail from '@/components/pages/Dosen/StudyGroup/Detail';
 
 const routes: RouteObject[] = [
   {
@@ -116,6 +117,10 @@ const routes: RouteObject[] = [
               {
                 path: ':namaMatkul/:idMatkul/:namaSg/:idSg/edit',
                 element: <EditStudyGroup />,
+              },
+              {
+                path: ':namaMatkul/:idMatkul/:namaSg/:idSg',
+                element: <StudyGroupDetail />,
               },
             ],
           },

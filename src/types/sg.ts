@@ -13,7 +13,14 @@ export type StudyGroupDetail = {
   nama: string;
   deskripsi?: string;
   kapasitas: number;
-  anggota?: string[];
+  anggota?: AnggotaStudyGroup[];
   status: boolean;
+  totalKontribusi: number;
+};
+
+export type AnggotaStudyGroup = {
+  id: string;
+  nrp: string;
+  nama: string;
   totalKontribusi: number;
 };

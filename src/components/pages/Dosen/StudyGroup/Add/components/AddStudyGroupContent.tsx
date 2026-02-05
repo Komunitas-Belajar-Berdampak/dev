@@ -10,7 +10,7 @@ import { studyGroupSchema, type StudyGroupSchemaType } from '@/schemas/sg';
 import type { ApiResponse } from '@/types/api';
 import type { CourseById } from '@/types/course';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -24,6 +24,7 @@ type AddStudyGroupContentProps = {
 const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
   const navigate = useNavigate();
   const anchor = useComboboxAnchor();
+  const queryClient = useQueryClient();
 
   // ambil data mata kuliah buat dapet si mahasiswa yang ngmbil matkul itu
   const { data, isLoading } = useQuery<ApiResponse<CourseById>>({
@@ -39,10 +40,11 @@ const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
   // kirim data ke api
   const { mutate, isPending } = useMutation({
     mutationFn: (payload: StudyGroupSchemaType) => addStudyGroupByCourse(idMatkul, payload),
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('Study Group berhasil ditambahkan', { toasterId: 'global' });
       form.reset();
 
+      await queryClient.invalidateQueries({ queryKey: ['sg-by-course', idMatkul] });
       navigate(-1);
     },
     onError: () => {
@@ -58,7 +60,7 @@ const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
       kapasitas: 1,
       deskripsi: '',
       status: false,
-      anggota: [],
+      idMahasiswa: [],
     },
   });
 
@@ -95,7 +97,7 @@ const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
                       <FieldLabel htmlFor={field.name} className='text-gray-500'>
                         Kapasitas Maksimal Anggota*
                       </FieldLabel>
-                      <Select onValueChange={(v) => field.onChange(Number(v))}>
+                      <Select value={String(field.value)} onValueChange={(v) => field.onChange(Number(v))}>
                         <SelectTrigger>
                           <SelectValue placeholder='Pilih kapasitas' />
                         </SelectTrigger>
@@ -129,7 +131,7 @@ const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
                 />
 
                 <Controller
-                  name='anggota'
+                  name='idMahasiswa'
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid} className='mt-4 ml-4 w-full'>
