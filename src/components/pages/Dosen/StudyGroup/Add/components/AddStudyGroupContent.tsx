@@ -60,7 +60,7 @@ const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
       kapasitas: 1,
       deskripsi: '',
       status: false,
-      anggota: [],
+      idMahasiswa: [],
     },
   });
 
@@ -97,7 +97,7 @@ const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
                       <FieldLabel htmlFor={field.name} className='text-gray-500'>
                         Kapasitas Maksimal Anggota*
                       </FieldLabel>
-                      <Select onValueChange={(v) => field.onChange(Number(v))}>
+                      <Select value={String(field.value)} onValueChange={(v) => field.onChange(Number(v))}>
                         <SelectTrigger>
                           <SelectValue placeholder='Pilih kapasitas' />
                         </SelectTrigger>
@@ -131,7 +131,7 @@ const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
                 />
 
                 <Controller
-                  name='anggota'
+                  name='idMahasiswa'
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid} className='mt-4 ml-4 w-full'>
