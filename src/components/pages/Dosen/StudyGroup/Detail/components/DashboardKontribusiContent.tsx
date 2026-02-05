@@ -17,7 +17,7 @@ const DashboardKontribusiContent = ({ totalKontribusi = 0, anggota = [] }: Dashb
           <p className='text-center text-accent'>Tidak ada anggota yang bergabung.</p>
         </NoData>
       ) : (
-        <div className='w-full flex flex-col pt-6'>
+        <div className='w-full flex flex-col pt-6 gap-6'>
           {anggota.map((member) => (
             <div className='w-full flex flex-row gap-6 items-center' key={member.id}>
               <div>
