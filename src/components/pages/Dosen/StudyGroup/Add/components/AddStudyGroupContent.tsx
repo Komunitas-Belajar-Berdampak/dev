@@ -34,8 +34,8 @@ const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
 
   const mahasiswaCourse = data?.data.mahasiswa;
 
-  const nrpItems = useMemo(() => mahasiswaCourse?.map((m) => m.nrp) ?? [], [mahasiswaCourse]);
-  const namaByNrp = useMemo(() => new Map(mahasiswaCourse?.map((m) => [m.nrp, m.nama])), [mahasiswaCourse]);
+  const idItems = useMemo(() => mahasiswaCourse?.map((m) => m.id) ?? [], [mahasiswaCourse]);
+  const namaById = useMemo(() => new Map(mahasiswaCourse?.map((m) => [m.id, m.nama])), [mahasiswaCourse]);
 
   // kirim data ke api
   const { mutate, isPending } = useMutation({
@@ -139,13 +139,13 @@ const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
                         Masukkan Anggota (Optional)
                       </FieldLabel>
 
-                      <Combobox multiple autoHighlight items={nrpItems} onValueChange={field.onChange}>
+                      <Combobox multiple autoHighlight items={idItems} onValueChange={field.onChange}>
                         <ComboboxChips ref={anchor} className={'w-full'}>
                           <ComboboxValue>
                             {(values) => (
                               <>
-                                {values.map((nrp: string) => (
-                                  <ComboboxChip key={`${nrp}`}>{namaByNrp.get(nrp)}</ComboboxChip>
+                                {values.map((id: string) => (
+                                  <ComboboxChip key={`${id}`}>{namaById.get(id)}</ComboboxChip>
                                 ))}
 
                                 <ComboboxChipsInput />
@@ -159,9 +159,9 @@ const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
                             {isLoading ? (
                               <p>Loading...</p>
                             ) : (
-                              (nrp) => (
-                                <ComboboxItem key={nrp} value={nrp}>
-                                  {namaByNrp.get(nrp)}
+                              (id) => (
+                                <ComboboxItem key={id} value={id}>
+                                  {namaById.get(id)}
                                 </ComboboxItem>
                               )
                             )}

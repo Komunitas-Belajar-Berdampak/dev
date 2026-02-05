@@ -47,22 +47,21 @@ const EditStudyGroupContent = ({ idMatkul, idSg }: EditStudyGroupContentProps) =
   const studygroup = studyGroupData?.data;
   const anggota = studygroup?.anggota;
 
-  const anggotaNrps = useMemo(() => {
+  const anggotaId = useMemo(() => {
     if (!anggota) return [];
-    return anggota.map((a) => a.nrp);
+    return anggota.map((a) => a.id);
   }, [anggota]);
 
   // filter mahasiswa yang udah jadi member biar gak ditampilin di add member
   const mahasiswaAvailable = useMemo(() => {
     if (!mahasiswaCourse) return [];
-    if (!anggotaNrps.length) return mahasiswaCourse;
+    if (!anggotaId.length) return mahasiswaCourse;
 
-    const anggotaSet = new Set(anggotaNrps);
-    return mahasiswaCourse.filter((m) => !anggotaSet.has(m.nrp));
-  }, [mahasiswaCourse, anggotaNrps]);
-
-  const nrpItems = useMemo(() => mahasiswaAvailable.map((m) => m.nrp) ?? [], [mahasiswaAvailable]);
-  const namaByNrp = useMemo(() => new Map((mahasiswaCourse ?? []).map((m) => [m.nrp, m.nama])), [mahasiswaCourse]);
+    const anggotaSet = new Set(anggotaId);
+    return mahasiswaCourse.filter((m) => !anggotaSet.has(m.id));
+  }, [mahasiswaCourse, anggotaId]);
+  const idItems = useMemo(() => mahasiswaAvailable.map((m) => m.id) ?? [], [mahasiswaAvailable]);
+  const namaById = useMemo(() => new Map((mahasiswaCourse ?? []).map((m) => [m.id, m.nama])), [mahasiswaCourse]);
 
   // kirim data ke
   const { mutate, isPending } = useMutation({
@@ -99,7 +98,7 @@ const EditStudyGroupContent = ({ idMatkul, idSg }: EditStudyGroupContentProps) =
       kapasitas: studygroup.kapasitas ?? 1,
       deskripsi: studygroup.deskripsi ?? '',
       status: studygroup.status ?? false,
-      idMahasiswa: studygroup.anggota?.map((a) => a.nrp) ?? [],
+      idMahasiswa: studygroup.anggota?.map((a) => a.id) ?? [],
     });
   }, [studygroup, form]);
 
@@ -178,13 +177,38 @@ const EditStudyGroupContent = ({ idMatkul, idSg }: EditStudyGroupContentProps) =
                         Masukkan Anggota (Optional)
                       </FieldLabel>
 
-                      <Combobox multiple autoHighlight items={nrpItems} onValueChange={field.onChange} value={field.value}>
+                      <Combobox
+                        multiple
+                        autoHighlight
+                        items={[...new Set([...(idItems ?? []), ...((field.value as string[]) ?? [])])]}
+                        value={(field.value as string[]) ?? []}
+                        onValueChange={(nextValue) => {
+                          if (nextValue == null) {
+                            field.onChange([]);
+                            return;
+                          }
+
+                          if (Array.isArray(nextValue)) {
+                            field.onChange(nextValue);
+                            return;
+                          }
+
+                          const pickedId = String(nextValue);
+                          const current = ((field.value as string[]) ?? []).filter(Boolean);
+                          if (current.includes(pickedId)) {
+                            field.onChange(current.filter((v) => v !== pickedId));
+                            return;
+                          }
+
+                          field.onChange([...current, pickedId]);
+                        }}
+                      >
                         <ComboboxChips ref={anchor} className={'w-full'}>
                           <ComboboxValue>
                             {(values) => (
                               <>
-                                {values.map((nrp: string) => (
-                                  <ComboboxChip key={`${nrp}`}>{namaByNrp.get(nrp) ?? nrp}</ComboboxChip>
+                                {(values as string[]).map((id: string) => (
+                                  <ComboboxChip key={`${id}`}>{namaById.get(id) ?? id}</ComboboxChip>
                                 ))}
 
                                 <ComboboxChipsInput />
@@ -198,9 +222,9 @@ const EditStudyGroupContent = ({ idMatkul, idSg }: EditStudyGroupContentProps) =
                             {isLoadingCourse ? (
                               <p>Loading...</p>
                             ) : (
-                              (nrp) => (
-                                <ComboboxItem key={nrp} value={nrp}>
-                                  {namaByNrp.get(nrp) ?? nrp}
+                              (id) => (
+                                <ComboboxItem key={id} value={id}>
+                                  {namaById.get(id) ?? id}
                                 </ComboboxItem>
                               )
                             )}
