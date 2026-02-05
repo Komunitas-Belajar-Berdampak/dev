@@ -4,13 +4,13 @@ import type { ApiResponse } from '@/types/api';
 import type { StudyGroupbyCourse, StudyGroupDetail } from '@/types/sg';
 
 const getStudyGroupsByCourse = async (courseId: string, page: number = 1, limit: number = 20): Promise<ApiResponse<StudyGroupbyCourse[]>> => {
-  const res = await api.get<ApiResponse<StudyGroupbyCourse[]>>(`/sg/${courseId}?page=${page}&limit=${limit}`);
+  const res = await api.get<ApiResponse<StudyGroupbyCourse[]>>(`/sg/course/${courseId}?page=${page}&limit=${limit}`);
 
   return res.data;
 };
 
 const getStudyGroupById = async (studyGroupId: string): Promise<ApiResponse<StudyGroupDetail>> => {
-  const res = await api.get<ApiResponse<StudyGroupDetail>>(`/sg/${studyGroupId}`);
+  const res = await api.get<ApiResponse<StudyGroupDetail>>(`/sg/group/${studyGroupId}`);
   return res.data;
 };
 
