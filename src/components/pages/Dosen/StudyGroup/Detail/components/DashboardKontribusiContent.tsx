@@ -2,6 +2,7 @@ import NoData from '@/components/shared/NoData';
 import Circle from '@/components/ui/circle';
 import type { StudyGroupDetail } from '@/types/sg';
 import { UserRoundX } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 type DashboardKontribusiContentProps = {
   totalKontribusi?: number;
@@ -19,7 +20,7 @@ const DashboardKontribusiContent = ({ totalKontribusi = 0, anggota = [] }: Dashb
       ) : (
         <div className='w-full flex flex-col pt-6 gap-6'>
           {anggota.map((member) => (
-            <div className='w-full flex flex-row gap-6 items-center' key={member.id}>
+            <Link to={`kontribusi/${member.nama}/${member.id}`} className='w-full flex flex-row gap-6 items-center' key={member.id}>
               <div>
                 <Circle />
               </div>
@@ -35,7 +36,7 @@ const DashboardKontribusiContent = ({ totalKontribusi = 0, anggota = [] }: Dashb
                 </div>
                 <span className='text-primary font-bold text-sm'>{member.totalKontribusi}</span>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

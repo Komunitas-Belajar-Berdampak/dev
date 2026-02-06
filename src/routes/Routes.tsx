@@ -5,7 +5,9 @@ import MatakuliahDetail from '@/components/pages/Dosen/Matakuliah/Detail/Matakul
 import MatakuliahLayout from '@/components/pages/Dosen/Matakuliah/index';
 import StudyGroupLayout from '@/components/pages/Dosen/StudyGroup';
 import AddStudyGroup from '@/components/pages/Dosen/StudyGroup/Add';
+import StudyGroupDetail from '@/components/pages/Dosen/StudyGroup/Detail';
 import EditStudyGroup from '@/components/pages/Dosen/StudyGroup/Edit';
+import KontribusiMahasiswaDetail from '@/components/pages/Dosen/StudyGroup/Kontribusi';
 import StudyGroupList from '@/components/pages/Dosen/StudyGroup/List';
 import StudyGroupMain from '@/components/pages/Dosen/StudyGroup/Main';
 import ErrorPage from '@/components/pages/Error';
@@ -20,7 +22,6 @@ import { type RouteObject } from 'react-router-dom';
 import GuestRoute from './GuestRoute';
 import ProtectedRoute from './ProtectedRoute';
 import RoleRedirect from './RoleRedirect';
-import StudyGroupDetail from '@/components/pages/Dosen/StudyGroup/Detail';
 
 const routes: RouteObject[] = [
   {
@@ -121,6 +122,10 @@ const routes: RouteObject[] = [
               {
                 path: ':namaMatkul/:idMatkul/:namaSg/:idSg',
                 element: <StudyGroupDetail />,
+              },
+              {
+                path: ':namaMatkul/:idMatkul/:namaSg/:idSg/kontribusi/:namaAnggota/:idAnggota',
+                element: <KontribusiMahasiswaDetail />,
               },
             ],
           },
