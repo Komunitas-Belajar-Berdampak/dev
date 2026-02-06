@@ -4,9 +4,16 @@ import type { TabsType } from '../types';
 
 type TopikPembahasanDetailHeaderProps = {
   tab: TabsType;
+  statusToDoList: {
+    DONE: number;
+    INPROGRESS: number;
+    DO: number;
+  };
 };
 
-const TopikPembahasanDetailHeader = ({ tab }: TopikPembahasanDetailHeaderProps) => {
+const TopikPembahasanDetailHeader = ({ tab, statusToDoList }: TopikPembahasanDetailHeaderProps) => {
+  const { DONE, INPROGRESS, DO } = statusToDoList;
+
   return (
     <ContentHeader title={`Detail Topik Pembahasan`}>
       <div className='flex flex-row gap-6 py-3'>
@@ -14,8 +21,11 @@ const TopikPembahasanDetailHeader = ({ tab }: TopikPembahasanDetailHeaderProps) 
           <>
             {listIcons.map((item) => (
               <div key={item.label} className='flex flex-row gap-2 justify-center items-center'>
-                {item.label === 'completed' ? <div className='bg-primary rounded-full p-0.5 flex items-center justify-center'>{item.icon}</div> : item.icon}
-                <span className='text-primary text-sm'>1 {item.label}</span>
+                {item.label === 'Completed' ? <div className='bg-primary rounded-full p-0.5 flex items-center justify-center'>{item.icon}</div> : item.icon}
+
+                <span className='text-primary text-sm'>
+                  {item.label === 'Completed' ? String(DONE) : item.label === 'On Progress' ? String(INPROGRESS) : String(DO)} {item.label}
+                </span>
               </div>
             ))}
           </>
