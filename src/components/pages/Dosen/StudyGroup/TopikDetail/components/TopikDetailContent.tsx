@@ -1,8 +1,9 @@
 import { getTaskList } from '@/api/task';
+import type { TaskFilterValue } from '@/components/shared/Filter/TaskFilterDropdown';
 import type { ApiResponse } from '@/types/api';
 import type { Task } from '@/types/task';
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TASK_FILTER_ALL } from '../constant';
 import type { TabsType } from '../types';
 import TopikPembahasanDetailHeader from './Header';
@@ -14,14 +15,14 @@ type TopikPembahasanDetailContentProps = {
 
 const TopikPembahasanDetailContent = ({ idTopik }: TopikPembahasanDetailContentProps) => {
   const [tab, setTab] = useState<TabsType>('todolist');
-  const [filters, setFilters] = useState<{ memberId: string; status: 'all' | Task['status'] }>({
+  const [filters, setFilters] = useState<TaskFilterValue>({
     memberId: TASK_FILTER_ALL,
     status: TASK_FILTER_ALL,
   });
 
-  const changeTab = (newTab: TabsType) => {
-    setTab(newTab);
-  };
+  useEffect(() => {
+    setFilters({ memberId: TASK_FILTER_ALL, status: TASK_FILTER_ALL });
+  }, [idTopik]);
 
   const {
     data: toDoListData,
@@ -40,13 +41,20 @@ const TopikPembahasanDetailContent = ({ idTopik }: TopikPembahasanDetailContentP
     DO: toDoListData?.filter((task) => task.status === 'DO').length || 0,
   };
 
+  const tasksQuery = {
+    data: toDoListData ?? [],
+    isLoading: toDoListIsLoading,
+    isError: toDoListIsError,
+    error: toDoListError,
+  };
+
   return (
     <>
       {/* kotak title */}
       <TopikPembahasanDetailHeader tab={tab} statusToDoList={statusToDoList} />
 
       {/* Tabs */}
-      <TopikPembahasanDetailTabs tab={tab} setTab={changeTab} tasks={toDoListData ?? []} tasksIsLoading={toDoListIsLoading} tasksIsError={toDoListIsError} tasksError={toDoListError} filters={filters} setFilters={setFilters} />
+      <TopikPembahasanDetailTabs tab={tab} onTabChange={setTab} filters={filters} onFiltersChange={setFilters} tasksQuery={tasksQuery} />
     </>
   );
 };

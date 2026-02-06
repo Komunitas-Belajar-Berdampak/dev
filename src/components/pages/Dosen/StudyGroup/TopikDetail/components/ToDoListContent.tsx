@@ -7,19 +7,21 @@ import { getTaskStatusLabel, tableHeaders, TASK_FILTER_ALL } from '../constant';
 import ToDoListSkeleton from './ToDoListSkeleton';
 
 type ToDoListContentProps = {
-  tasks: Task[];
-  tasksIsLoading: boolean;
-  tasksIsError: boolean;
-  tasksError: Error | null;
   filters: TaskFilterValue;
+  tasksQuery: {
+    data: Task[];
+    isLoading: boolean;
+    isError: boolean;
+    error: Error | null;
+  };
 };
 
-const ToDoListContent = ({ tasks, tasksIsLoading, tasksIsError, tasksError, filters }: ToDoListContentProps) => {
+const ToDoListContent = ({ filters, tasksQuery }: ToDoListContentProps) => {
   const tasksView = useMemo(() => {
     const memberId = filters.memberId;
     const status = filters.status;
 
-    return tasks.filter((t) => {
+    return tasksQuery.data.filter((t) => {
       const assignees = t.mahasiswa.map((m) => m.id);
       const currentStatus = t.status;
 
@@ -27,10 +29,10 @@ const ToDoListContent = ({ tasks, tasksIsLoading, tasksIsError, tasksError, filt
       if (status !== TASK_FILTER_ALL && currentStatus !== status) return false;
       return true;
     });
-  }, [tasks, filters.memberId, filters.status]);
+  }, [tasksQuery.data, filters.memberId, filters.status]);
 
-  if (tasksIsLoading) return <ToDoListSkeleton />;
-  if (tasksIsError) return <NoData message={tasksError?.message || 'Gagal mengambil task.'} />;
+  if (tasksQuery.isLoading) return <ToDoListSkeleton />;
+  if (tasksQuery.isError) return <NoData message={tasksQuery.error?.message || 'Gagal mengambil task.'} />;
 
   return (
     <div className='mt-6 w-full rounded-xl border border-accent  shadow-sm overflow-hidden'>
