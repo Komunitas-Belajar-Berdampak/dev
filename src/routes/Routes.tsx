@@ -10,6 +10,7 @@ import EditStudyGroup from '@/components/pages/Dosen/StudyGroup/Edit';
 import KontribusiMahasiswaDetail from '@/components/pages/Dosen/StudyGroup/Kontribusi';
 import StudyGroupList from '@/components/pages/Dosen/StudyGroup/List';
 import StudyGroupMain from '@/components/pages/Dosen/StudyGroup/Main';
+import TopikPembahasanDetail from '@/components/pages/Dosen/StudyGroup/TopikDetail';
 import ErrorPage from '@/components/pages/Error';
 import Login from '@/components/pages/Login';
 import FakultasPage from '@/components/pages/SuperAdmin/Fakultas/FakultasPage';
@@ -126,6 +127,10 @@ const routes: RouteObject[] = [
               {
                 path: ':namaMatkul/:idMatkul/:namaSg/:idSg/kontribusi/:namaAnggota/:idAnggota',
                 element: <KontribusiMahasiswaDetail />,
+              },
+              {
+                path: ':namaMatkul/:idMatkul/:namaSg/:idSg/:namaTopik/:idTopik',
+                element: <TopikPembahasanDetail />,
               },
             ],
           },
