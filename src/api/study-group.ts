@@ -25,51 +25,7 @@ const editStudyGroupById = async (studyGroupId: string, payload: StudyGroupSchem
 };
 
 const getStudyGroupMemberById = async (studyGroupId: string, userId: string): Promise<ApiResponse<StudyGroupMemberDetail>> => {
-  // const res = await api.get<ApiResponse<StudyGroupMemberDetail>>(`/sg/${studyGroupId}/user-detail/${userId}`);
-
-  const res = await new Promise<{ data: ApiResponse<StudyGroupMemberDetail> }>((resolve) => {
-    setTimeout(() => {
-      resolve({
-        data: {
-          status: 'success',
-          message: 'Mocked study group member detail fetched successfully.',
-          data: {
-            id: studyGroupId,
-            totalKontribusi: 1000,
-            mahasiswa: {
-              id: userId,
-              nama: 'John Doe',
-              nrp: '123456789',
-            },
-            kontribusiTotalByThread: [
-              {
-                thread: 'Tugas 1 - Pengantar HTML',
-                kontribusi: 600,
-              },
-              {
-                thread: 'Tugas 2 - Dasar CSS',
-                kontribusi: 400,
-              },
-            ],
-            aktivitas: [
-              {
-                thread: 'Tugas 1 - Pengantar HTML',
-                aktivitas: 'Mengunggah tugas',
-                kontribusi: 600,
-                timestamp: '2025-09-23T12:38:00Z',
-              },
-              {
-                thread: 'Tugas 2 - Dasar CSS',
-                aktivitas: 'Membuat komentar',
-                kontribusi: 400,
-                timestamp: '2025-09-25T15:20:00Z',
-              },
-            ],
-          },
-        },
-      });
-    }, 1000);
-  });
+  const res = await api.get<ApiResponse<StudyGroupMemberDetail>>(`/sg/${studyGroupId}/user-detail/${userId}`);
 
   return res.data;
 };
