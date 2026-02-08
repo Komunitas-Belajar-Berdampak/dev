@@ -90,7 +90,6 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
       !form.email ||
       !form.idProdi ||
       !form.idRole ||
-      !form.password ||
       !form.jenisKelamin ||
       !form.status
     );
@@ -110,6 +109,12 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
   const submit = async () => {
     setLocalError(null);
 
+    const nrpTrim = form.nrp.trim();
+    if (!nrpTrim) {
+      setLocalError("NRP wajib diisi.");
+      return;
+    }
+
     if (!form.idRole) {
       setLocalError("Role wajib dipilih.");
       return;
@@ -123,6 +128,8 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
     try {
       await createUser({
         ...form,
+        // ✅ Password default disamakan dengan NRP (tanpa input di modal)
+        password: nrpTrim,
         alamat: form.alamat?.trim() ? form.alamat : undefined,
         fotoProfil: form.fotoProfil?.trim() ? form.fotoProfil : "",
       });
@@ -243,7 +250,9 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
           <Field label="Jenis Kelamin">
             <Select
               value={form.jenisKelamin}
-              onValueChange={(v) => setForm((p) => ({ ...p, jenisKelamin: v as JenisKelamin }))}
+              onValueChange={(v) =>
+                setForm((p) => ({ ...p, jenisKelamin: v as JenisKelamin }))
+              }
             >
               <SelectTrigger className="w-full h-10">
                 <SelectValue placeholder="Pilih Jenis Kelamin" />
@@ -287,16 +296,11 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
               </SelectContent>
             </Select>
           </Field>
-
-          <Field label="Password">
-            <Input
-              value={form.password}
-              onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
-              type="password"
-              placeholder="********"
-            />
-          </Field>
         </div>
+
+        <p className="mt-3 text-xs text-muted-foreground">
+          *Password default akan disamakan dengan NRP dan disarankan untuk diganti saat login pertama.
+        </p>
 
         <div className="pt-6">
           <Button

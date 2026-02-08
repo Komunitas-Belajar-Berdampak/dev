@@ -43,3 +43,16 @@ export interface CreateUserPayload {
   password: string;
   fotoProfil?: string;
 }
+
+export interface UpdateUserPayload {
+  idRole?: string;
+  idProdi?: string;
+  nama?: string;
+  angkatan?: string;
+  email?: string;
+  alamat?: string;
+  jenisKelamin?: JenisKelamin;
+  status?: UserStatusBE;
+  fotoProfil?: string;
+}
+

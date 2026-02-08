@@ -17,7 +17,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import UserActionDropdown from "./UserActionDropdown";
 import AddUserModal from "./Modal/AddUserModal";
 import EditUserModal from "./Modal/EditUserModal";
-import DeleteUserModal from "./Modal/DeleteUserModal";
 
 import { useUsers } from "./hooks/useUsers";
 import type { UserEntity, UserTableRow } from "./types/user";
@@ -39,7 +38,6 @@ function UsersTableSkeleton() {
 
   return (
     <div className="bg-white w-full">
-      {/* Top bar skeleton */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
         <div className="flex w-full sm:w-auto gap-2">
           <div className="w-full sm:w-64">
@@ -51,7 +49,6 @@ function UsersTableSkeleton() {
         <Skeleton className="h-10 w-full sm:w-36 border-2 border-black shadow-[3px_3px_0_0_#000]" />
       </div>
 
-      {/* Table skeleton */}
       <div className="relative -mx-4 sm:mx-0">
         <div className="overflow-x-auto max-w-[calc(100vw-2rem)] sm:max-w-full">
           <Table className="min-w-[900px] text-blue-800">
@@ -102,7 +99,6 @@ function UsersTableSkeleton() {
         </div>
       </div>
 
-      {/* Pagination skeleton (optional, biar layout gak loncat) */}
       <div className="mt-10 flex justify-center sm:justify-end">
         <div className="flex gap-2">
           <Skeleton className="h-10 w-20" />
@@ -136,15 +132,9 @@ export default function UserTable() {
 
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
-  const [openDelete, setOpenDelete] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<UserTableRow | null>(null);
 
-  const selectedUserEntity: UserEntity | null =
-    selectedUser
-      ? userEntities.find((u) => u._id === selectedUser.id) ?? null
-      : null;
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
-  // ✅ Loading -> skeleton (hapus "Loading...")
   if (loading) {
     return <UsersTableSkeleton />;
   }
@@ -218,29 +208,25 @@ export default function UserTable() {
                   </TableCell>
                 </TableRow>
               ) : (
-                paginatedUsers.map((user) => (
-                  <TableRow key={user.id} className="h-14 border-b border-black/5">
-                    <TableCell>{user.nrp}</TableCell>
-                    <TableCell className="font-medium">{user.nama}</TableCell>
-                    <TableCell>{user.angkatan}</TableCell>
-                    <TableCell>{user.prodi}</TableCell>
+                paginatedUsers.map((row) => (
+                  <TableRow key={row.id} className="h-14 border-b border-black/5">
+                    <TableCell>{row.nrp}</TableCell>
+                    <TableCell className="font-medium">{row.nama}</TableCell>
+                    <TableCell>{row.angkatan}</TableCell>
+                    <TableCell>{row.prodi}</TableCell>
                     <TableCell>
-                      {user.status === "Aktif" ? (
+                      {row.status === "Aktif" ? (
                         <Badge variant="success">Aktif</Badge>
                       ) : (
                         <Badge variant="danger">Non Aktif</Badge>
                       )}
                     </TableCell>
-                    <TableCell>{user.role}</TableCell>
+                    <TableCell>{row.role}</TableCell>
                     <TableCell className="text-center">
                       <UserActionDropdown
                         onEdit={() => {
-                          setSelectedUser(user);
+                          setSelectedUserId(row.id);
                           setOpenEdit(true);
-                        }}
-                        onDelete={() => {
-                          setSelectedUser(user);
-                          setOpenDelete(true);
                         }}
                       />
                     </TableCell>
@@ -260,14 +246,12 @@ export default function UserTable() {
 
       <EditUserModal
         open={openEdit}
-        onClose={() => setOpenEdit(false)}
-        user={selectedUserEntity}
-      />
-
-      <DeleteUserModal
-        open={openDelete}
-        onClose={() => setOpenDelete(false)}
-        onConfirm={() => setOpenDelete(false)}
+        userId={selectedUserId}
+        onClose={() => {
+          setOpenEdit(false);
+          setSelectedUserId(null);
+        }}
+        onSuccess={() => refetch()}
       />
 
       {totalPages > 1 && (

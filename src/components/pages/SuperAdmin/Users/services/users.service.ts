@@ -1,5 +1,5 @@
 import { api } from "@/lib/axios";
-import type { CreateUserPayload, UserEntity } from "../types/user";
+import type { CreateUserPayload, UpdateUserPayload, UserEntity } from "../types/user";
 
 function normalizeUsers(payload: any): UserEntity[] {
   if (Array.isArray(payload)) return payload;
@@ -26,10 +26,10 @@ export const UsersService = {
     return res.data?.data ?? res.data;
   },
 
-  async updateUser(id: string, payload: Partial<UserEntity>) {
+  async updateUser(id: string, payload: UpdateUserPayload) {
     const res = await api.put<any>(`/users/${id}`, payload);
     return res.data?.data ?? res.data;
-  },
+},
 
   async deleteUser(id: string) {
     const res = await api.delete<any>(`/users/${id}`);
