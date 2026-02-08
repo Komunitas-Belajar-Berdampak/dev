@@ -15,7 +15,7 @@ const getStudyGroupsByCourse = async (courseId: string, page: number = 1, limit:
           message: 'Success',
           data: [
             {
-              id: 'sg1',
+              id: `${courseId}-sg1`,
               nama: 'Study Group 1',
               totalAnggota: 10,
               kapasitas: 20,
@@ -24,7 +24,7 @@ const getStudyGroupsByCourse = async (courseId: string, page: number = 1, limit:
               totalKontribusi: 50,
             },
             {
-              id: 'sg2',
+              id: `${courseId}-sg2`,
               nama: 'Study Group 2',
               totalAnggota: 15,
               kapasitas: 25,

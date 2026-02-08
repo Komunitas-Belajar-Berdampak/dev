@@ -69,7 +69,7 @@ export default function EditUserModal({ open, onClose, user }: Props) {
             <label className="text-sm font-medium">
               Angkatan <span className="text-red-500">*</span>
             </label>
-            <Input defaultValue={user.angkatan} />
+            <Input defaultValue={user.angkatan ?? ""} />
           </div>
 
           {/* Program Studi */}
@@ -167,7 +167,7 @@ export default function EditUserModal({ open, onClose, user }: Props) {
             <label className="text-sm font-medium">
               Role <span className="text-red-500">*</span>
             </label>
-            <Select defaultValue={user.roleId[0]?.toLowerCase() || ""}>
+            <Select defaultValue={user.role[0]?.toLowerCase() || ""}>
               <SelectTrigger
                 className="
                   w-full h-10 rounded-md border border-input
@@ -177,7 +177,7 @@ export default function EditUserModal({ open, onClose, user }: Props) {
                   focus:ring-ring focus:ring-offset-2
                 "
               >
-                <SelectValue placeholder={user.roleId} />
+                <SelectValue placeholder={user.role} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="mahasiswa">Mahasiswa</SelectItem>

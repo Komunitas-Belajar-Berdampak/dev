@@ -13,7 +13,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import type { ProgramStudi } from "../types/program-studi";
+import type { ProgramStudiEntity } from "../types/program-studi";
 
 export default function EditProgramStudiModal({
   open,
@@ -22,7 +22,7 @@ export default function EditProgramStudiModal({
 }: {
   open: boolean;
   onClose: () => void;
-  data: ProgramStudi | null;
+  data: ProgramStudiEntity | null;
 }) {
   if (!data) return null;
 
@@ -34,10 +34,10 @@ export default function EditProgramStudiModal({
         </DialogHeader>
 
         <div className="space-y-4 mt-4">
-          <Input value={data.kodeProgramStudi} disabled />
-          <Input defaultValue={data.namaProgramStudi} />
+          <Input value={data.kodeProdi} disabled />
+          <Input defaultValue={data.namaProdi} />
 
-          <Select defaultValue={data.idFakultas}>
+          <Select defaultValue={data.namaFakultas || undefined}>
             <SelectTrigger className="w-full border border-black/20">
               <SelectValue placeholder="Pilih Fakultas" />
             </SelectTrigger>
