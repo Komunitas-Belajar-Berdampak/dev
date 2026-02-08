@@ -13,7 +13,34 @@ export type StudyGroupDetail = {
   nama: string;
   deskripsi?: string;
   kapasitas: number;
-  anggota?: string[];
+  anggota?: AnggotaStudyGroup[];
   status: boolean;
   totalKontribusi: number;
+};
+
+export type AnggotaStudyGroup = {
+  id: string;
+  nrp: string;
+  nama: string;
+  totalKontribusi: number;
+};
+
+export type StudyGroupMemberDetail = {
+  id: string;
+  totalKontribusi: number;
+  mahasiswa: {
+    id: string;
+    nrp: string;
+    nama: string;
+  };
+  kontribusiTotalByThread: {
+    thread: string;
+    kontribusi: number;
+  }[];
+  aktivitas: {
+    thread: string;
+    aktivitas: string;
+    kontribusi: number;
+    timestamp: string;
+  }[];
 };
