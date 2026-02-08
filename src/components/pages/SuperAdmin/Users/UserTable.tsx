@@ -35,7 +35,6 @@ function mapUserToTable(user: UserEntity): UserTableRow {
 
 function UsersTableSkeleton() {
   const rows = Array.from({ length: 10 });
-
   return (
     <div className="bg-white w-full">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
@@ -71,24 +70,12 @@ function UsersTableSkeleton() {
             <TableBody>
               {rows.map((_, i) => (
                 <TableRow key={i} className="h-14 border-b border-black/5">
-                  <TableCell>
-                    <Skeleton className="h-4 w-20" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-44" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-16" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-40" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-6 w-20 rounded-full" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-16" />
-                  </TableCell>
+                  <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-44" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-40" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-16" /></TableCell>
                   <TableCell className="text-center">
                     <Skeleton className="h-8 w-8 inline-block rounded-md" />
                   </TableCell>
@@ -135,9 +122,7 @@ export default function UserTable() {
 
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
-  if (loading) {
-    return <UsersTableSkeleton />;
-  }
+  if (loading) return <UsersTableSkeleton />;
 
   if (error) {
     return (
@@ -244,6 +229,7 @@ export default function UserTable() {
         onSuccess={() => refetch()}
       />
 
+      {/* ✅ modal edit fetch by id */}
       <EditUserModal
         open={openEdit}
         userId={selectedUserId}

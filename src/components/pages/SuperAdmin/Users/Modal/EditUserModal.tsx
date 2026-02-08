@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -16,74 +16,63 @@ import {
 } from "@/components/ui/select";
 
 import { UsersService } from "../services/users.service";
-import { useProgramStudi } from "../../ProgramStudi/hooks/useProgramStudi";
-import { useRoles } from "../hooks/useRoles";
 import { useUpdateUser } from "../hooks/useUpdateUser";
+import { useRoles } from "../hooks/useRoles";
+import type { JenisKelamin, UserEntity, UserStatusBE } from "../types/user";
 
-import type {
-  JenisKelamin,
-  UpdateUserPayload,
-  UserEntity,
-  UserStatusBE,
-} from "@/components/pages/SuperAdmin/Users/types/user";
+type UpdateUserPayload = {
+  idRole?: string;
+  nama?: string;
+  angkatan?: string;
+  email?: string;
+  alamat?: string;
+  jenisKelamin?: JenisKelamin;
+  status?: UserStatusBE;
+};
 
-const baldAvatarSvg = `data:image/svg+xml;utf8,${encodeURIComponent(`
-<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120">
-  <rect width="120" height="120" rx="60" fill="#e5e7eb"/>
-  <circle cx="60" cy="52" r="28" fill="#f5d0a9"/>
-  <rect x="34" y="78" width="52" height="28" rx="14" fill="#f5d0a9"/>
-  <circle cx="50" cy="52" r="4" fill="#111827"/>
-  <circle cx="70" cy="52" r="4" fill="#111827"/>
-  <path d="M50 64c6 6 14 6 20 0" stroke="#111827" stroke-width="3" fill="none" stroke-linecap="round"/>
-</svg>
-`)}`;
-
-interface Props {
-  open: boolean;
-  userId: string | null;
-  onClose: () => void;
-  onSuccess?: () => void;
-}
-
-async function fileToDataUrl(file: File) {
-  return await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
+type EditUserForm = {
+  idRole: string;
+  nama: string;
+  angkatan: string;
+  email: string;
+  alamat: string;
+  jenisKelamin: JenisKelamin;
+  status: UserStatusBE;
+};
 
 function norm(v: unknown) {
   return String(v ?? "").toLowerCase().trim();
 }
 
-export default function EditUserModal({ open, userId, onClose, onSuccess }: Props) {
-  const { programStudi, loading: loadingProdi, error: errorProdi } =
-    useProgramStudi();
-  const { roles, loading: loadingRoles, error: errorRoles } = useRoles();
-  const { updateUser, loading: saving, error: errorUpdate } = useUpdateUser();
+export default function EditUserModal({
+  open,
+  onClose,
+  onSuccess,
+  userId,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
+  userId: string | null;
+}) {
+  const { updateUser, loading: saving, error: updateError } = useUpdateUser();
+  const { roles, loading: loadingRoles } = useRoles();
 
   const [detail, setDetail] = useState<UserEntity | null>(null);
   const [loadingUser, setLoadingUser] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
-  const [form, setForm] = useState<UpdateUserPayload>({
+  const [form, setForm] = useState<EditUserForm>({
     idRole: "",
-    idProdi: "",
     nama: "",
     angkatan: "",
     email: "",
     alamat: "",
     jenisKelamin: "pria",
     status: "aktif",
-    fotoProfil: "",
   });
 
-  const [preview, setPreview] = useState<string>(baldAvatarSvg);
-  const [localError, setLocalError] = useState<string | null>(null);
-  const fileRef = useRef<HTMLInputElement | null>(null);
-
+  // ✅ fetch detail by id
   useEffect(() => {
     if (!open || !userId) return;
 
@@ -92,96 +81,68 @@ export default function EditUserModal({ open, userId, onClose, onSuccess }: Prop
     setDetail(null);
 
     UsersService.getUserById(userId)
-      .then((u) => {
+      .then((u: UserEntity) => {
         setDetail(u);
-
-        // isi form cepat dari detail (tanpa nunggu roles)
         setForm({
-          idRole: "", // di-resolve setelah roles ada
-          idProdi: u.idProdi ?? "",
+          idRole: "", // resolve later
           nama: u.nama ?? "",
           angkatan: u.angkatan ?? "",
           email: u.email ?? "",
           alamat: u.alamat ?? "",
           jenisKelamin: (u.jenisKelamin ?? "pria") as JenisKelamin,
           status: (u.status ?? "aktif") as UserStatusBE,
-          fotoProfil: u.fotoProfil ?? "",
         });
-
-        setPreview(u.fotoProfil ? String(u.fotoProfil) : baldAvatarSvg);
       })
-      .catch((e) => {
-        const msg =
-          e?.response?.data?.message ?? e?.message ?? "Gagal memuat data user";
-        setFetchError(String(msg));
+      .catch((e: any) => {
+        setFetchError(
+          e?.response?.data?.message ?? e?.message ?? "Gagal memuat data user",
+        );
       })
       .finally(() => setLoadingUser(false));
   }, [open, userId]);
 
+  // ✅ map role string -> idRole
   useEffect(() => {
     if (!open || !detail) return;
     if (!roles?.length) return;
 
-    const roleName = norm(detail.role); // detail.role biasanya string
-    const roleId = roles.find((r) => norm(r.nama) === roleName)?.id ?? "";
+    const roleName = norm((detail as any).role);
+    const roleId = roles.find((r: any) => norm(r.nama) === roleName)?.id ?? "";
     setForm((p) => ({ ...p, idRole: roleId }));
   }, [open, detail?._id, roles]);
 
-  const combinedError =
-    localError ?? fetchError ?? errorUpdate ?? errorProdi ?? errorRoles ?? null;
-
   const disabled = useMemo(() => {
     if (!detail) return true;
-    if (loadingUser) return true;
-    if (saving) return true;
-
+    if (loadingUser || saving) return true;
     return (
-      !form.nama?.trim() ||
-      !form.angkatan?.trim() ||
-      !form.email?.trim() ||
-      !form.idProdi ||
-      !form.idRole ||
+      !form.nama.trim() ||
+      !form.angkatan.trim() ||
+      !form.email.trim() ||
       !form.jenisKelamin ||
-      !form.status
+      !form.status ||
+      !form.idRole
     );
   }, [detail, loadingUser, saving, form]);
-
-  const pickFile = () => fileRef.current?.click();
-
-  const onFileChange = async (file: File | null) => {
-    if (!file) return;
-    const objectUrl = URL.createObjectURL(file);
-    setPreview(objectUrl);
-
-    const dataUrl = await fileToDataUrl(file);
-    setForm((p) => ({ ...p, fotoProfil: dataUrl }));
-  };
 
   const submit = async () => {
     if (!detail) return;
 
-    setLocalError(null);
-    if (!form.idRole) return setLocalError("Role wajib dipilih.");
-    if (!form.idProdi) return setLocalError("Program Studi wajib dipilih.");
+    const payload: UpdateUserPayload = {
+      idRole: form.idRole,
+      nama: form.nama.trim(),
+      angkatan: form.angkatan.trim(),
+      email: form.email.trim(),
+      alamat: form.alamat.trim() ? form.alamat.trim() : undefined,
+      jenisKelamin: form.jenisKelamin,
+      status: form.status,
+    };
 
-    try {
-      await updateUser({
-        id: detail._id,
-        payload: {
-          ...form,
-          nama: form.nama?.trim(),
-          angkatan: form.angkatan?.trim(),
-          email: form.email?.trim(),
-          alamat: form.alamat?.trim() ? form.alamat : undefined,
-          fotoProfil: form.fotoProfil?.trim() ? form.fotoProfil : "",
-        },
-      });
-
-      onSuccess?.();
-      onClose();
-    } catch {
-    }
+    await updateUser({ id: detail._id, payload });
+    onSuccess?.();
+    onClose();
   };
+
+  const combinedError = fetchError ?? updateError ?? null;
 
   return (
     <Dialog
@@ -194,7 +155,7 @@ export default function EditUserModal({ open, userId, onClose, onSuccess }: Prop
         <DialogHeader>
           <DialogTitle>Edit User</DialogTitle>
           <p className="text-sm text-muted-foreground">
-            Data diambil dari endpoint detail: <b>/users/{`{id}`}</b>
+            Silahkan ubah data User!
           </p>
         </DialogHeader>
 
@@ -210,26 +171,6 @@ export default function EditUserModal({ open, userId, onClose, onSuccess }: Prop
           </div>
         ) : (
           <>
-            <div className="flex flex-col items-center gap-3 mt-4">
-              <img
-                src={preview || baldAvatarSvg}
-                alt="profile"
-                className="w-24 h-24 rounded-full object-cover bg-gray-200"
-              />
-
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => onFileChange(e.target.files?.[0] ?? null)}
-              />
-
-              <Button type="button" variant="outline" size="sm" onClick={pickFile}>
-                Upload Profile Picture
-              </Button>
-            </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
               <Field label="NIK / NRP">
                 <Input value={detail.nrp} disabled />
@@ -237,14 +178,16 @@ export default function EditUserModal({ open, userId, onClose, onSuccess }: Prop
 
               <Field label="Nama Lengkap">
                 <Input
-                  value={form.nama ?? ""}
-                  onChange={(e) => setForm((p) => ({ ...p, nama: e.target.value }))}
+                  value={form.nama}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, nama: e.target.value }))
+                  }
                 />
               </Field>
 
               <Field label="Angkatan">
                 <Input
-                  value={form.angkatan ?? ""}
+                  value={form.angkatan}
                   onChange={(e) =>
                     setForm((p) => ({ ...p, angkatan: e.target.value }))
                   }
@@ -252,31 +195,12 @@ export default function EditUserModal({ open, userId, onClose, onSuccess }: Prop
               </Field>
 
               <Field label="Program Studi">
-                <Select
-                  value={form.idProdi ?? ""}
-                  onValueChange={(v) => setForm((p) => ({ ...p, idProdi: v }))}
-                >
-                  <SelectTrigger className="w-full h-10">
-                    <SelectValue placeholder={loadingProdi ? "Memuat..." : "Pilih Program Studi"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(programStudi ?? []).map((p: any) => {
-                      const id = String(p._id ?? p.id ?? "");
-                      const label = String(p.namaProdi ?? p.namaProgramStudi ?? "-");
-                      if (!id) return null;
-                      return (
-                        <SelectItem key={id} value={id}>
-                          {label}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
+                <Input value={(detail as any).prodi ?? "-"} disabled />
               </Field>
 
               <Field label="Email">
                 <Input
-                  value={form.email ?? ""}
+                  value={form.email}
                   onChange={(e) =>
                     setForm((p) => ({ ...p, email: e.target.value }))
                   }
@@ -285,7 +209,7 @@ export default function EditUserModal({ open, userId, onClose, onSuccess }: Prop
 
               <Field label="Alamat">
                 <Input
-                  value={form.alamat ?? ""}
+                  value={form.alamat}
                   onChange={(e) =>
                     setForm((p) => ({ ...p, alamat: e.target.value }))
                   }
@@ -294,13 +218,13 @@ export default function EditUserModal({ open, userId, onClose, onSuccess }: Prop
 
               <Field label="Jenis Kelamin">
                 <Select
-                  value={(form.jenisKelamin ?? "pria") as JenisKelamin}
+                  value={form.jenisKelamin}
                   onValueChange={(v) =>
                     setForm((p) => ({ ...p, jenisKelamin: v as JenisKelamin }))
                   }
                 >
                   <SelectTrigger className="w-full h-10">
-                    <SelectValue placeholder="Pilih Jenis Kelamin" />
+                    <SelectValue placeholder="Pilih jenis kelamin" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="pria">Pria</SelectItem>
@@ -311,13 +235,13 @@ export default function EditUserModal({ open, userId, onClose, onSuccess }: Prop
 
               <Field label="Status">
                 <Select
-                  value={(form.status ?? "aktif") as UserStatusBE}
+                  value={form.status}
                   onValueChange={(v) =>
                     setForm((p) => ({ ...p, status: v as UserStatusBE }))
                   }
                 >
                   <SelectTrigger className="w-full h-10">
-                    <SelectValue placeholder="Pilih Status" />
+                    <SelectValue placeholder="Pilih status" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="aktif">Aktif</SelectItem>
@@ -328,14 +252,16 @@ export default function EditUserModal({ open, userId, onClose, onSuccess }: Prop
 
               <Field label="Role">
                 <Select
-                  value={form.idRole ?? ""}
+                  value={form.idRole}
                   onValueChange={(v) => setForm((p) => ({ ...p, idRole: v }))}
                 >
                   <SelectTrigger className="w-full h-10">
-                    <SelectValue placeholder={loadingRoles ? "Memuat role..." : "Pilih Role"} />
+                    <SelectValue
+                      placeholder={loadingRoles ? "Memuat role..." : "Pilih role"}
+                    />
                   </SelectTrigger>
                   <SelectContent>
-                    {(roles ?? []).map((r) => (
+                    {roles.map((r: any) => (
                       <SelectItem key={r.id} value={r.id}>
                         {r.nama}
                       </SelectItem>
@@ -348,11 +274,10 @@ export default function EditUserModal({ open, userId, onClose, onSuccess }: Prop
             <div className="pt-8">
               <Button
                 className="w-full md:w-1/3"
-                type="button"
                 onClick={submit}
                 disabled={disabled}
               >
-                {saving ? "Menyimpan..." : "Edit Data User"}
+                {saving ? "Menyimpan..." : "Simpan Perubahan"}
               </Button>
             </div>
           </>

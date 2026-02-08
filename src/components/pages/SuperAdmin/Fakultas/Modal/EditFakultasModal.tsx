@@ -48,7 +48,6 @@ export default function EditFakultasModal({
     if (!nama) return setLocalError("Nama fakultas wajib diisi.");
 
     try {
-      // ✅ update cuma nama (kode gak ikut dikirim)
       await updateFakultas({
         id: fakultas.id,
         payload: { namaFakultas: nama },
@@ -77,7 +76,7 @@ export default function EditFakultasModal({
         <DialogHeader>
           <DialogTitle>Edit Fakultas</DialogTitle>
           <p className="text-sm text-muted-foreground">
-            Kode Fakultas tidak bisa diubah
+            Silahkan ubah data Fakultas!
           </p>
         </DialogHeader>
 

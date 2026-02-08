@@ -128,7 +128,6 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
     try {
       await createUser({
         ...form,
-        // ✅ Password default disamakan dengan NRP (tanpa input di modal)
         password: nrpTrim,
         alamat: form.alamat?.trim() ? form.alamat : undefined,
         fotoProfil: form.fotoProfil?.trim() ? form.fotoProfil : "",
