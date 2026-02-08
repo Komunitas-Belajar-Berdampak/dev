@@ -24,7 +24,6 @@ import {
 import FakultasActionDropdown from "./FakultasActionDropdown";
 import AddFakultasModal from "./Modal/AddFakultasModal";
 import EditFakultasModal from "./Modal/EditFakultasModal";
-import DeleteFakultasModal from "./Modal/DeleteFakultasModal";
 
 import { useFakultas } from "./hooks/useFakultas";
 import type { FakultasEntity, FakultasTableRow } from "./types/fakultas";
@@ -48,10 +47,18 @@ function FakultasTableSkeleton() {
           <Table className="min-w-[900px] text-blue-800">
             <TableHeader>
               <TableRow className="border-b border-black/10">
-                <TableHead className="font-bold text-blue-900">Kode Fakultas</TableHead>
-                <TableHead className="font-bold text-blue-900">Nama Fakultas</TableHead>
-                <TableHead className="font-bold text-blue-900">Program Studi</TableHead>
-                <TableHead className="font-bold text-blue-900 text-center">Aksi</TableHead>
+                <TableHead className="font-bold text-blue-900">
+                  Kode Fakultas
+                </TableHead>
+                <TableHead className="font-bold text-blue-900">
+                  Nama Fakultas
+                </TableHead>
+                <TableHead className="font-bold text-blue-900">
+                  Program Studi
+                </TableHead>
+                <TableHead className="font-bold text-blue-900 text-center">
+                  Aksi
+                </TableHead>
               </TableRow>
             </TableHeader>
 
@@ -97,9 +104,10 @@ function FakultasTableSkeleton() {
   );
 }
 
-
 export default function FakultasTable() {
-  const { fakultas: fakultasEntities, loading, error, refetch } = useFakultas();
+  const { fakultas: fakultasEntitiesRaw, loading, error, refetch } = useFakultas();
+
+  const fakultasEntities: FakultasEntity[] = fakultasEntitiesRaw ?? [];
 
   const rows: FakultasTableRow[] = useMemo(
     () => fakultasEntities.map(toFakultasTableRow),
@@ -110,24 +118,29 @@ export default function FakultasTable() {
   const [page, setPage] = useState(1);
   const limit = 10;
 
-  const filtered = rows.filter(
-    (f) =>
-      f.namaFakultas.toLowerCase().includes(search.toLowerCase()) ||
-      f.kodeFakultas.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    return rows.filter(
+      (f) =>
+        f.namaFakultas.toLowerCase().includes(q) ||
+        f.kodeFakultas.toLowerCase().includes(q),
+    );
+  }, [rows, search]);
 
   const totalPages = Math.ceil(filtered.length / limit);
   const paginated = filtered.slice((page - 1) * limit, page * limit);
 
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
-  const [openDelete, setOpenDelete] = useState(false);
   const [selected, setSelected] = useState<FakultasTableRow | null>(null);
 
-  const selectedEntity: FakultasEntity | null =
-    selected
-      ? fakultasEntities.find((f) => f.id === selected.id) ?? null
-      : null;
+  // ✅ FIX utama: entity biasanya _id (bukan id)
+  const selectedEntity: FakultasEntity | null = useMemo(() => {
+    if (!selected) return null;
+    return (
+      fakultasEntities.find((f: any) => (f._id ?? f.id) === selected.id) ?? null
+    );
+  }, [selected, fakultasEntities]);
 
   if (loading) return <FakultasTableSkeleton />;
 
@@ -230,10 +243,6 @@ export default function FakultasTable() {
                           setSelected(item);
                           setOpenEdit(true);
                         }}
-                        onDelete={() => {
-                          setSelected(item);
-                          setOpenDelete(true);
-                        }}
                       />
                     </TableCell>
                   </TableRow>
@@ -244,17 +253,23 @@ export default function FakultasTable() {
         </div>
       </div>
 
-      <AddFakultasModal open={openAdd} onClose={() => setOpenAdd(false)} />
+      <AddFakultasModal
+        open={openAdd}
+        onClose={() => setOpenAdd(false)}
+        onSuccess={() => refetch()}
+      />
+
       <EditFakultasModal
+        key={selectedEntity?.id ?? selected?.id ?? "no-fakultas"}
         open={openEdit}
-        onClose={() => setOpenEdit(false)}
+        onClose={() => {
+          setOpenEdit(false);
+          setSelected(null);
+        }}
         fakultas={selectedEntity}
+        onSuccess={() => refetch()}
       />
-      <DeleteFakultasModal
-        open={openDelete}
-        onClose={() => setOpenDelete(false)}
-        onConfirm={() => setOpenDelete(false)}
-      />
+
 
       {totalPages > 1 && (
         <div className="mt-10 flex justify-center sm:justify-end">

@@ -17,3 +17,9 @@ export interface FakultasTableRow {
   namaFakultas: string;
   programStudi: string[];
 }
+
+export type UpdateFakultasPayload = {
+  kodeFakultas?: string;
+  namaFakultas?: string;
+};
+

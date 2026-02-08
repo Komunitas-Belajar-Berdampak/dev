@@ -1,5 +1,5 @@
 import { api } from "@/lib/axios";
-import type { FakultasEntity } from "../types/fakultas";
+import type { FakultasEntity, UpdateFakultasPayload } from "../types/fakultas";
 
 function normalizeFakultas(payload: any): FakultasEntity[] {
   if (Array.isArray(payload)) return payload;
@@ -24,9 +24,9 @@ export const FakultasService = {
     return res.data;
   },
 
-  async updateFakultas(id: string, payload: Partial<FakultasEntity>) {
-    const res = await api.put(`/faculties/${id}`, payload);
-    return res.data;
+  async updateFakultas(id: string, payload: UpdateFakultasPayload) {
+    const res = await api.put<any>(`/faculties/${id}`, payload);
+    return res.data?.data ?? res.data;
   },
 
   async deleteFakultas(id: string) {
