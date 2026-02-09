@@ -11,8 +11,8 @@ import type { ApiResponse } from '@/types/api';
 import type { CourseById } from '@/types/course';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useEffect, useMemo } from 'react';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -63,6 +63,20 @@ const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
       idMahasiswa: [],
     },
   });
+
+  const kapasitas = useWatch({ control: form.control, name: 'kapasitas', defaultValue: 1 });
+  const selectedMahasiswa = useWatch({ control: form.control, name: 'idMahasiswa', defaultValue: [] });
+
+  useEffect(() => {
+    if (!Array.isArray(selectedMahasiswa)) return;
+    if (selectedMahasiswa.length <= kapasitas) return;
+
+    form.setValue('idMahasiswa', selectedMahasiswa.slice(0, kapasitas), {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+    toast.error(`Maksimal anggota sesuai kapasitas (${kapasitas}).`, { toasterId: 'global' });
+  }, [form, kapasitas, selectedMahasiswa]);
 
   const onSubmit = (data: StudyGroupSchemaType) => {
     mutate(data);
@@ -139,7 +153,42 @@ const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
                         Masukkan Anggota (Optional)
                       </FieldLabel>
 
-                      <Combobox multiple autoHighlight items={idItems} onValueChange={field.onChange}>
+                      <Combobox
+                        multiple
+                        autoHighlight
+                        items={[...new Set([...(idItems ?? []), ...((field.value as string[]) ?? [])])]}
+                        value={(field.value as string[]) ?? []}
+                        onValueChange={(nextValue) => {
+                          if (nextValue == null) {
+                            field.onChange([]);
+                            return;
+                          }
+
+                          const current = ((field.value as string[]) ?? []).filter(Boolean);
+
+                          if (Array.isArray(nextValue)) {
+                            if (nextValue.length > kapasitas) {
+                              toast.error(`Kapasitas cuma ${kapasitas}, jadi maksimal pilih ${kapasitas} anggota.`, { toasterId: 'global' });
+                              return;
+                            }
+                            field.onChange(nextValue);
+                            return;
+                          }
+
+                          const pickedId = String(nextValue);
+                          if (current.includes(pickedId)) {
+                            field.onChange(current.filter((v) => v !== pickedId));
+                            return;
+                          }
+
+                          if (current.length + 1 > kapasitas) {
+                            toast.error(`Kapasitas cuma ${kapasitas}, jadi maksimal pilih ${kapasitas} anggota.`, { toasterId: 'global' });
+                            return;
+                          }
+
+                          field.onChange([...current, pickedId]);
+                        }}
+                      >
                         <ComboboxChips ref={anchor} className={'w-full'}>
                           <ComboboxValue>
                             {(values) => (

@@ -13,7 +13,7 @@ import type { StudyGroupDetail } from '@/types/sg';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -90,6 +90,20 @@ const EditStudyGroupContent = ({ idMatkul, idSg }: EditStudyGroupContentProps) =
       idMahasiswa: [],
     },
   });
+
+  const kapasitas = useWatch({ control: form.control, name: 'kapasitas', defaultValue: 1 });
+  const selectedMahasiswa = useWatch({ control: form.control, name: 'idMahasiswa', defaultValue: [] });
+
+  useEffect(() => {
+    if (!Array.isArray(selectedMahasiswa)) return;
+    if (selectedMahasiswa.length <= kapasitas) return;
+
+    form.setValue('idMahasiswa', selectedMahasiswa.slice(0, kapasitas), {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+    toast.error(`Maksimal anggota sesuai kapasitas (${kapasitas}).`, { toasterId: 'global' });
+  }, [form, kapasitas, selectedMahasiswa]);
 
   useEffect(() => {
     if (!studygroup) return;
@@ -188,15 +202,25 @@ const EditStudyGroupContent = ({ idMatkul, idSg }: EditStudyGroupContentProps) =
                             return;
                           }
 
+                          const current = ((field.value as string[]) ?? []).filter(Boolean);
+
                           if (Array.isArray(nextValue)) {
+                            if (nextValue.length > kapasitas) {
+                              toast.error(`Kapasitas cuma ${kapasitas}, jadi maksimal pilih ${kapasitas} anggota.`, { toasterId: 'global' });
+                              return;
+                            }
                             field.onChange(nextValue);
                             return;
                           }
 
                           const pickedId = String(nextValue);
-                          const current = ((field.value as string[]) ?? []).filter(Boolean);
                           if (current.includes(pickedId)) {
                             field.onChange(current.filter((v) => v !== pickedId));
+                            return;
+                          }
+
+                          if (current.length + 1 > kapasitas) {
+                            toast.error(`Kapasitas cuma ${kapasitas}, jadi maksimal pilih ${kapasitas} anggota.`, { toasterId: 'global' });
                             return;
                           }
 
