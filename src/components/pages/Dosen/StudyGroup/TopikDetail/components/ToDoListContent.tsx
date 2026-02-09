@@ -2,7 +2,8 @@ import type { TaskFilterValue } from '@/components/shared/Filter/TaskFilterDropd
 import NoData from '@/components/shared/NoData';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { Task } from '@/types/task';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
+import { toast } from 'sonner';
 import { getTaskStatusLabel, tableHeaders, TASK_FILTER_ALL } from '../constant';
 import ToDoListSkeleton from './ToDoListSkeleton';
 
@@ -31,8 +32,13 @@ const ToDoListContent = ({ filters, tasksQuery }: ToDoListContentProps) => {
     });
   }, [tasksQuery.data, filters.memberId, filters.status]);
 
+  useEffect(() => {
+    if (!tasksQuery.isError) return;
+
+    toast.error(tasksQuery.error?.message || 'Gagal mengambil data To Do List.', { toasterId: 'global' });
+  }, [tasksQuery.error?.message, tasksQuery.isError]);
+
   if (tasksQuery.isLoading) return <ToDoListSkeleton />;
-  if (tasksQuery.isError) return <NoData message={tasksQuery.error?.message || 'Gagal mengambil task.'} />;
 
   return (
     <div className='mt-6 w-full rounded-xl border border-accent  shadow-sm overflow-hidden'>
@@ -50,7 +56,7 @@ const ToDoListContent = ({ filters, tasksQuery }: ToDoListContentProps) => {
           {tasksView.length === 0 ? (
             <TableRow>
               <TableCell colSpan={3} className='text-center text-accent py-10'>
-                Tidak ada task yang sesuai.
+                <NoData message={'Belum ada rencana to do yang dibuat'} />
               </TableCell>
             </TableRow>
           ) : (

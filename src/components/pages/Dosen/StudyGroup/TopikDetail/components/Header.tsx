@@ -1,21 +1,24 @@
 import ContentHeader from '@/components/shared/ContentHeader';
+import { Icon } from '@iconify/react';
 import { listIcons } from '../constant';
 import type { TabsType } from '../types';
 
 type TopikPembahasanDetailHeaderProps = {
   tab: TabsType;
+  namaTopik: string;
   statusToDoList: {
     DONE: number;
     INPROGRESS: number;
     DO: number;
   };
+  totalDiscussions: number;
 };
 
-const TopikPembahasanDetailHeader = ({ tab, statusToDoList }: TopikPembahasanDetailHeaderProps) => {
+const TopikPembahasanDetailHeader = ({ tab, namaTopik, statusToDoList, totalDiscussions }: TopikPembahasanDetailHeaderProps) => {
   const { DONE, INPROGRESS, DO } = statusToDoList;
 
   return (
-    <ContentHeader title={`Detail Topik Pembahasan`}>
+    <ContentHeader title={`${namaTopik}`}>
       <div className='flex flex-row gap-6 py-3'>
         {tab === 'todolist' ? (
           <>
@@ -30,7 +33,10 @@ const TopikPembahasanDetailHeader = ({ tab, statusToDoList }: TopikPembahasanDet
             ))}
           </>
         ) : (
-          <div></div>
+          <div>
+            <Icon icon='flowbite:messages-solid' className='size-6 inline-block mr-2 text-primary' />
+            <span className='text-primary'>{totalDiscussions} Discussions</span>
+          </div>
         )}
       </div>
     </ContentHeader>

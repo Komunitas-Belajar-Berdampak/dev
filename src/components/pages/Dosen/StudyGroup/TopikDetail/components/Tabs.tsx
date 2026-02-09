@@ -3,8 +3,10 @@ import TaskFilterDropdown from '@/components/shared/Filter/TaskFilterDropdown';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { Task } from '@/types/task';
+import type { ThreadDetail } from '@/types/thread-post';
 import { Icon } from '@iconify/react';
 import type { TabsType } from '../types';
+import DiscussionContent from './DiscussionContent';
 import ToDoListContent from './ToDoListContent';
 
 type TopikPembahasanDetailTabsProps = {
@@ -12,15 +14,23 @@ type TopikPembahasanDetailTabsProps = {
   onTabChange: (tab: TabsType) => void;
   filters: TaskFilterValue;
   onFiltersChange: (value: TaskFilterValue) => void;
+
   tasksQuery: {
     data: Task[];
     isLoading: boolean;
     isError: boolean;
     error: Error | null;
   };
+
+  threadDetailQuery: {
+    data: ThreadDetail[];
+    isLoading: boolean;
+    isError: boolean;
+    error: Error | null;
+  };
 };
 
-const TopikPembahasanDetailTabs = ({ tab, onTabChange, filters, onFiltersChange, tasksQuery }: TopikPembahasanDetailTabsProps) => {
+const TopikPembahasanDetailTabs = ({ tab, onTabChange, filters, onFiltersChange, tasksQuery, threadDetailQuery }: TopikPembahasanDetailTabsProps) => {
   const memberOptions = Array.from(new Map(tasksQuery.data.flatMap((t) => t.mahasiswa).map((m) => [m.id, { id: m.id, nama: m.nama }])).values());
 
   return (
@@ -35,17 +45,23 @@ const TopikPembahasanDetailTabs = ({ tab, onTabChange, filters, onFiltersChange,
           {tab === 'todolist' ? (
             <TaskFilterDropdown value={filters} onValueChange={onFiltersChange} members={memberOptions} label='Filter by..' />
           ) : (
-            <Button className='shadow-sm'>
-              <Icon icon='flowbite:messages-solid' className='size-4' />
-              New Discussion
-            </Button>
+            <div className='flex gap-4'>
+              <TaskFilterDropdown value={filters} onValueChange={onFiltersChange} members={memberOptions} label='Filter by..' />
+
+              <Button className='shadow-sm py-5'>
+                <Icon icon='flowbite:messages-solid' className='size-4.5' />
+                New Discussion
+              </Button>
+            </div>
           )}
         </div>
 
         <TabsContent value='todolist'>
           <ToDoListContent filters={filters} tasksQuery={tasksQuery} />
         </TabsContent>
-        <TabsContent value='discussion'>{/* buat discussion */}</TabsContent>
+        <TabsContent value='discussion'>
+          <DiscussionContent threadDetailQuery={threadDetailQuery} />
+        </TabsContent>
       </Tabs>
     </div>
   );

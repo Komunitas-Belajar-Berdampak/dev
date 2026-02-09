@@ -37,7 +37,7 @@ const TaskFilterDropdown = ({ value, onValueChange, members, label = 'Filter by.
           className={cn(
             `
             flex items-center gap-2 border border-black/20 bg-white text-black/30 shadow-sm hover:bg-primary
-            hover:text-white
+            hover:text-white py-5 
 			`,
             buttonClassName,
           )}
