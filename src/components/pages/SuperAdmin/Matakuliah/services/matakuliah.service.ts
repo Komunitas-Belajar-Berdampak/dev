@@ -10,6 +10,22 @@ function normalizeMatakuliah(payload: any): MatakuliahEntity[] {
   return [];
 }
 
+export type CreateMatakuliahPayload = {
+  kodeMatkul: string;
+  namaMatkul: string;
+  sks: number;
+  kelas: string;
+  status: "aktif" | "tidak aktif";
+
+  // ✅ dari dropdown
+  idPeriode: string;
+  idPengajar: string;
+
+  deskripsi?: string | null;
+};
+
+export type UpdateMatakuliahPayload = Partial<CreateMatakuliahPayload>;
+
 export const MatakuliahService = {
   async getMatakuliah() {
     const res = await api.get<any>("/courses");
@@ -18,6 +34,21 @@ export const MatakuliahService = {
 
   async getMatakuliahById(id: string) {
     const res = await api.get<any>(`/courses/${id}`);
+    return res.data?.data ?? res.data;
+  },
+
+  async createMatakuliah(payload: CreateMatakuliahPayload) {
+    const res = await api.post<any>("/courses", payload);
+    return res.data?.data ?? res.data;
+  },
+
+  async updateMatakuliah(id: string, payload: UpdateMatakuliahPayload) {
+    const res = await api.put<any>(`/courses/${id}`, payload);
+    return res.data?.data ?? res.data;
+  },
+
+  async deleteMatakuliah(id: string) {
+    const res = await api.delete<any>(`/courses/${id}`);
     return res.data?.data ?? res.data;
   },
 };

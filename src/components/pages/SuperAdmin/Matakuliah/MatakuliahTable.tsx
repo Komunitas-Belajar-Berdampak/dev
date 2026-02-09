@@ -249,17 +249,34 @@ export default function MatakuliahTable() {
         </div>
       </div>
 
-      <AddMatakuliahModal open={openAdd} onClose={() => setOpenAdd(false)} />
-      <EditMatakuliahModal
-        open={openEdit}
-        onClose={() => setOpenEdit(false)}
-        data={selectedEntity}
+      <AddMatakuliahModal
+        open={openAdd}
+        onClose={() => setOpenAdd(false)}
+        onSuccess={() => refetch()}
       />
+
+      <EditMatakuliahModal
+        key={selectedEntity?.id ?? "no-course"}
+        open={openEdit}
+        onClose={() => {
+          setOpenEdit(false);
+          setSelected(null);
+        }}
+        data={selectedEntity}
+        onSuccess={() => refetch()}
+      />
+
       <DeleteMatakuliahModal
         open={openDelete}
-        onClose={() => setOpenDelete(false)}
-        onConfirm={() => setOpenDelete(false)}
+        onClose={() => {
+          setOpenDelete(false);
+          setSelected(null);
+        }}
+        id={selectedEntity?.id ?? null}
+        namaMatkul={selectedEntity?.namaMatkul}
+        onSuccess={() => refetch()}
       />
+
 
       {totalPages > 1 && (
         <div className="mt-10 flex justify-center sm:justify-end">
