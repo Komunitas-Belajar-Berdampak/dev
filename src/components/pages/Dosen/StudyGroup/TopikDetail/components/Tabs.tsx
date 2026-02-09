@@ -1,3 +1,4 @@
+import FilterWithInputRange, { type FilterWithInputRangeValue } from '@/components/shared/Filter/FilterWithInputRange';
 import type { TaskFilterValue } from '@/components/shared/Filter/TaskFilterDropdown';
 import TaskFilterDropdown from '@/components/shared/Filter/TaskFilterDropdown';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,9 @@ type TopikPembahasanDetailTabsProps = {
   filters: TaskFilterValue;
   onFiltersChange: (value: TaskFilterValue) => void;
 
+  discussionDateFilter: FilterWithInputRangeValue<'all'>;
+  onDiscussionDateFilterChange: (value: FilterWithInputRangeValue<'all'>) => void;
+
   tasksQuery: {
     data: Task[];
     isLoading: boolean;
@@ -31,7 +35,7 @@ type TopikPembahasanDetailTabsProps = {
   };
 };
 
-const TopikPembahasanDetailTabs = ({ tab, onTabChange, filters, onFiltersChange, tasksQuery, threadDetailQuery }: TopikPembahasanDetailTabsProps) => {
+const TopikPembahasanDetailTabs = ({ tab, onTabChange, filters, onFiltersChange, discussionDateFilter, onDiscussionDateFilterChange, tasksQuery, threadDetailQuery }: TopikPembahasanDetailTabsProps) => {
   const memberOptions = Array.from(new Map(tasksQuery.data.flatMap((t) => t.mahasiswa).map((m) => [m.id, { id: m.id, nama: m.nama }])).values());
 
   return (
@@ -47,7 +51,15 @@ const TopikPembahasanDetailTabs = ({ tab, onTabChange, filters, onFiltersChange,
             <TaskFilterDropdown value={filters} onValueChange={onFiltersChange} members={memberOptions} label='Filter by..' />
           ) : (
             <div className='flex gap-4'>
-              <TaskFilterDropdown value={filters} onValueChange={onFiltersChange} members={memberOptions} label='Filter by..' />
+              <FilterWithInputRange
+                value={discussionDateFilter}
+                onValueChange={onDiscussionDateFilterChange}
+                fields={[{ label: 'Semua', value: 'all' }]}
+                showFieldSelect={false}
+                showKeywordInput={false}
+                label='Date range'
+                buttonClassName='py-5'
+              />
 
               <Link to={'new-discussion'}>
                 <Button className='shadow-sm py-5'>

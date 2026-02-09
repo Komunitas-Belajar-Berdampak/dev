@@ -1,11 +1,12 @@
 import { getTaskList } from '@/api/task';
 import { getThreadsById } from '@/api/thread-post';
+import type { FilterWithInputRangeValue } from '@/components/shared/Filter/FilterWithInputRange';
 import type { TaskFilterValue } from '@/components/shared/Filter/TaskFilterDropdown';
 import type { ApiResponse } from '@/types/api';
 import type { Task } from '@/types/task';
 import type { ThreadDetail } from '@/types/thread-post';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { TASK_FILTER_ALL } from '../constant';
 import type { TabsType } from '../types';
 import TopikPembahasanDetailHeader from './Header';
@@ -23,8 +24,16 @@ const TopikPembahasanDetailContent = ({ idTopik, namaTopik }: TopikPembahasanDet
     status: TASK_FILTER_ALL,
   });
 
+  const [discussionDateFilter, setDiscussionDateFilter] = useState<FilterWithInputRangeValue<'all'>>({
+    field: 'all',
+    keyword: '',
+    fromDate: '',
+    toDate: '',
+  });
+
   useEffect(() => {
     setFilters({ memberId: TASK_FILTER_ALL, status: TASK_FILTER_ALL });
+    setDiscussionDateFilter({ field: 'all', keyword: '', fromDate: '', toDate: '' });
   }, [idTopik]);
 
   const {
@@ -62,8 +71,25 @@ const TopikPembahasanDetailContent = ({ idTopik, namaTopik }: TopikPembahasanDet
     select: (res) => res.data,
   });
 
+  const filteredThreads = useMemo(() => {
+    const raw = threadDetailData ?? [];
+
+    const fromDateObj = discussionDateFilter.fromDate ? new Date(`${discussionDateFilter.fromDate}T00:00:00`) : null;
+    const toDateObj = discussionDateFilter.toDate ? new Date(`${discussionDateFilter.toDate}T23:59:59.999`) : null;
+
+    if (!fromDateObj && !toDateObj) return raw;
+
+    return raw.filter((t) => {
+      const ts = new Date(t.updatedAt);
+      if (Number.isNaN(ts.getTime())) return false;
+      if (fromDateObj && ts < fromDateObj) return false;
+      if (toDateObj && ts > toDateObj) return false;
+      return true;
+    });
+  }, [discussionDateFilter.fromDate, discussionDateFilter.toDate, threadDetailData]);
+
   const threadDetailQuery = {
-    data: threadDetailData ?? [],
+    data: filteredThreads,
     isLoading: threadDetailIsLoading,
     isError: threadDetailIsError,
     error: threadDetailError,
@@ -72,10 +98,19 @@ const TopikPembahasanDetailContent = ({ idTopik, namaTopik }: TopikPembahasanDet
   return (
     <>
       {/* kotak title */}
-      <TopikPembahasanDetailHeader namaTopik={namaTopik} tab={tab} statusToDoList={statusToDoList} totalDiscussions={threadDetailData?.length ?? 0} />
+      <TopikPembahasanDetailHeader namaTopik={namaTopik} tab={tab} statusToDoList={statusToDoList} totalDiscussions={filteredThreads.length} />
 
       {/* Tabs */}
-      <TopikPembahasanDetailTabs tab={tab} onTabChange={setTab} filters={filters} onFiltersChange={setFilters} tasksQuery={tasksQuery} threadDetailQuery={threadDetailQuery} />
+      <TopikPembahasanDetailTabs
+        tab={tab}
+        onTabChange={setTab}
+        filters={filters}
+        onFiltersChange={setFilters}
+        discussionDateFilter={discussionDateFilter}
+        onDiscussionDateFilterChange={setDiscussionDateFilter}
+        tasksQuery={tasksQuery}
+        threadDetailQuery={threadDetailQuery}
+      />
     </>
   );
 };

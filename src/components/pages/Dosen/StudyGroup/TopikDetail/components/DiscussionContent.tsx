@@ -13,7 +13,7 @@ import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import DialogDeletePost from './DialogDeletePost';
 import DiscussionSkeleton from './DiscussionSkeleton';
-import TiptapReadonlyContent from './TiptapReadonlyContent';
+import TiptapReadonlyContent from '../../../../../shared/TiptapReadonlyContent';
 
 type DiscussionContentProps = {
   threadDetailQuery: {
