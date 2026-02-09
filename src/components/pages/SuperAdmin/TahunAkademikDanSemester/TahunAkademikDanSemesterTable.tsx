@@ -25,7 +25,6 @@ import {
 import TahunAkademikDanSemesterActionDropdown from "../TahunAkademikDanSemester/TahunAkademikDanSemesterActionDropdown";
 
 import AddTahunAkademikDanSemesterModal from "./Modal/AddTahunAkademikDanSemesterModal";
-import EditTahunAkademikDanSemesterModal from "./Modal/EditTahunAkademikDanSemesterModal";
 import DeleteTahunAkademikDanSemesterModal from "./Modal/DeleteTahunAkademikDanSemesterModal";
 
 import { useTahunAkademikDanSemester } from "./hooks/useTahunAkademikDanSemester";
@@ -67,19 +66,9 @@ function TahunAkademikDanSemesterTableSkeleton() {
                   <TableCell className="font-medium">
                     <Skeleton className="h-4 w-[420px] max-w-full" />
                   </TableCell>
-
-                  <TableCell>
-                    <Skeleton className="h-4 w-28" />
-                  </TableCell>
-
-                  <TableCell>
-                    <Skeleton className="h-4 w-28" />
-                  </TableCell>
-
-                  <TableCell>
-                    <Skeleton className="h-6 w-20 rounded-full" />
-                  </TableCell>
-
+                  <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
                   <TableCell className="text-center">
                     <div className="flex justify-center">
                       <Skeleton className="h-9 w-9 rounded-md" />
@@ -91,29 +80,19 @@ function TahunAkademikDanSemesterTableSkeleton() {
           </Table>
         </div>
       </div>
-
-      <div className="mt-10 flex justify-center sm:justify-end">
-        <div className="flex gap-2">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-9 w-9" />
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
 
-
 export default function TahunAkademikDanSemesterTable() {
-  const {
-    academicTerms: entities,
-    loading,
-    error,
-    refetch,
-  } = useTahunAkademikDanSemester();
+  const { academicTerms: entities, loading, error, refetch } =
+    useTahunAkademikDanSemester();
 
   const rows: TahunAkademikDanSemesterTableRow[] = useMemo(
-    () => entities.map((t: TahunAkademikDanSemesterEntity) => toTahunAkademikDanSemesterTableRow(t)),
+    () =>
+      entities.map((t: TahunAkademikDanSemesterEntity) =>
+        toTahunAkademikDanSemesterTableRow(t),
+      ),
     [entities],
   );
 
@@ -129,14 +108,10 @@ export default function TahunAkademikDanSemesterTable() {
   const paginated = filtered.slice((page - 1) * limit, page * limit);
 
   const [openAdd, setOpenAdd] = useState(false);
-  const [openEdit, setOpenEdit] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [selected, setSelected] = useState<TahunAkademikDanSemesterTableRow | null>(null);
 
-  const selectedEntity: TahunAkademikDanSemesterEntity | null =
-    selected
-      ? entities.find((t) => t._id === selected.id) ?? null
-      : null;
+  const selectedId = selected?.id ?? null;
 
   if (loading) return <TahunAkademikDanSemesterTableSkeleton />;
 
@@ -167,10 +142,7 @@ export default function TahunAkademikDanSemesterTable() {
             }}
             className="w-full sm:w-72 border border-black/20 text-blue-800"
           />
-          <Button
-            size="icon"
-            className="border-2 border-black shadow-[3px_3px_0_0_#000]"
-          >
+          <Button size="icon" className="border-2 border-black shadow-[3px_3px_0_0_#000]">
             <Icon icon="mdi:magnify" />
           </Button>
         </div>
@@ -193,9 +165,7 @@ export default function TahunAkademikDanSemesterTable() {
                 <TableHead className="font-bold text-blue-900">Mulai</TableHead>
                 <TableHead className="font-bold text-blue-900">Selesai</TableHead>
                 <TableHead className="font-bold text-blue-900">Status</TableHead>
-                <TableHead className="font-bold text-blue-900 text-center">
-                  Aksi
-                </TableHead>
+                <TableHead className="font-bold text-blue-900 text-center">Aksi</TableHead>
               </TableRow>
             </TableHeader>
 
@@ -221,10 +191,6 @@ export default function TahunAkademikDanSemesterTable() {
                     </TableCell>
                     <TableCell className="text-center">
                       <TahunAkademikDanSemesterActionDropdown
-                        onEdit={() => {
-                          setSelected(item);
-                          setOpenEdit(true);
-                        }}
                         onDelete={() => {
                           setSelected(item);
                           setOpenDelete(true);
@@ -242,44 +208,38 @@ export default function TahunAkademikDanSemesterTable() {
       <AddTahunAkademikDanSemesterModal
         open={openAdd}
         onClose={() => setOpenAdd(false)}
-      />
-
-      <EditTahunAkademikDanSemesterModal
-        open={openEdit}
-        onClose={() => setOpenEdit(false)}
-        data={selectedEntity}
+        onSuccess={() => refetch()}
       />
 
       <DeleteTahunAkademikDanSemesterModal
         open={openDelete}
-        onClose={() => setOpenDelete(false)}
-        onConfirm={() => setOpenDelete(false)}
+        onClose={() => {
+          setOpenDelete(false);
+          setSelected(null);
+        }}
+        id={selectedId}
+        periode={selected?.periode ?? null}
+        onSuccess={() => refetch()}
       />
+
       {totalPages > 1 && (
         <div className="mt-10 flex justify-center sm:justify-end">
           <Pagination>
             <PaginationContent>
               <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => setPage((p) => Math.max(p - 1, 1))}
-                />
+                <PaginationPrevious onClick={() => setPage((p) => Math.max(p - 1, 1))} />
               </PaginationItem>
 
               {Array.from({ length: totalPages }).map((_, i) => (
                 <PaginationItem key={i}>
-                  <PaginationLink
-                    isActive={page === i + 1}
-                    onClick={() => setPage(i + 1)}
-                  >
+                  <PaginationLink isActive={page === i + 1} onClick={() => setPage(i + 1)}>
                     {i + 1}
                   </PaginationLink>
                 </PaginationItem>
               ))}
 
               <PaginationItem>
-                <PaginationNext
-                  onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-                />
+                <PaginationNext onClick={() => setPage((p) => Math.min(p + 1, totalPages))} />
               </PaginationItem>
             </PaginationContent>
           </Pagination>

@@ -1,5 +1,15 @@
 import { api } from "@/lib/axios";
-import type { TahunAkademikDanSemesterEntity } from "../types/tahun-akademik-dan-semester";
+import type {
+  TahunAkademikDanSemesterEntity,
+  StatusTahunAkademikBE,
+} from "../types/tahun-akademik-dan-semester";
+
+export type CreateAcademicTermPayload = {
+  periode: string;
+  startDate: string;
+  endDate: string;
+  status: StatusTahunAkademikBE;
+};
 
 function normalizeAcademicTerms(payload: any): TahunAkademikDanSemesterEntity[] {
   if (Array.isArray(payload)) return payload;
@@ -18,6 +28,16 @@ export const TahunAkademikDanSemesterService = {
 
   async getById(id: string) {
     const res = await api.get<any>(`/academic-terms/${id}`);
+    return res.data?.data ?? res.data;
+  },
+
+  async create(payload: CreateAcademicTermPayload) {
+    const res = await api.post<any>("/academic-terms", payload);
+    return res.data?.data ?? res.data;
+  },
+
+  async deleteById(id: string) {
+    const res = await api.delete<any>(`/academic-terms/${id}`);
     return res.data?.data ?? res.data;
   },
 };
