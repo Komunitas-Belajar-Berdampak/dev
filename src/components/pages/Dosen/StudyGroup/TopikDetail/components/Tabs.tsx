@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { Task } from '@/types/task';
 import type { ThreadDetail } from '@/types/thread-post';
 import { Icon } from '@iconify/react';
+import { Link } from 'react-router-dom';
 import type { TabsType } from '../types';
 import DiscussionContent from './DiscussionContent';
 import ToDoListContent from './ToDoListContent';
@@ -48,10 +49,12 @@ const TopikPembahasanDetailTabs = ({ tab, onTabChange, filters, onFiltersChange,
             <div className='flex gap-4'>
               <TaskFilterDropdown value={filters} onValueChange={onFiltersChange} members={memberOptions} label='Filter by..' />
 
-              <Button className='shadow-sm py-5'>
-                <Icon icon='flowbite:messages-solid' className='size-4.5' />
-                New Discussion
-              </Button>
+              <Link to={'new-discussion'}>
+                <Button className='shadow-sm py-5'>
+                  <Icon icon='flowbite:messages-solid' className='size-4.5' />
+                  New Discussion
+                </Button>
+              </Link>
             </div>
           )}
         </div>

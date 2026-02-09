@@ -143,4 +143,26 @@ const getThreadsById = async (threadId: string): Promise<ApiResponse<ThreadDetai
   return res.data;
 };
 
-export { getThreadsById, getThreadsByStudyGroup };
+const addPost = async (threadId: string, payload: { konten: unknown }): Promise<ApiResponse<null>> => {
+  // const res = await api.post<ApiResponse<null>>(`/threads/${threadId}`, payload);
+  // return res.data;
+
+  const res = await new Promise<{ data: ApiResponse<null> }>((resolve) => {
+    setTimeout(
+      () =>
+        resolve({
+          data: {
+            status: 'success',
+            message: 'Created new discussion successfully (mock).',
+            data: null,
+          },
+        }),
+      800,
+    );
+  });
+
+  void payload;
+  return res.data;
+};
+
+export { addPost, getThreadsById, getThreadsByStudyGroup };

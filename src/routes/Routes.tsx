@@ -5,6 +5,7 @@ import MatakuliahDetail from '@/components/pages/Dosen/Matakuliah/Detail/Matakul
 import MatakuliahLayout from '@/components/pages/Dosen/Matakuliah/index';
 import StudyGroupLayout from '@/components/pages/Dosen/StudyGroup';
 import AddStudyGroup from '@/components/pages/Dosen/StudyGroup/Add';
+import AddPost from '@/components/pages/Dosen/StudyGroup/AddPost';
 import StudyGroupDetail from '@/components/pages/Dosen/StudyGroup/Detail';
 import EditStudyGroup from '@/components/pages/Dosen/StudyGroup/Edit';
 import KontribusiMahasiswaDetail from '@/components/pages/Dosen/StudyGroup/Kontribusi';
@@ -131,6 +132,10 @@ const routes: RouteObject[] = [
               {
                 path: ':namaMatkul/:idMatkul/:namaSg/:idSg/:namaTopik/:idTopik',
                 element: <TopikPembahasanDetail />,
+              },
+              {
+                path: ':namaMatkul/:idMatkul/:namaSg/:idSg/:namaTopik/:idTopik/new-discussion',
+                element: <AddPost />,
               },
             ],
           },
