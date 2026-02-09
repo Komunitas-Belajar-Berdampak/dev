@@ -21,9 +21,10 @@ import EditUserModal from "./Modal/EditUserModal";
 import { useUsers } from "./hooks/useUsers";
 import type { UserEntity, UserTableRow } from "./types/user";
 
+// ✅ mapping aman: support id atau _id
 function mapUserToTable(user: UserEntity): UserTableRow {
   return {
-    id: user._id,
+    id: (user as any).id ?? (user as any)._id, // <-- aman buat id / _id
     nrp: user.nrp,
     nama: user.nama,
     angkatan: user.angkatan ?? "-",
@@ -35,6 +36,7 @@ function mapUserToTable(user: UserEntity): UserTableRow {
 
 function UsersTableSkeleton() {
   const rows = Array.from({ length: 10 });
+
   return (
     <div className="bg-white w-full">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
@@ -44,7 +46,6 @@ function UsersTableSkeleton() {
           </div>
           <Skeleton className="h-10 w-10 border-2 border-black shadow-[3px_3px_0_0_#000]" />
         </div>
-
         <Skeleton className="h-10 w-full sm:w-36 border-2 border-black shadow-[3px_3px_0_0_#000]" />
       </div>
 
@@ -56,26 +57,34 @@ function UsersTableSkeleton() {
                 <TableHead className="font-bold text-blue-900">NRP</TableHead>
                 <TableHead className="font-bold text-blue-900">Nama</TableHead>
                 <TableHead className="font-bold text-blue-900">Angkatan</TableHead>
-                <TableHead className="font-bold text-blue-900">
-                  Program Studi
-                </TableHead>
+                <TableHead className="font-bold text-blue-900">Program Studi</TableHead>
                 <TableHead className="font-bold text-blue-900">Status</TableHead>
                 <TableHead className="font-bold text-blue-900">Role</TableHead>
-                <TableHead className="font-bold text-blue-900 text-center">
-                  Aksi
-                </TableHead>
+                <TableHead className="font-bold text-blue-900 text-center">Aksi</TableHead>
               </TableRow>
             </TableHeader>
 
             <TableBody>
               {rows.map((_, i) => (
                 <TableRow key={i} className="h-14 border-b border-black/5">
-                  <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-44" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-16" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-40" /></TableCell>
-                  <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-20" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-44" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-16" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-40" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-6 w-20 rounded-full" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-16" />
+                  </TableCell>
                   <TableCell className="text-center">
                     <Skeleton className="h-8 w-8 inline-block rounded-md" />
                   </TableCell>
@@ -83,13 +92,6 @@ function UsersTableSkeleton() {
               ))}
             </TableBody>
           </Table>
-        </div>
-      </div>
-
-      <div className="mt-10 flex justify-center sm:justify-end">
-        <div className="flex gap-2">
-          <Skeleton className="h-10 w-20" />
-          <Skeleton className="h-10 w-20" />
         </div>
       </div>
     </div>
@@ -120,6 +122,7 @@ export default function UserTable() {
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
 
+  // ✅ FIX: state yang bener untuk id edit
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   if (loading) return <UsersTableSkeleton />;
@@ -176,7 +179,9 @@ export default function UserTable() {
                 <TableHead className="font-bold text-blue-900">NRP</TableHead>
                 <TableHead className="font-bold text-blue-900">Nama</TableHead>
                 <TableHead className="font-bold text-blue-900">Angkatan</TableHead>
-                <TableHead className="font-bold text-blue-900">Program Studi</TableHead>
+                <TableHead className="font-bold text-blue-900">
+                  Program Studi
+                </TableHead>
                 <TableHead className="font-bold text-blue-900">Status</TableHead>
                 <TableHead className="font-bold text-blue-900">Role</TableHead>
                 <TableHead className="font-bold text-blue-900 text-center">
@@ -194,7 +199,10 @@ export default function UserTable() {
                 </TableRow>
               ) : (
                 paginatedUsers.map((row) => (
-                  <TableRow key={row.id} className="h-14 border-b border-black/5">
+                  <TableRow
+                    key={row.id}
+                    className="h-14 border-b border-black/5"
+                  >
                     <TableCell>{row.nrp}</TableCell>
                     <TableCell className="font-medium">{row.nama}</TableCell>
                     <TableCell>{row.angkatan}</TableCell>
@@ -203,14 +211,14 @@ export default function UserTable() {
                       {row.status === "Aktif" ? (
                         <Badge variant="success">Aktif</Badge>
                       ) : (
-                        <Badge variant="danger">Non Aktif</Badge>
+                        <Badge variant="danger">Tidak Aktif</Badge>
                       )}
                     </TableCell>
                     <TableCell>{row.role}</TableCell>
                     <TableCell className="text-center">
                       <UserActionDropdown
                         onEdit={() => {
-                          setSelectedUserId(row.id);
+                          setSelectedUserId(row.id); // ✅ id untuk fetch detail user
                           setOpenEdit(true);
                         }}
                       />
@@ -229,7 +237,6 @@ export default function UserTable() {
         onSuccess={() => refetch()}
       />
 
-      {/* ✅ modal edit fetch by id */}
       <EditUserModal
         open={openEdit}
         userId={selectedUserId}

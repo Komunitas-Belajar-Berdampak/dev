@@ -17,8 +17,8 @@ export const UsersService = {
   },
 
   async getUserById(id: string) {
-    const res = await api.get<any>(`/users/${id}`);
-    return (res.data?.data ?? res.data) as UserEntity;
+    const res = await api.get(`/users/${id}`);
+    return (res.data?.data ?? res.data) as any;
   },
 
   async createUser(payload: CreateUserPayload) {
@@ -27,9 +27,9 @@ export const UsersService = {
   },
 
   async updateUser(id: string, payload: UpdateUserPayload) {
-    const res = await api.put<any>(`/users/${id}`, payload);
-    return res.data?.data ?? res.data;
-},
+    const res = await api.put(`/users/${id}`, payload);
+    return (res.data?.data ?? res.data) as any;
+  },
 
   async deleteUser(id: string) {
     const res = await api.delete<any>(`/users/${id}`);

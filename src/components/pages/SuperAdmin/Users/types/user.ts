@@ -44,15 +44,16 @@ export interface CreateUserPayload {
   fotoProfil?: string;
 }
 
-export type UpdateUserPayload = Partial<{
-  idRole: string;
-  idProdi: string;
-  nama: string;
-  angkatan: string;
-  email: string;
-  alamat: string;
-  jenisKelamin: JenisKelamin;
-  status: UserStatusBE;
-  fotoProfil: string;
-}>;
+export type UpdateUserPayload = {
+  idRole?: string;
+  idProdi?: string;
+  nama?: string;
+  angkatan?: string;
+  email?: string;
+  alamat?: string;
+  jenisKelamin?: JenisKelamin;
+  status?: UserStatusBE;
+  fotoProfil?: string;
+};
+
 
