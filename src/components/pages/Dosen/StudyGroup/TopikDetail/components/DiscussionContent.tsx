@@ -1,10 +1,17 @@
 import NoData from '@/components/shared/NoData';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import Circle from '@/components/ui/circle';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { getUser } from '@/lib/authStorage';
 import { formatDateTime } from '@/lib/datetime';
 import type { ThreadDetail } from '@/types/thread-post';
-import { useEffect } from 'react';
+import { DialogTrigger } from '@radix-ui/react-dialog';
+import { Edit, Trash } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
+import DialogDeletePost from './DialogDeletePost';
 import DiscussionSkeleton from './DiscussionSkeleton';
 import TiptapReadonlyContent from './TiptapReadonlyContent';
 
@@ -18,6 +25,10 @@ type DiscussionContentProps = {
 };
 
 const DiscussionContent = ({ threadDetailQuery }: DiscussionContentProps) => {
+  const user = getUser();
+  const nrp = user?.nrp;
+  const [openDeleteId, setOpenDeleteId] = useState<string | null>(null);
+
   useEffect(() => {
     if (!threadDetailQuery.isError) return;
     toast.error(threadDetailQuery.error?.message || 'Gagal mengambil data diskusi.', { toasterId: 'global' });
@@ -43,8 +54,29 @@ const DiscussionContent = ({ threadDetailQuery }: DiscussionContentProps) => {
                   <p className='text-sm text-accent '>{thread.author.nrp}</p>
                 </div>
 
-                <div className='w-full flex justify-end'>
+                <div className='w-full flex justify-end items-center gap-4'>
                   <p className='text-sm text-accent'>{formatDateTime(thread.updatedAt, { dateLocale: 'en-GB', timeLocale: 'en-GB', hour12: false })}</p>
+
+                  {thread.author.nrp === nrp && (
+                    <>
+                      <Button variant='ghost' size='sm' asChild>
+                        <Link to={`edit-discussion/${thread.id}`} onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+                          <Edit className='text-primary' />
+                        </Link>
+                      </Button>
+
+                      <Dialog open={openDeleteId === thread.id} onOpenChange={(open) => setOpenDeleteId(open ? thread.id : null)}>
+                        <DialogTrigger asChild>
+                          <Button variant='ghost' size='sm'>
+                            <Trash className='text-primary' />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className='border-accent'>
+                          <DialogDeletePost postId={thread.id} onClose={() => setOpenDeleteId(null)} />
+                        </DialogContent>
+                      </Dialog>
+                    </>
+                  )}
                 </div>
               </CardHeader>
 

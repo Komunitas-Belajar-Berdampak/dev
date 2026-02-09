@@ -89,8 +89,8 @@ const getThreadsById = async (threadId: string): Promise<ApiResponse<ThreadDetai
               {
                 id: 'threadId2',
                 author: {
-                  nrp: '22722009',
-                  nama: 'Maria Clara',
+                  nrp: 'D0001',
+                  nama: 'Dosen Contoh',
                 },
                 konten: {
                   type: 'doc',
@@ -165,4 +165,123 @@ const addPost = async (threadId: string, payload: { konten: unknown }): Promise<
   return res.data;
 };
 
-export { addPost, getThreadsById, getThreadsByStudyGroup };
+const editPost = async (postId: string, payload: { konten: unknown }): Promise<ApiResponse<null>> => {
+  // const res = await api.put<ApiResponse<null>>(`/posts/${postId}`, payload);
+
+  const res = await new Promise<{ data: ApiResponse<null> }>((resolve) => {
+    setTimeout(
+      () =>
+        resolve({
+          data: {
+            status: 'success',
+            message: 'Edited post successfully (mock).',
+            data: null,
+          },
+        }),
+      800,
+    );
+  });
+
+  void payload;
+
+  return res.data;
+};
+
+const getPostById = async (postId: string): Promise<ApiResponse<ThreadDetail>> => {
+  // const res = await api.get<ApiResponse<ThreadDetail>>(`/posts/${postId}`);
+
+  const res = await new Promise<{ data: ApiResponse<ThreadDetail> }>((resolve) => {
+    setTimeout(
+      () =>
+        resolve({
+          data: {
+            status: 'success',
+            message: 'Fetched post successfully (mock).',
+            data: {
+              id: postId,
+              author: {
+                nrp: 'D0001',
+                nama: 'Dosen Contoh',
+              },
+              konten: {
+                type: 'doc',
+                content: [
+                  {
+                    type: 'paragraph',
+                  },
+                  {
+                    type: 'paragraph',
+                    content: [
+                      {
+                        type: 'text',
+                        text: 'Halo ini test buat discussion check satu ',
+                      },
+                      {
+                        type: 'text',
+                        marks: [
+                          {
+                            type: 'bold',
+                          },
+                        ],
+                        text: 'dua',
+                      },
+                      {
+                        type: 'hardBreak',
+                      },
+                      {
+                        type: 'hardBreak',
+                      },
+                      {
+                        type: 'text',
+                        text: 'ini aku space ',
+                      },
+                      {
+                        type: 'text',
+                        marks: [
+                          {
+                            type: 'italic',
+                          },
+                        ],
+                        text: 'bla bla bla',
+                      },
+                    ],
+                  },
+                  {
+                    type: 'paragraph',
+                  },
+                  {
+                    type: 'paragraph',
+                  },
+                ],
+              },
+              updatedAt: '2025-09-24T10:15:00Z',
+            },
+          },
+        }),
+      800,
+    );
+  });
+  return res.data;
+};
+
+const deletePost = async (postId: string): Promise<ApiResponse<null>> => {
+  // const res = await api.delete<ApiResponse<null>>(`/posts/${postId}`);
+
+  const res = await new Promise<{ data: ApiResponse<null> }>((resolve) => {
+    setTimeout(
+      () =>
+        resolve({
+          data: {
+            status: 'success',
+            message: 'Deleted post successfully (mock).',
+            data: null,
+          },
+        }),
+      800,
+    );
+  });
+
+  return res.data;
+};
+
+export { addPost, deletePost, editPost, getPostById, getThreadsById, getThreadsByStudyGroup };

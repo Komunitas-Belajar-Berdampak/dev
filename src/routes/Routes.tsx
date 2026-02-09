@@ -8,6 +8,7 @@ import AddStudyGroup from '@/components/pages/Dosen/StudyGroup/Add';
 import AddPost from '@/components/pages/Dosen/StudyGroup/AddPost';
 import StudyGroupDetail from '@/components/pages/Dosen/StudyGroup/Detail';
 import EditStudyGroup from '@/components/pages/Dosen/StudyGroup/Edit';
+import EditPost from '@/components/pages/Dosen/StudyGroup/EditPost';
 import KontribusiMahasiswaDetail from '@/components/pages/Dosen/StudyGroup/Kontribusi';
 import StudyGroupList from '@/components/pages/Dosen/StudyGroup/List';
 import StudyGroupMain from '@/components/pages/Dosen/StudyGroup/Main';
@@ -136,6 +137,10 @@ const routes: RouteObject[] = [
               {
                 path: ':namaMatkul/:idMatkul/:namaSg/:idSg/:namaTopik/:idTopik/new-discussion',
                 element: <AddPost />,
+              },
+              {
+                path: ':namaMatkul/:idMatkul/:namaSg/:idSg/:namaTopik/:idTopik/edit-discussion/:idPost',
+                element: <EditPost />,
               },
             ],
           },
