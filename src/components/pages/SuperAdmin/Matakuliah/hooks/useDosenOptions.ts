@@ -7,6 +7,12 @@ function norm(v: unknown) {
   return String(v ?? "").toLowerCase().trim();
 }
 
+function pickUserId(u: any): string {
+  const id = String(u?.id ?? u?._id ?? "").trim();
+  if (!id || id === "undefined" || id === "null") return "";
+  return id;
+}
+
 export function useDosenOptions() {
   const q = useQuery({
     queryKey: ["users", "dosen"],
@@ -20,23 +26,26 @@ export function useDosenOptions() {
   const users = (q.data ?? []) as UserEntity[];
 
   const dosen = useMemo(() => {
-    return users.filter((u) => {
+    return users.filter((u: any) => {
       const r = norm(u.role);
-      // aman untuk variasi "DOSEN", "Dosen", "dosen"
       return r === "dosen" || r.includes("dosen");
     });
   }, [users]);
 
-  const options = useMemo(
-    () =>
-      dosen
-        .map((u) => ({
-          id: String(u._id),
-          label: `${u.nama} (${u.nrp})`,
-        }))
-        .filter((x) => x.id),
-    [dosen],
-  );
+  const options = useMemo(() => {
+    return dosen
+      .map((u: any) => {
+        const id = pickUserId(u);
+        if (!id) return null;
+
+        const nama = String(u.nama ?? "").trim();
+        const nrp = String(u.nrp ?? "").trim();
+        const label = nama ? (nrp ? `${nama} (${nrp})` : nama) : (nrp ? nrp : id);
+
+        return { id, label };
+      })
+      .filter(Boolean) as { id: string; label: string }[];
+  }, [dosen]);
 
   return useMemo(
     () => ({

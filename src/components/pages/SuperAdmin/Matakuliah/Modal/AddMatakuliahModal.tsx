@@ -29,7 +29,7 @@ export default function AddMatakuliahModal({
 
   const [kodeMatkul, setKodeMatkul] = useState("");
   const [namaMatkul, setNamaMatkul] = useState("");
-  const [sks, setSks] = useState<number>(0);
+  const [sks, setSks] = useState("");
   const [kelas, setKelas] = useState("");
   const [idPeriode, setIdPeriode] = useState("");
   const [idPengajar, setIdPengajar] = useState("");
@@ -45,12 +45,24 @@ export default function AddMatakuliahModal({
       !kodeMatkul.trim() ||
       !namaMatkul.trim() ||
       !kelas.trim() ||
-      !(Number(sks) > 0) ||
+      !sks.trim() ||
+      Number(sks) <= 0 ||
       !idPeriode ||
       !idPengajar ||
       !status
     );
-  }, [saving, loadingTerms, loadingDosen, kodeMatkul, namaMatkul, kelas, sks, idPeriode, idPengajar, status]);
+  }, [
+    saving,
+    loadingTerms,
+    loadingDosen,
+    kodeMatkul,
+    namaMatkul,
+    kelas,
+    sks,
+    idPeriode,
+    idPengajar,
+    status,
+  ]);
 
   const submit = async () => {
     setLocalError(null);
@@ -58,7 +70,8 @@ export default function AddMatakuliahModal({
     if (!kodeMatkul.trim()) return setLocalError("Kode matakuliah wajib diisi.");
     if (!namaMatkul.trim()) return setLocalError("Nama matakuliah wajib diisi.");
     if (!kelas.trim()) return setLocalError("Kelas wajib diisi.");
-    if (!(Number(sks) > 0)) return setLocalError("SKS harus > 0.");
+    if (!sks.trim()) return setLocalError("SKS wajib diisi.");
+    if (Number(sks) <= 0) return setLocalError("SKS harus lebih dari 0.");
     if (!idPeriode) return setLocalError("Periode wajib dipilih.");
     if (!idPengajar) return setLocalError("Pengajar wajib dipilih.");
 
@@ -71,12 +84,13 @@ export default function AddMatakuliahModal({
         status,
         idPeriode,
         idPengajar,
-        deskripsi: deskripsi.trim() ? deskripsi.trim() : null,
+        idMahasiswa: [],
       });
 
+      // reset form
       setKodeMatkul("");
       setNamaMatkul("");
-      setSks(0);
+      setSks("");
       setKelas("");
       setIdPeriode("");
       setIdPengajar("");
@@ -114,10 +128,35 @@ export default function AddMatakuliahModal({
         ) : null}
 
         <div className="space-y-4 mt-4">
-          <Input placeholder="Kode Matakuliah" value={kodeMatkul} onChange={(e) => setKodeMatkul(e.target.value)} />
-          <Input placeholder="Nama Matakuliah" value={namaMatkul} onChange={(e) => setNamaMatkul(e.target.value)} />
-          <Input type="number" placeholder="SKS" value={String(sks)} onChange={(e) => setSks(Number(e.target.value))} />
-          <Input placeholder="Kelas" value={kelas} onChange={(e) => setKelas(e.target.value)} />
+          <Input
+            placeholder="Kode Matakuliah"
+            value={kodeMatkul}
+            onChange={(e) => setKodeMatkul(e.target.value)}
+          />
+
+          <Input
+            placeholder="Nama Matakuliah"
+            value={namaMatkul}
+            onChange={(e) => setNamaMatkul(e.target.value)}
+          />
+
+          <Input
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            placeholder="SKS (contoh: 3)"
+            value={sks}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (/^\d*$/.test(v)) setSks(v);
+            }}
+          />
+
+          <Input
+            placeholder="Kelas (contoh: A)"
+            value={kelas}
+            onChange={(e) => setKelas(e.target.value)}
+          />
 
           <Select value={idPeriode} onValueChange={setIdPeriode}>
             <SelectTrigger className="w-full border border-black/20">
@@ -151,7 +190,11 @@ export default function AddMatakuliahModal({
             </SelectContent>
           </Select>
 
-          <Textarea placeholder="Deskripsi (opsional)" value={deskripsi} onChange={(e) => setDeskripsi(e.target.value)} />
+          <Textarea
+            placeholder="Deskripsi (opsional)"
+            value={deskripsi}
+            onChange={(e) => setDeskripsi(e.target.value)}
+          />
         </div>
 
         <Button className="w-full mt-6" onClick={submit} disabled={disabled}>
