@@ -15,15 +15,14 @@ import StudyGroupMain from '@/components/pages/Dosen/StudyGroup/Main';
 import TopikPembahasanDetail from '@/components/pages/Dosen/StudyGroup/TopikDetail';
 import ErrorPage from '@/components/pages/Error';
 import Login from '@/components/pages/Login';
+import StudyGroupListMhs from '@/components/pages/Mahasiswa/StudyGroup/List';
+import StudyGroupMainMhs from '@/components/pages/Mahasiswa/StudyGroup/Main';
 import FakultasPage from '@/components/pages/SuperAdmin/Fakultas/FakultasPage';
 import MatakuliahPage from '@/components/pages/SuperAdmin/Matakuliah/MatakuliahPage';
 import ProgramStudiPage from '@/components/pages/SuperAdmin/ProgramStudi/ProgramStudiPage';
 import SuperAdmin from '@/components/pages/SuperAdmin/SuperAdmin';
 import TahunAkademikDanSemesterPage from '@/components/pages/SuperAdmin/TahunAkademikDanSemester/TahunAkademikDanSemesterPage';
 import UserPage from '@/components/pages/SuperAdmin/Users/UserPage';
-
-import StudyGroupMainMhs from '@/components/pages/Mahasiswa/StudyGroup/Main';
-
 import { type RouteObject } from 'react-router-dom';
 import GuestRoute from './GuestRoute';
 import ProtectedRoute from './ProtectedRoute';
@@ -164,6 +163,10 @@ const routes: RouteObject[] = [
               {
                 index: true,
                 element: <StudyGroupMainMhs />,
+              },
+              {
+                path: ':namaMatkul/:idMatkul',
+                element: <StudyGroupListMhs />,
               },
             ],
           },

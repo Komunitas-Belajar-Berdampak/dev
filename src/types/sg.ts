@@ -8,6 +8,17 @@ export type StudyGroupbyCourse = {
   totalKontribusi: number;
 };
 
+export type StudyGroupByMembership = {
+  id: string;
+  nama: string;
+  kapasitas: number;
+  totalAnggota: number;
+  status: boolean;
+  deskripsi?: string;
+  statusMember?: 'PENDING' | 'APPROVED' | 'REJECTED';
+  totalKontribusi: number;
+};
+
 export type StudyGroupDetail = {
   id: string;
   nama: string;
