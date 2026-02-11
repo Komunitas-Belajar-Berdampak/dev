@@ -152,7 +152,7 @@ const ListItem = ({ studygroups, courseId, page }: StudyGroupListProps) => {
       </div>
 
       <Dialog open={Boolean(activeDialog)} onOpenChange={(next) => (!next ? setActiveDialog(null) : null)}>
-        <DialogContent>
+        <DialogContent className='rounded-xl'>
           {activeDialog?.type === 'request' ? (
             <DialogRequest studyGroupName={activeDialog.name} isPending={isRequestingJoin} onRequest={() => requestJoin(activeDialog.id)} />
           ) : activeDialog?.type === 'edit' ? (
