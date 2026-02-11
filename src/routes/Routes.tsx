@@ -21,6 +21,9 @@ import ProgramStudiPage from '@/components/pages/SuperAdmin/ProgramStudi/Program
 import SuperAdmin from '@/components/pages/SuperAdmin/SuperAdmin';
 import TahunAkademikDanSemesterPage from '@/components/pages/SuperAdmin/TahunAkademikDanSemester/TahunAkademikDanSemesterPage';
 import UserPage from '@/components/pages/SuperAdmin/Users/UserPage';
+
+import StudyGroupMainMhs from '@/components/pages/Mahasiswa/StudyGroup/Main';
+
 import { type RouteObject } from 'react-router-dom';
 import GuestRoute from './GuestRoute';
 import ProtectedRoute from './ProtectedRoute';
@@ -153,6 +156,16 @@ const routes: RouteObject[] = [
           {
             path: '',
             index: true,
+          },
+          {
+            path: 'study-groups',
+            element: <StudyGroupLayout />,
+            children: [
+              {
+                index: true,
+                element: <StudyGroupMainMhs />,
+              },
+            ],
           },
         ],
       },
