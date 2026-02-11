@@ -4,6 +4,7 @@ import type { ApiResponse } from '@/types/api';
 import type { StudyGroupMemberDetail } from '@/types/sg';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
+import { toast } from 'sonner';
 import KontribusiBody from './Body';
 import KontribusiHeader from './Header';
 import KontribusiMahasiswaDetailSkeleton from './KontribusiSkeleton';
@@ -23,11 +24,11 @@ const KontribusiMahasiswaDetailContent = ({ idStudyGroup, idAnggota, namaAnggota
 
   useEffect(() => {
     if (!isError) return;
-    console.error(error?.message || 'Gagal mengambil data kontribusi mahasiswa.');
+    toast.error(error?.message || 'Gagal mengambil data kontribusi mahasiswa.');
   }, [error?.message, isError]);
 
   if (isLoading || isFetching) return <KontribusiMahasiswaDetailSkeleton />;
-  if (isError) return <NoData message={error?.message || 'Gagal mengambil data kontribusi mahasiswa.'} />;
+
   if (!data) return <NoData message='Data kontribusi tidak ditemukan.' />;
 
   return (
