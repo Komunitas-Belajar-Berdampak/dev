@@ -20,3 +20,10 @@ export const studyGroupSchema = z
   });
 
 export type StudyGroupSchemaType = z.infer<typeof studyGroupSchema>;
+
+export const studyGroupQuickEditSchema = z.object({
+  nama: z.string().min(3, 'Nama study group tidak boleh kosong'),
+  deskripsi: z.string().optional(),
+});
+
+export type StudyGroupQuickEditSchemaType = z.infer<typeof studyGroupQuickEditSchema>;
