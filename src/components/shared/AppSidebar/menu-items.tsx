@@ -10,6 +10,7 @@ type MenuItem = {
 };
 
 const menuItems: MenuItem[] = [
+  // admin
   {
     title: 'Home',
     path: '/admin',
@@ -46,6 +47,8 @@ const menuItems: MenuItem[] = [
     icon: <Icon icon='mdi:account-multiple' />,
     role: ['SUPER_ADMIN'],
   },
+
+  // dosen
   {
     title: 'Home Page',
     path: '/',
@@ -64,6 +67,14 @@ const menuItems: MenuItem[] = [
     path: '/dosen/study-groups',
     icon: <Icon icon='fluent:people-community-16-regular' />,
     role: ['DOSEN'],
+  },
+
+  // mahasiswa
+  {
+    title: 'Study Groups',
+    path: '/mahasiswa/study-groups',
+    icon: <Icon icon='fluent:people-community-16-regular' />,
+    role: ['MAHASISWA'],
   },
 ];
 
