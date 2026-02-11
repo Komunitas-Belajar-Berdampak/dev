@@ -11,9 +11,9 @@ import { Edit, Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
+import TiptapReadonlyContent from '../../../../../shared/TiptapReadonlyContent';
 import DialogDeletePost from './DialogDeletePost';
 import DiscussionSkeleton from './DiscussionSkeleton';
-import TiptapReadonlyContent from '../../../../../shared/TiptapReadonlyContent';
 
 type DiscussionContentProps = {
   threadDetailQuery: {
@@ -71,7 +71,7 @@ const DiscussionContent = ({ threadDetailQuery }: DiscussionContentProps) => {
                             <Trash className='text-primary' />
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className='border-accent'>
+                        <DialogContent className='rounded-xl'>
                           <DialogDeletePost postId={thread.id} onClose={() => setOpenDeleteId(null)} />
                         </DialogContent>
                       </Dialog>
