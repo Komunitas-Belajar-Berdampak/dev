@@ -17,7 +17,6 @@ const StudyGroupMainContent = () => {
   const [sort, setSort] = useState<CourseSortOption>('nama-asc');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const limit = 20;
 
   const {
     data: response,
@@ -25,8 +24,8 @@ const StudyGroupMainContent = () => {
     isError,
     error,
   } = useQuery<ApiResponse<Course[]>, Error>({
-    queryKey: ['courses', page, limit],
-    queryFn: () => getCourses(page, limit),
+    queryKey: ['courses', page],
+    queryFn: () => getCourses(page),
   });
 
   const courses = useMemo(() => response?.data ?? [], [response]);

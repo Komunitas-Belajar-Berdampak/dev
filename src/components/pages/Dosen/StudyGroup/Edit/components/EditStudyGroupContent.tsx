@@ -1,11 +1,12 @@
 import { getCourseById } from '@/api/course';
 import { editStudyGroupById, getStudyGroupById } from '@/api/study-group';
+import { StudyGroupMembersField } from '@/components/shared/StudyGroupMembersField';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Combobox, ComboboxChip, ComboboxChips, ComboboxChipsInput, ComboboxContent, ComboboxEmpty, ComboboxItem, ComboboxList, ComboboxValue, useComboboxAnchor } from '@/components/ui/combobox';
 import { Field, FieldError, FieldGroup, FieldLabel, FieldSet } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useSgMemberCapacityLimit } from '@/hooks/use-sg-member-capacity';
 import { studyGroupSchema, type StudyGroupSchemaType } from '@/schemas/sg';
 import type { ApiResponse } from '@/types/api';
 import type { CourseById } from '@/types/course';
@@ -26,7 +27,6 @@ type EditStudyGroupContentProps = {
 
 const EditStudyGroupContent = ({ idMatkul, idSg }: EditStudyGroupContentProps) => {
   const navigate = useNavigate();
-  const anchor = useComboboxAnchor();
   const queryClient = useQueryClient();
 
   // ambil data mata kuliah buat dapet si mahasisa yang ngambil matkul itu
@@ -89,6 +89,12 @@ const EditStudyGroupContent = ({ idMatkul, idSg }: EditStudyGroupContentProps) =
       status: false,
       idMahasiswa: [],
     },
+  });
+
+  const { kapasitas } = useSgMemberCapacityLimit({
+    form,
+    kapasitasName: 'kapasitas',
+    membersName: 'idMahasiswa',
   });
 
   useEffect(() => {
@@ -168,74 +174,7 @@ const EditStudyGroupContent = ({ idMatkul, idSg }: EditStudyGroupContentProps) =
                   )}
                 />
 
-                <Controller
-                  name='idMahasiswa'
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid} className='mt-4 ml-4 w-full'>
-                      <FieldLabel htmlFor={field.name} className='text-gray-500'>
-                        Masukkan Anggota (Optional)
-                      </FieldLabel>
-
-                      <Combobox
-                        multiple
-                        autoHighlight
-                        items={[...new Set([...(idItems ?? []), ...((field.value as string[]) ?? [])])]}
-                        value={(field.value as string[]) ?? []}
-                        onValueChange={(nextValue) => {
-                          if (nextValue == null) {
-                            field.onChange([]);
-                            return;
-                          }
-
-                          if (Array.isArray(nextValue)) {
-                            field.onChange(nextValue);
-                            return;
-                          }
-
-                          const pickedId = String(nextValue);
-                          const current = ((field.value as string[]) ?? []).filter(Boolean);
-                          if (current.includes(pickedId)) {
-                            field.onChange(current.filter((v) => v !== pickedId));
-                            return;
-                          }
-
-                          field.onChange([...current, pickedId]);
-                        }}
-                      >
-                        <ComboboxChips ref={anchor} className={'w-full'}>
-                          <ComboboxValue>
-                            {(values) => (
-                              <>
-                                {(values as string[]).map((id: string) => (
-                                  <ComboboxChip key={`${id}`}>{namaById.get(id) ?? id}</ComboboxChip>
-                                ))}
-
-                                <ComboboxChipsInput />
-                              </>
-                            )}
-                          </ComboboxValue>
-                        </ComboboxChips>
-                        <ComboboxContent anchor={anchor}>
-                          <ComboboxEmpty>No items found.</ComboboxEmpty>
-                          <ComboboxList>
-                            {isLoadingCourse ? (
-                              <p>Loading...</p>
-                            ) : (
-                              (id) => (
-                                <ComboboxItem key={id} value={id}>
-                                  {namaById.get(id) ?? id}
-                                </ComboboxItem>
-                              )
-                            )}
-                          </ComboboxList>
-                        </ComboboxContent>
-                      </Combobox>
-
-                      {fieldState.invalid && <FieldError errors={[fieldState.error]} className='text-xs' />}
-                    </Field>
-                  )}
-                />
+                <StudyGroupMembersField control={form.control} name='idMahasiswa' items={idItems} namaById={namaById} kapasitas={kapasitas} isLoading={isLoadingCourse} />
               </div>
 
               <Controller
