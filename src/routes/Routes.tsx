@@ -27,6 +27,7 @@ import { type RouteObject } from 'react-router-dom';
 import GuestRoute from './GuestRoute';
 import ProtectedRoute from './ProtectedRoute';
 import RoleRedirect from './RoleRedirect';
+import StudyGroupDetailMhs from '@/components/pages/Mahasiswa/StudyGroup/Detail';
 
 const routes: RouteObject[] = [
   {
@@ -168,6 +169,10 @@ const routes: RouteObject[] = [
                 path: ':namaMatkul/:idMatkul',
                 element: <StudyGroupListMhs />,
               },
+              {
+                path: ':namaMatkul/:idMatkul/:namaSg/:idSg',
+                element: <StudyGroupDetailMhs />,
+              }
             ],
           },
         ],
