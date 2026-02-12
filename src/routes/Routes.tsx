@@ -15,7 +15,9 @@ import StudyGroupMain from '@/components/pages/Dosen/StudyGroup/Main';
 import TopikPembahasanDetail from '@/components/pages/Dosen/StudyGroup/TopikDetail';
 import ErrorPage from '@/components/pages/Error';
 import Login from '@/components/pages/Login';
+import AddPostMhs from '@/components/pages/Mahasiswa/StudyGroup/AddPost';
 import StudyGroupDetailMhs from '@/components/pages/Mahasiswa/StudyGroup/Detail';
+import EditPostMhs from '@/components/pages/Mahasiswa/StudyGroup/EditPost';
 import StudyGroupListMhs from '@/components/pages/Mahasiswa/StudyGroup/List';
 import StudyGroupMainMhs from '@/components/pages/Mahasiswa/StudyGroup/Main';
 import TopikPembahasanDetailMhs from '@/components/pages/Mahasiswa/StudyGroup/TopikDetail';
@@ -184,11 +186,11 @@ const routes: RouteObject[] = [
               },
               {
                 path: ':namaMatkul/:idMatkul/:namaSg/:idSg/:namaTopik/:idTopik/new-discussion',
-                element: <AddPost />,
+                element: <AddPostMhs />,
               },
               {
                 path: ':namaMatkul/:idMatkul/:namaSg/:idSg/:namaTopik/:idTopik/edit-discussion/:idPost',
-                element: <EditPost />,
+                element: <EditPostMhs />,
               },
             ],
           },
