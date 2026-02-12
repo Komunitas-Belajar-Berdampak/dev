@@ -15,6 +15,7 @@ import StudyGroupMain from '@/components/pages/Dosen/StudyGroup/Main';
 import TopikPembahasanDetail from '@/components/pages/Dosen/StudyGroup/TopikDetail';
 import ErrorPage from '@/components/pages/Error';
 import Login from '@/components/pages/Login';
+import StudyGroupDetailMhs from '@/components/pages/Mahasiswa/StudyGroup/Detail';
 import StudyGroupListMhs from '@/components/pages/Mahasiswa/StudyGroup/List';
 import StudyGroupMainMhs from '@/components/pages/Mahasiswa/StudyGroup/Main';
 import FakultasPage from '@/components/pages/SuperAdmin/Fakultas/FakultasPage';
@@ -27,7 +28,6 @@ import { type RouteObject } from 'react-router-dom';
 import GuestRoute from './GuestRoute';
 import ProtectedRoute from './ProtectedRoute';
 import RoleRedirect from './RoleRedirect';
-import StudyGroupDetailMhs from '@/components/pages/Mahasiswa/StudyGroup/Detail';
 
 const routes: RouteObject[] = [
   {
@@ -172,7 +172,11 @@ const routes: RouteObject[] = [
               {
                 path: ':namaMatkul/:idMatkul/:namaSg/:idSg',
                 element: <StudyGroupDetailMhs />,
-              }
+              },
+              {
+                path: ':namaMatkul/:idMatkul/:namaSg/:idSg/kontribusi/:namaAnggota/:idAnggota',
+                element: <KontribusiMahasiswaDetail />,
+              },
             ],
           },
         ],

@@ -10,7 +10,7 @@ const StudyGroupDetailMhs = () => {
   return (
     <>
       <Title title='Study Groups' items={breadcrumbItems} />
-      <DetailContent idSg={String(idSg)} namaSg={String(namaSg)} />
+      <DetailContent idSg={String(idSg)} namaSg={String(namaSg)} idCourse={String(idMatkul)} />
     </>
   );
 };

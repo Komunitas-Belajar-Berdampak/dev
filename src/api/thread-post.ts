@@ -8,6 +8,12 @@ const getThreadsByStudyGroup = async (studyGroupId: string, page: number = 1, li
   return res.data;
 };
 
+const createThreadByStudyGroup = async (studyGroupId: string, payload: { judul: string; assignmentId: string }): Promise<ApiResponse<null>> => {
+  const res = await api.post<ApiResponse<null>>(`/threads/sg/${studyGroupId}`, payload);
+
+  return res.data;
+};
+
 const getThreadsById = async (threadId: string): Promise<ApiResponse<ThreadDetail[]>> => {
   // const res = await api.get<ApiResponse<ThreadDetail[]>>(`/threads/${threadId}`);
 
@@ -284,4 +290,4 @@ const deletePost = async (postId: string): Promise<ApiResponse<null>> => {
   return res.data;
 };
 
-export { addPost, deletePost, editPost, getPostById, getThreadsById, getThreadsByStudyGroup };
+export { addPost, createThreadByStudyGroup, deletePost, editPost, getPostById, getThreadsById, getThreadsByStudyGroup };
