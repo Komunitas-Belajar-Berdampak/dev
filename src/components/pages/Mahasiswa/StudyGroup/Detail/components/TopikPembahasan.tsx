@@ -1,4 +1,5 @@
 import { getThreadsByStudyGroup } from '@/api/thread-post';
+import StudyGroupListSkeleton from '@/components/pages/Dosen/StudyGroup/Main/components/StudyGroupListSkeleton';
 import NoData from '@/components/shared/NoData';
 import Circle from '@/components/ui/circle';
 import ErrorMessage from '@/components/ui/error';
@@ -9,7 +10,6 @@ import { ListChecks } from 'lucide-react';
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
-import StudyGroupListSkeleton from '../../Main/components/StudyGroupListSkeleton';
 
 type TopikPembahasanContentProps = {
   idSg: string;
