@@ -1,6 +1,7 @@
 import { getThreadsByStudyGroup } from '@/api/thread-post';
 import NoData from '@/components/shared/NoData';
 import Circle from '@/components/ui/circle';
+import ErrorMessage from '@/components/ui/error';
 import type { ApiResponse } from '@/types/api';
 import type { Thread } from '@/types/thread-post';
 import { useQuery } from '@tanstack/react-query';
@@ -26,9 +27,11 @@ const TopikPembahasanContent = ({ idSg }: TopikPembahasanContentProps) => {
     toast.error(error?.message || 'Gagal mengambil topik pembahasan.', { toasterId: 'global' });
   }, [error?.message, isError]);
 
+  if (isLoading || isFetching) return <StudyGroupListSkeleton />;
+
   return (
     <>
-      {(isLoading || isFetching) && <StudyGroupListSkeleton />}
+      {!isLoading && isError && <ErrorMessage message='Tidak dapat memuat data.' />}
 
       {!isLoading && !isError && data?.length === 0 ? (
         <NoData variant={'border'}>
