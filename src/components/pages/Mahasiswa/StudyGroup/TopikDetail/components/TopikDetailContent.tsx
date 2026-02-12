@@ -1,32 +1,31 @@
+import { getStudyGroupById } from '@/api/study-group';
 import { getTaskList } from '@/api/task';
 import { getThreadsById } from '@/api/thread-post';
+import TopikPembahasanDetailHeader from '@/components/pages/Dosen/StudyGroup/TopikDetail/components/Header';
+import type { TabsType } from '@/components/pages/Dosen/StudyGroup/TopikDetail/types';
 import type { FilterWithInputRangeValue } from '@/components/shared/Filter/FilterWithInputRange';
 import type { TaskFilterValue } from '@/components/shared/Filter/TaskFilterDropdown';
 import type { ApiResponse } from '@/types/api';
+import type { AnggotaStudyGroup, StudyGroupDetail } from '@/types/sg';
 import type { Task } from '@/types/task';
 import type { ThreadDetail } from '@/types/thread-post';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import { TASK_FILTER_ALL } from '../constant';
-import type { TabsType } from '../types';
-import TopikPembahasanDetailHeader from './Header';
 import TopikPembahasanDetailTabs from './Tabs';
 
-type TopikPembahasanDetailContentProps = {
+type TopikDetailContentProps = {
   idTopik: string;
   namaTopik: string;
+  idSg: string;
 };
 
-const TopikPembahasanDetailContent = ({ idTopik, namaTopik }: TopikPembahasanDetailContentProps) => {
+const TopikDetailContent = ({ idTopik, namaTopik, idSg }: TopikDetailContentProps) => {
   const [tab, setTab] = useState<TabsType>('todolist');
   const [filters, setFilters] = useState<TaskFilterValue>({
     memberId: TASK_FILTER_ALL,
     status: TASK_FILTER_ALL,
   });
-
-  const handleChangeTab = (newTab: TabsType) => {
-    setTab(newTab);
-  };
 
   const [discussionDateFilter, setDiscussionDateFilter] = useState<FilterWithInputRangeValue<'all'>>({
     field: 'all',
@@ -40,6 +39,10 @@ const TopikPembahasanDetailContent = ({ idTopik, namaTopik }: TopikPembahasanDet
     setDiscussionDateFilter({ field: 'all', keyword: '', fromDate: '', toDate: '' });
   }, [idTopik]);
 
+  const handleTabChange = (newTab: TabsType) => {
+    setTab(newTab);
+  };
+
   const {
     data: toDoListData,
     isLoading: toDoListIsLoading,
@@ -51,17 +54,16 @@ const TopikPembahasanDetailContent = ({ idTopik, namaTopik }: TopikPembahasanDet
     select: (res) => res.data,
   });
 
+  const { data: membersData } = useQuery<ApiResponse<StudyGroupDetail>, Error, AnggotaStudyGroup[]>({
+    queryKey: ['sg-detail', idSg],
+    queryFn: () => getStudyGroupById(idSg),
+    select: (res) => res.data.anggota ?? [],
+  });
+
   const statusToDoList = {
     DONE: toDoListData?.filter((task) => task.status === 'DONE').length || 0,
     INPROGRESS: toDoListData?.filter((task) => task.status === 'IN PROGRESS').length || 0,
     DO: toDoListData?.filter((task) => task.status === 'DO').length || 0,
-  };
-
-  const tasksQuery = {
-    data: toDoListData ?? [],
-    isLoading: toDoListIsLoading,
-    isError: toDoListIsError,
-    error: toDoListError,
   };
 
   const {
@@ -92,6 +94,13 @@ const TopikPembahasanDetailContent = ({ idTopik, namaTopik }: TopikPembahasanDet
     });
   }, [discussionDateFilter.fromDate, discussionDateFilter.toDate, threadDetailData]);
 
+  const tasksQuery = {
+    data: toDoListData ?? [],
+    isLoading: toDoListIsLoading,
+    isError: toDoListIsError,
+    error: toDoListError,
+  };
+
   const threadDetailQuery = {
     data: filteredThreads,
     isLoading: threadDetailIsLoading,
@@ -101,21 +110,21 @@ const TopikPembahasanDetailContent = ({ idTopik, namaTopik }: TopikPembahasanDet
 
   return (
     <>
-      {/* kotak title */}
       <TopikPembahasanDetailHeader namaTopik={namaTopik} tab={tab} statusToDoList={statusToDoList} totalDiscussions={filteredThreads.length} />
-
-      {/* Tabs */}
       <TopikPembahasanDetailTabs
         tab={tab}
-        onTabChange={handleChangeTab}
+        changeTab={handleTabChange}
         filters={filters}
         onFiltersChange={setFilters}
         discussionDateFilter={discussionDateFilter}
         onDiscussionDateFilterChange={setDiscussionDateFilter}
         tasksQuery={tasksQuery}
+        members={membersData ?? []}
+        threadId={idTopik}
         threadDetailQuery={threadDetailQuery}
       />
     </>
   );
 };
-export default TopikPembahasanDetailContent;
+
+export default TopikDetailContent;
