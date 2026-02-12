@@ -3,7 +3,30 @@ import type { ApiResponse } from '@/types/api';
 import type { Thread, ThreadDetail } from '@/types/thread-post';
 
 const getThreadsByStudyGroup = async (studyGroupId: string, page: number = 1, limit: number = 20): Promise<ApiResponse<Thread[]>> => {
-  const res = await api.get<ApiResponse<Thread[]>>(`/threads/${studyGroupId}?page=${page}&limit=${limit}`);
+  // const res = await api.get<ApiResponse<Thread[]>>(`/threads/${studyGroupId}?page=${page}&limit=${limit}`);
+
+  const res = await new Promise<{ data: ApiResponse<Thread[]> }>((resolve) => {
+    setTimeout(() => {
+      resolve({
+        data: {
+          status: 'success',
+          message: 'Fetched threads successfully (mock).',
+          data: [
+            {
+              id: 'threadId1',
+              judul: 'Topik Pembahasan 1',
+              assignment: 'assignment2',
+            },
+            {
+              id: 'threadId2',
+              judul: 'Topik Pembahasan 2',
+              assignment: 'assignment2',
+            },
+          ],
+        },
+      });
+    }, 1000);
+  });
 
   return res.data;
 };

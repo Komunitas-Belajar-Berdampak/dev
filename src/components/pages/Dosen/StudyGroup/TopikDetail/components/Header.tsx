@@ -34,7 +34,7 @@ const TopikPembahasanDetailHeader = ({ tab, namaTopik, statusToDoList, totalDisc
           </>
         ) : (
           <div>
-            <Icon icon='flowbite:messages-solid' className='size-6 inline-block mr-2 text-primary' />
+            <Icon icon='flowbite:messages-solid' className='size-5.5 inline-block mr-2 text-primary' />
             <span className='text-primary'>{totalDiscussions} Discussions</span>
           </div>
         )}

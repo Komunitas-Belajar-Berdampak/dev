@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { ApiResponse } from '@/types/api';
 import type { StudyGroupDetail } from '@/types/sg';
+import { Icon } from '@iconify/react';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -58,6 +59,7 @@ const DetailContent = ({ idSg, namaSg, idCourse }: DetailContentProps) => {
 
           {tab === 'topik-pembahasan' && (
             <Button type='button' variant='default' className='shadow-sm border px-5' onClick={() => setIsAddThreadOpen(true)}>
+              <Icon icon='flowbite:messages-solid' className='size-4.5 text-white' />
               New Topic
             </Button>
           )}
