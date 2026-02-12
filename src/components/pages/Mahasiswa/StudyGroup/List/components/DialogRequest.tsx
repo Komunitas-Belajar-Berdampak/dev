@@ -11,8 +11,8 @@ const DialogRequest = ({ studyGroupName, onRequest, isPending = false }: DialogR
   return (
     <div className='space-y-4'>
       <DialogHeader className='gap-1'>
-        <DialogTitle className='text-primary text-sm font-bold'>Request Join ({studyGroupName || '-'})</DialogTitle>
-        <DialogDescription className='text-xs text-black/40'>Apakah kamu yakin ingin mengirimkan permintaan masuk? </DialogDescription>
+        <DialogTitle className='text-primary text-lg font-bold'>Request Join to {studyGroupName || '-'}</DialogTitle>
+        <DialogDescription className='text-sm text-black/40'>Apakah kamu yakin ingin mengirimkan permintaan masuk? </DialogDescription>
       </DialogHeader>
 
       <DialogFooter className='space-x-2 pt-4'>

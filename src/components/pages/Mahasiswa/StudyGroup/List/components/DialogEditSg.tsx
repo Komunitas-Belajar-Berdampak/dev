@@ -37,8 +37,8 @@ const DialogEditSg = ({ defaultValues, onSave, isPending = false }: DialogEditSg
   return (
     <div className='space-y-4'>
       <DialogHeader className='gap-1'>
-        <DialogTitle className='text-primary text-sm font-bold'>Edit Study Group</DialogTitle>
-        <DialogDescription className='text-xs text-black/40'>Silahkan edit study group</DialogDescription>
+        <DialogTitle className='text-primary text-lg font-bold'>Edit Study Group</DialogTitle>
+        <DialogDescription className='text-sm text-black/40'>Silahkan edit study group</DialogDescription>
       </DialogHeader>
 
       <form onSubmit={form.handleSubmit(submit)}>
