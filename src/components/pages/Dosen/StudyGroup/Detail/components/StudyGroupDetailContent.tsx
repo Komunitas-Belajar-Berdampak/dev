@@ -29,9 +29,7 @@ const StudyGroupDetailContent = ({ idSg, namaSg }: StudyGroupDetailContentProps)
     toast.error(error?.message || 'Gagal mengambil detail study group.', { toasterId: 'global' });
   }, [error?.message, isError]);
 
-  if (isLoading) {
-    return <StudyGroupDetailContentSkeleton />;
-  }
+  if (isLoading) return <StudyGroupDetailContentSkeleton />;
 
   return (
     <>

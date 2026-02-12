@@ -35,59 +35,8 @@ const getStudyGroupMemberById = async (studyGroupId: string, userId: string): Pr
   return res.data;
 };
 
-const getStudyGroupsByMembership = async (_courseId: string, _page: number = 1, _limit: number = 10): Promise<ApiResponse<StudyGroupByMembership[]>> => {
-  void _courseId;
-  void _page;
-  void _limit;
-  // const res = await api.get<ApiResponse<StudyGroupByMembership[]>>(`/sg/course-memberships/${courseId}?page=${page}&limit=${limit}`);
-
-  const res = await new Promise<{ data: ApiResponse<StudyGroupByMembership[]> }>((resolve) => {
-    setTimeout(() => {
-      resolve({
-        data: {
-          status: 'success',
-          message: 'Mocked data',
-          data: [
-            {
-              id: 'sg-1',
-              nama: 'Study Group A',
-              kapasitas: 10,
-              totalAnggota: 8,
-              status: true,
-              totalKontribusi: 150,
-            },
-            {
-              id: 'sg-2',
-              nama: 'Study Group B',
-              kapasitas: 10,
-              totalAnggota: 8,
-              status: true,
-              statusMember: 'APPROVED',
-              totalKontribusi: 150,
-            },
-            {
-              id: 'sg-3',
-              nama: 'Study Group C',
-              kapasitas: 10,
-              totalAnggota: 8,
-              status: true,
-              statusMember: 'PENDING',
-              totalKontribusi: 150,
-            },
-            {
-              id: 'sg-4',
-              nama: 'Study Group D',
-              kapasitas: 10,
-              totalAnggota: 8,
-              status: true,
-              statusMember: 'REJECTED',
-              totalKontribusi: 150,
-            },
-          ],
-        },
-      });
-    }, 1000);
-  });
+const getStudyGroupsByMembership = async (courseId: string, page: number = 1, limit: number = 10): Promise<ApiResponse<StudyGroupByMembership[]>> => {
+  const res = await api.get<ApiResponse<StudyGroupByMembership[]>>(`/sg/course-memberships/${courseId}?page=${page}&limit=${limit}`);
 
   return res.data;
 };
