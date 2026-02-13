@@ -23,7 +23,7 @@ export default function PertemuanCard({ data }: { data: Pertemuan }) {
       "
     >
       <h3 className="font-bold text-lg text-blue-900">
-        Pertemuan {data.pertemuanKe}
+        Pertemuan {data.pertemuan}
       </h3>
 
       <p className="text-sm text-blue-800 mt-2 leading-relaxed">

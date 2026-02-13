@@ -12,9 +12,57 @@ import { useCourses } from "./Matakuliah/hooks/useMatakuliahLayout";
 import type { DosenCourse } from "./Matakuliah/types";
 
 const breadcrumbItems = [
-  { label: "Home", href: "/dosen" },
-  { label: "Courses" },
+  { label: "Courses", href: "/dosen" },
 ];
+
+function SkeletonBlock({ className = "" }: { className?: string }) {
+  return (
+    <div
+      className={["animate-pulse rounded-md bg-gray-200/80", className].join(
+        " "
+      )}
+    />
+  );
+}
+
+function CourseCardSkeleton() {
+  return (
+    <div className="rounded-2xl border-2 border-black bg-white shadow-[5px_5px_0_0_#000] overflow-hidden">
+      <div className="h-32 bg-gray-200/80 animate-pulse" />
+
+      <div className="p-4 space-y-3">
+        <SkeletonBlock className="h-4 w-[80%]" />
+        <SkeletonBlock className="h-3 w-full" />
+        <SkeletonBlock className="h-3 w-[92%]" />
+
+        <div className="flex flex-wrap gap-3 pt-1">
+          <SkeletonBlock className="h-3 w-14" />
+          <SkeletonBlock className="h-3 w-20" />
+          <SkeletonBlock className="h-3 w-28" />
+        </div>
+
+        <div className="flex items-center gap-2 pt-1">
+          <SkeletonBlock className="h-3 w-4 rounded-full" />
+          <SkeletonBlock className="h-3 w-36" />
+        </div>
+      </div>
+
+      <div className="p-4 pt-0">
+        <SkeletonBlock className="h-10 w-full rounded-md" />
+      </div>
+    </div>
+  );
+}
+
+function CoursesSkeletonGrid({ count = 6 }: { count?: number }) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 py-8">
+      {Array.from({ length: count }).map((_, i) => (
+        <CourseCardSkeleton key={i} />
+      ))}
+    </div>
+  );
+}
 
 export default function DosenCourses() {
   const navigate = useNavigate();
@@ -34,14 +82,12 @@ export default function DosenCourses() {
 
   return (
     <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-      {/* TITLE + BREADCRUMB */}
       <div className="space-y-2 sm:space-y-3">
         <div className="text-xl sm:text-2xl">
           <Title title="Courses" items={breadcrumbItems} />
         </div>
       </div>
 
-      {/* SEARCH & FILTER */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex w-full sm:w-auto gap-2">
           <Input
@@ -79,16 +125,10 @@ export default function DosenCourses() {
         </div>
       </div>
 
-      {/* LOADING */}
-      {isLoading && (
-        <div className="rounded-xl border-2 border-black bg-white p-6 shadow-[4px_4px_0_#000]">
-          Loading courses...
-        </div>
-      )}
+      {isLoading && <CoursesSkeletonGrid count={6} />}
 
-      {/* ERROR */}
       {!isLoading && error && (
-        <div className="rounded-xl border-2 border-black bg-white p-6 shadow-[4px_4px_0_0_#000] space-y-3">
+        <div className="rounded-xl border-2 border-black bg-white p-6 shadow-[4px_4px_0_#000] space-y-3">
           <p className="text-sm text-red-600">{error}</p>
           <Button
             onClick={() => void refetch()}
@@ -99,7 +139,6 @@ export default function DosenCourses() {
         </div>
       )}
 
-      {/* GRID */}
       {!isLoading && !error && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 py-8">
           {filteredMatakuliah.map((matkul) => (
@@ -109,7 +148,6 @@ export default function DosenCourses() {
             >
               <CourseCardArt seed={matkul.id} />
 
-              {/* CONTENT */}
               <div className="p-4 space-y-2">
                 <h3 className="font-bold text-sm leading-snug">
                   {matkul.kodeMatkul} - {matkul.namaMatkul}
@@ -134,17 +172,15 @@ export default function DosenCourses() {
                   </span>
                 </div>
 
-                {/* optional: tampilkan pengajar */}
                 <div className="flex items-center gap-2 text-[11px] text-gray-500">
                   <Icon icon="mdi:account-outline" />
                   <span className="line-clamp-1">{matkul.pengajar ?? "-"}</span>
                 </div>
               </div>
 
-              {/* ACTION */}
               <div className="p-4 pt-0">
                 <Button
-                  onClick={() => navigate(`/dosen/matakuliah/${matkul.id}`)}
+                  onClick={() => navigate(`courses/${matkul.id}`)}
                   className="w-full bg-blue-900 text-white shadow-[3px_3px_0_0_#000] hover:translate-x-0.5 hover:translate-y-0.5 transition"
                 >
                   Continue
@@ -155,7 +191,6 @@ export default function DosenCourses() {
         </div>
       )}
 
-      {/* EMPTY */}
       {!isLoading && !error && filteredMatakuliah.length === 0 && (
         <div className="rounded-xl border-2 border-black bg-white p-6 shadow-[4px_4px_0_#000]">
           Tidak ada course yang cocok dengan pencarian.

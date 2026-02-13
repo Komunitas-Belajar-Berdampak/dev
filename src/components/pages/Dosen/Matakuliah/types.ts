@@ -1,6 +1,6 @@
 export interface Pertemuan {
   id: string;
-  pertemuanKe: number;
+  pertemuan: number;
   judul: string;
   deskripsi?: string;
 }
