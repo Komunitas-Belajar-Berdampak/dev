@@ -1,11 +1,13 @@
 import { getThreadsByStudyGroup } from '@/api/thread-post';
 import NoData from '@/components/shared/NoData';
 import Circle from '@/components/ui/circle';
+import ErrorMessage from '@/components/ui/error';
 import type { ApiResponse } from '@/types/api';
 import type { Thread } from '@/types/thread-post';
 import { useQuery } from '@tanstack/react-query';
 import { ListChecks } from 'lucide-react';
 import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import StudyGroupListSkeleton from '../../Main/components/StudyGroupListSkeleton';
 
@@ -25,9 +27,11 @@ const TopikPembahasanContent = ({ idSg }: TopikPembahasanContentProps) => {
     toast.error(error?.message || 'Gagal mengambil topik pembahasan.', { toasterId: 'global' });
   }, [error?.message, isError]);
 
+  if (isLoading || isFetching) return <StudyGroupListSkeleton />;
+
   return (
     <>
-      {(isLoading || isFetching) && <StudyGroupListSkeleton />}
+      {!isLoading && isError && <ErrorMessage message='Tidak dapat memuat data.' />}
 
       {!isLoading && !isError && data?.length === 0 ? (
         <NoData variant={'border'}>
@@ -37,7 +41,7 @@ const TopikPembahasanContent = ({ idSg }: TopikPembahasanContentProps) => {
       ) : (
         <div className='w-full pt-8 flex flex-col gap-6'>
           {data?.map((thread) => (
-            <div className='flex flex-row w-full  gap-6' key={thread.id}>
+            <Link to={`${thread.judul}/${thread.id}`} className='flex flex-row w-full  gap-6' key={thread.id}>
               <Circle className='flex justify-center items-center'>
                 <ListChecks className='text-primary ' />
               </Circle>
@@ -46,7 +50,7 @@ const TopikPembahasanContent = ({ idSg }: TopikPembahasanContentProps) => {
                 <span className='text-primary font-bold text-sm'>{thread.judul}</span>
                 <span className='text-accent text-sm'>{thread.assignment}</span>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

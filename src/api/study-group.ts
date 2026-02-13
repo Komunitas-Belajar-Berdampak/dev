@@ -1,7 +1,7 @@
 import { api } from '@/lib/axios';
-import type { StudyGroupSchemaType } from '@/schemas/sg';
+import type { StudyGroupQuickEditSchemaType, StudyGroupSchemaType } from '@/schemas/sg';
 import type { ApiResponse } from '@/types/api';
-import type { StudyGroupbyCourse, StudyGroupDetail, StudyGroupMemberDetail } from '@/types/sg';
+import type { StudyGroupbyCourse, StudyGroupByMembership, StudyGroupDetail, StudyGroupMemberDetail } from '@/types/sg';
 
 const getStudyGroupsByCourse = async (courseId: string, page: number = 1, limit: number = 20): Promise<ApiResponse<StudyGroupbyCourse[]>> => {
   const res = await api.get<ApiResponse<StudyGroupbyCourse[]>>(`/sg/course/${courseId}?page=${page}&limit=${limit}`);
@@ -24,10 +24,21 @@ const editStudyGroupById = async (studyGroupId: string, payload: StudyGroupSchem
   return res.data;
 };
 
+const quickEditStudyGroupById = async (studyGroupId: string, payload: StudyGroupQuickEditSchemaType): Promise<ApiResponse<null>> => {
+  const res = await api.put<ApiResponse<null>>(`/sg/${studyGroupId}`, payload);
+  return res.data;
+};
+
 const getStudyGroupMemberById = async (studyGroupId: string, userId: string): Promise<ApiResponse<StudyGroupMemberDetail>> => {
   const res = await api.get<ApiResponse<StudyGroupMemberDetail>>(`/sg/${studyGroupId}/user-detail/${userId}`);
 
   return res.data;
 };
 
-export { addStudyGroupByCourse, editStudyGroupById, getStudyGroupById, getStudyGroupMemberById, getStudyGroupsByCourse };
+const getStudyGroupsByMembership = async (courseId: string, page: number = 1, limit: number = 10): Promise<ApiResponse<StudyGroupByMembership[]>> => {
+  const res = await api.get<ApiResponse<StudyGroupByMembership[]>>(`/sg/course-memberships/${courseId}?page=${page}&limit=${limit}`);
+
+  return res.data;
+};
+
+export { addStudyGroupByCourse, editStudyGroupById, getStudyGroupById, getStudyGroupMemberById, getStudyGroupsByCourse, getStudyGroupsByMembership, quickEditStudyGroupById };

@@ -21,6 +21,8 @@ type FilterWithInputRangeProps<TField extends string> = {
   value: FilterWithInputRangeValue<TField>;
   onValueChange: (value: FilterWithInputRangeValue<TField>) => void;
   fields: Array<FilterFieldOption<TField>>;
+  showFieldSelect?: boolean;
+  showKeywordInput?: boolean;
   label?: string;
   className?: string;
   buttonClassName?: string;
@@ -33,6 +35,8 @@ const FilterWithInputRange = <TField extends string>({
   value,
   onValueChange,
   fields,
+  showFieldSelect = true,
+  showKeywordInput = true,
   label = 'Filter by..',
   className,
   buttonClassName,
@@ -60,20 +64,22 @@ const FilterWithInputRange = <TField extends string>({
 
       <DropdownMenuContent className={cn(widthClassName, 'border-accent p-3', contentClassName)} align='end' sideOffset={10}>
         <div className={cn('flex flex-col gap-4 ', className)}>
-          <Select value={value.field} onValueChange={(v) => onValueChange({ ...value, field: v as TField })}>
-            <SelectTrigger className=' w-full border-accent '>
-              <SelectValue placeholder='Jenis topik pembahasan' />
-            </SelectTrigger>
-            <SelectContent className=' border-accent'>
-              {fields.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {showFieldSelect && (
+            <Select value={value.field} onValueChange={(v) => onValueChange({ ...value, field: v as TField })}>
+              <SelectTrigger className=' w-full border-accent '>
+                <SelectValue placeholder='Jenis topik pembahasan' />
+              </SelectTrigger>
+              <SelectContent className=' border-accent'>
+                {fields.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
 
-          <Input className=' border-accent' placeholder='Cari (search apapun)' value={value.keyword} onChange={(e) => onValueChange({ ...value, keyword: e.target.value })} />
+          {showKeywordInput && <Input className=' border-accent' placeholder='Cari (search apapun)' value={value.keyword} onChange={(e) => onValueChange({ ...value, keyword: e.target.value })} />}
 
           <div className='grid grid-cols-2 gap-2'>
             <Input className=' border-accent' type='date' placeholder='Dari' value={value.fromDate} onChange={(e) => onValueChange({ ...value, fromDate: e.target.value })} />

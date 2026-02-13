@@ -5,13 +5,22 @@ import MatakuliahDetail from '@/components/pages/Dosen/Matakuliah/Detail/Matakul
 import MatakuliahLayout from '@/components/pages/Dosen/Matakuliah/index';
 import StudyGroupLayout from '@/components/pages/Dosen/StudyGroup';
 import AddStudyGroup from '@/components/pages/Dosen/StudyGroup/Add';
+import AddPost from '@/components/pages/Dosen/StudyGroup/AddPost';
 import StudyGroupDetail from '@/components/pages/Dosen/StudyGroup/Detail';
 import EditStudyGroup from '@/components/pages/Dosen/StudyGroup/Edit';
+import EditPost from '@/components/pages/Dosen/StudyGroup/EditPost';
 import KontribusiMahasiswaDetail from '@/components/pages/Dosen/StudyGroup/Kontribusi';
 import StudyGroupList from '@/components/pages/Dosen/StudyGroup/List';
 import StudyGroupMain from '@/components/pages/Dosen/StudyGroup/Main';
+import TopikPembahasanDetail from '@/components/pages/Dosen/StudyGroup/TopikDetail';
 import ErrorPage from '@/components/pages/Error';
 import Login from '@/components/pages/Login';
+import AddPostMhs from '@/components/pages/Mahasiswa/StudyGroup/AddPost';
+import StudyGroupDetailMhs from '@/components/pages/Mahasiswa/StudyGroup/Detail';
+import EditPostMhs from '@/components/pages/Mahasiswa/StudyGroup/EditPost';
+import StudyGroupListMhs from '@/components/pages/Mahasiswa/StudyGroup/List';
+import StudyGroupMainMhs from '@/components/pages/Mahasiswa/StudyGroup/Main';
+import TopikPembahasanDetailMhs from '@/components/pages/Mahasiswa/StudyGroup/TopikDetail';
 import FakultasPage from '@/components/pages/SuperAdmin/Fakultas/FakultasPage';
 import MatakuliahPage from '@/components/pages/SuperAdmin/Matakuliah/MatakuliahPage';
 import ProgramStudiPage from '@/components/pages/SuperAdmin/ProgramStudi/ProgramStudiPage';
@@ -137,6 +146,18 @@ const routes: RouteObject[] = [
                 path: ':namaMatkul/:idMatkul/:namaSg/:idSg/kontribusi/:namaAnggota/:idAnggota',
                 element: <KontribusiMahasiswaDetail />,
               },
+              {
+                path: ':namaMatkul/:idMatkul/:namaSg/:idSg/:namaTopik/:idTopik',
+                element: <TopikPembahasanDetail />,
+              },
+              {
+                path: ':namaMatkul/:idMatkul/:namaSg/:idSg/:namaTopik/:idTopik/new-discussion',
+                element: <AddPost />,
+              },
+              {
+                path: ':namaMatkul/:idMatkul/:namaSg/:idSg/:namaTopik/:idTopik/edit-discussion/:idPost',
+                element: <EditPost />,
+              },
             ],
           },
         ],
@@ -148,6 +169,40 @@ const routes: RouteObject[] = [
           {
             path: '',
             index: true,
+          },
+          {
+            path: 'study-groups',
+            element: <StudyGroupLayout />,
+            children: [
+              {
+                index: true,
+                element: <StudyGroupMainMhs />,
+              },
+              {
+                path: ':namaMatkul/:idMatkul',
+                element: <StudyGroupListMhs />,
+              },
+              {
+                path: ':namaMatkul/:idMatkul/:namaSg/:idSg',
+                element: <StudyGroupDetailMhs />,
+              },
+              {
+                path: ':namaMatkul/:idMatkul/:namaSg/:idSg/kontribusi/:namaAnggota/:idAnggota',
+                element: <KontribusiMahasiswaDetail />,
+              },
+              {
+                path: ':namaMatkul/:idMatkul/:namaSg/:idSg/:namaTopik/:idTopik',
+                element: <TopikPembahasanDetailMhs />,
+              },
+              {
+                path: ':namaMatkul/:idMatkul/:namaSg/:idSg/:namaTopik/:idTopik/new-discussion',
+                element: <AddPostMhs />,
+              },
+              {
+                path: ':namaMatkul/:idMatkul/:namaSg/:idSg/:namaTopik/:idTopik/edit-discussion/:idPost',
+                element: <EditPostMhs />,
+              },
+            ],
           },
         ],
       },

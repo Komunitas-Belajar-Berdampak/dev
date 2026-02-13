@@ -18,4 +18,9 @@ const rejectMembershipRequest = async (membershipId: string, idStudyGroup: strin
   return res.data;
 };
 
-export { approveMembershipRequest, getMembershipsByStudyGroup, rejectMembershipRequest };
+const joinMembershipRequest = async (studyGroupId: string) => {
+  const res = await api.post<ApiResponse<null>>(`/memberships/${studyGroupId}/join`);
+  return res.data;
+};
+
+export { approveMembershipRequest, getMembershipsByStudyGroup, joinMembershipRequest, rejectMembershipRequest };
