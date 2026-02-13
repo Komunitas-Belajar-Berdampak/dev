@@ -50,18 +50,11 @@ const menuItems: MenuItem[] = [
 
   // dosen
   {
-    title: 'Home Page',
-    path: '/',
+    title: 'Courses',
+    path: '/dosen',
     icon: <Icon icon='akar-icons:dashboard' />,
     role: ['DOSEN'],
   },
-  {
-    title: 'Courses',
-    path: '/dosen/courses',
-    icon: <Icon icon='tabler:book' />,
-    role: ['DOSEN'],
-  },
-
   {
     title: 'Study Groups',
     path: '/dosen/study-groups',
