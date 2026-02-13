@@ -1,22 +1,23 @@
-// === BACKEND-LIKE ENTITY (nanti dari API) ===
 export type UserStatusBE = "aktif" | "tidak aktif";
 export type JenisKelamin = "pria" | "wanita";
+
+export type RoleKey = "SUPER_ADMIN" | "ADMIN" | "DOSEN" | "MAHASISWA";
 
 export interface UserEntity {
   _id: string;
   nrp: string;
   nama: string;
-  angkatan?: string;
-  idProdi: string;        // ObjectId (string di frontend)
-  email: string;
-  alamat?: string;
-  jenisKelamin: JenisKelamin;
+  angkatan: string | null;
+  idProdi: string | null;
+  prodi: string | null;
   status: UserStatusBE;
-  roleId: string[];       // ObjectId role
-  fotoProfil?: string;
+  role: string;
+  fotoProfil?: string | null;
+  email?: string;
+  alamat?: string | null;
+  jenisKelamin?: JenisKelamin;
 }
 
-// === FRONTEND TABLE (UI FRIENDLY) ===
 export type UserStatusFE = "Aktif" | "Non Aktif";
 
 export interface UserTableRow {
@@ -28,3 +29,31 @@ export interface UserTableRow {
   status: UserStatusFE;
   role: string;
 }
+
+export interface CreateUserPayload {
+  nrp: string;
+  idRole: string;
+  idProdi: string;
+  nama: string;
+  angkatan: string;
+  email: string;
+  alamat?: string;
+  jenisKelamin: JenisKelamin;
+  status: UserStatusBE;
+  password: string;
+  fotoProfil?: string;
+}
+
+export type UpdateUserPayload = {
+  idRole?: string;
+  idProdi?: string;
+  nama?: string;
+  angkatan?: string;
+  email?: string;
+  alamat?: string;
+  jenisKelamin?: JenisKelamin;
+  status?: UserStatusBE;
+  fotoProfil?: string;
+};
+
+

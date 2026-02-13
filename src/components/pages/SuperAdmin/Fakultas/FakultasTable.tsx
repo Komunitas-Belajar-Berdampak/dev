@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 
 import {
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Pagination,
   PaginationContent,
@@ -20,66 +21,146 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-import type { Fakultas } from "./types/fakultas";
-import FakultasActionDropdown from "../Fakultas/FakultasActionDropdown";
-import AddFakultasModal from "../Fakultas/Modal/AddFakultasModal";
-import EditFakultasModal from "../Fakultas/Modal/EditFakultasModal";
-import DeleteFakultasModal from "../Fakultas/Modal/DeleteFakultasModal";
+import FakultasActionDropdown from "./FakultasActionDropdown";
+import AddFakultasModal from "./Modal/AddFakultasModal";
+import EditFakultasModal from "./Modal/EditFakultasModal";
 
-/**
- * Dummy data
- */
-const FAKULTAS: Fakultas[] = [
-  {
-    id: 1,
-    kodeFakultas: "007",
-    namaFakultas: "Fakultas Teknologi dan Rekayasa Cerdas",
-    programStudi: [
-      "Teknik Sipil",
-      "Sistem Komputer",
-      "Teknik Industri",
-      "Teknik Elektro",
-      "Teknik Informatika",
-      "Sistem Informasi",
-    ],
-  },
-  {
-    id: 2,
-    kodeFakultas: "002",
-    namaFakultas: "Fakultas Hukum dan Bisnis Digital",
-    programStudi: ["Akuntansi", "Manajemen", "Hukum"],
-  },
-];
+import { useFakultas } from "./hooks/useFakultas";
+import type { FakultasEntity, FakultasTableRow } from "./types/fakultas";
+import { toFakultasTableRow } from "./utils/mappers";
 
-export default function FakultasTable() {
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-
-  const limit = 10;
-
-  const filtered = FAKULTAS.filter(
-    (f) =>
-      f.namaFakultas.toLowerCase().includes(search.toLowerCase()) ||
-      f.kodeFakultas.includes(search)
-  );
-
-  const totalPages = Math.ceil(filtered.length / limit);
-
-  const paginated = filtered.slice(
-    (page - 1) * limit,
-    page * limit
-  );
-
-  const [openAdd, setOpenAdd] = useState(false);
-  const [openEdit, setOpenEdit] = useState(false);
-  const [openDelete, setOpenDelete] = useState(false);
-  const [selectedFakultas, setSelectedFakultas] = useState<Fakultas | null>(null);
+function FakultasTableSkeleton() {
+  const rows = Array.from({ length: 10 });
 
   return (
     <div className="bg-white w-full">
-      {/* TOP ACTION */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
-        {/* SEARCH */}
+        <div className="flex w-full sm:w-auto gap-2">
+          <Skeleton className="h-10 w-full sm:w-64 border border-black/20" />
+          <Skeleton className="h-10 w-10 border-2 border-black shadow-[3px_3px_0_0_#000]" />
+        </div>
+        <Skeleton className="h-10 w-full sm:w-40 border-2 border-black shadow-[3px_3px_0_0_#000]" />
+      </div>
+
+      <div className="relative -mx-4 sm:mx-0">
+        <div className="overflow-x-auto max-w-[calc(100vw-2rem)] sm:max-w-full">
+          <Table className="min-w-[900px] text-blue-800">
+            <TableHeader>
+              <TableRow className="border-b border-black/10">
+                <TableHead className="font-bold text-blue-900">
+                  Kode Fakultas
+                </TableHead>
+                <TableHead className="font-bold text-blue-900">
+                  Nama Fakultas
+                </TableHead>
+                <TableHead className="font-bold text-blue-900">
+                  Program Studi
+                </TableHead>
+                <TableHead className="font-bold text-blue-900 text-center">
+                  Aksi
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+
+            <TableBody>
+              {rows.map((_, i) => (
+                <TableRow key={i} className="h-14 border-b border-black/5">
+                  <TableCell>
+                    <Skeleton className="h-4 w-24" />
+                  </TableCell>
+
+                  <TableCell className="font-medium">
+                    <Skeleton className="h-4 w-60" />
+                  </TableCell>
+
+                  <TableCell>
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-52" />
+                      <Skeleton className="h-4 w-44" />
+                      <Skeleton className="h-4 w-36" />
+                    </div>
+                  </TableCell>
+
+                  <TableCell className="text-center">
+                    <div className="flex justify-center">
+                      <Skeleton className="h-9 w-9 rounded-md" />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
+      <div className="mt-10 flex justify-center sm:justify-end">
+        <div className="flex gap-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-9 w-9" />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function FakultasTable() {
+  const { fakultas: fakultasEntitiesRaw, loading, error, refetch } = useFakultas();
+
+  const fakultasEntities: FakultasEntity[] = fakultasEntitiesRaw ?? [];
+
+  const rows: FakultasTableRow[] = useMemo(
+    () => fakultasEntities.map(toFakultasTableRow),
+    [fakultasEntities],
+  );
+
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const limit = 10;
+
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    return rows.filter(
+      (f) =>
+        f.namaFakultas.toLowerCase().includes(q) ||
+        f.kodeFakultas.toLowerCase().includes(q),
+    );
+  }, [rows, search]);
+
+  const totalPages = Math.ceil(filtered.length / limit);
+  const paginated = filtered.slice((page - 1) * limit, page * limit);
+
+  const [openAdd, setOpenAdd] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [selected, setSelected] = useState<FakultasTableRow | null>(null);
+
+  // ✅ FIX utama: entity biasanya _id (bukan id)
+  const selectedEntity: FakultasEntity | null = useMemo(() => {
+    if (!selected) return null;
+    return (
+      fakultasEntities.find((f: any) => (f._id ?? f.id) === selected.id) ?? null
+    );
+  }, [selected, fakultasEntities]);
+
+  if (loading) return <FakultasTableSkeleton />;
+
+  if (error) {
+    return (
+      <div className="bg-white w-full p-6">
+        <div className="mb-4 text-red-600">{error}</div>
+        <Button
+          onClick={() => refetch()}
+          className="border-2 border-black shadow-[3px_3px_0_0_#000]"
+        >
+          Coba lagi
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white w-full">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
         <div className="flex w-full sm:w-auto gap-2">
           <Input
             placeholder="Search..."
@@ -99,22 +180,15 @@ export default function FakultasTable() {
           </Button>
         </div>
 
-        {/* ADD */}
         <Button
           onClick={() => setOpenAdd(true)}
-          className="
-            w-full sm:w-auto
-            border-2 border-black
-            shadow-[3px_3px_0_0_#000]
-            font-semibold
-          "
+          className="w-full sm:w-auto border-2 border-black shadow-[3px_3px_0_0_#000] font-semibold"
         >
           <Icon icon="mdi:plus" className="mr-2 text-lg" />
           Add Fakultas
         </Button>
       </div>
 
-      {/* TABLE */}
       <div className="relative -mx-4 sm:mx-0">
         <div className="overflow-x-auto max-w-[calc(100vw-2rem)] sm:max-w-full">
           <Table className="min-w-[900px] text-blue-800">
@@ -149,28 +223,25 @@ export default function FakultasTable() {
                     className="h-14 border-b border-black/5"
                   >
                     <TableCell>{item.kodeFakultas}</TableCell>
-
                     <TableCell className="font-medium">
                       {item.namaFakultas}
                     </TableCell>
-
                     <TableCell>
-                      <ul className="list-disc list-inside space-y-1">
-                        {item.programStudi.map((prodi) => (
-                          <li key={prodi}>{prodi}</li>
-                        ))}
-                      </ul>
+                      {item.programStudi.length ? (
+                        <ul className="list-disc list-inside space-y-1">
+                          {item.programStudi.map((prodi) => (
+                            <li key={prodi}>{prodi}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        "-"
+                      )}
                     </TableCell>
-
                     <TableCell className="text-center">
                       <FakultasActionDropdown
                         onEdit={() => {
-                        setSelectedFakultas(item);
-                        setOpenEdit(true);
-                      }}
-                        onDelete={() => {
-                          setSelectedFakultas(item);
-                          setOpenDelete(true);
+                          setSelected(item);
+                          setOpenEdit(true);
                         }}
                       />
                     </TableCell>
@@ -182,22 +253,24 @@ export default function FakultasTable() {
         </div>
       </div>
 
-      <AddFakultasModal open={openAdd} onClose={() => setOpenAdd(false)} />
-      <EditFakultasModal open={openEdit}
-        onClose={() => setOpenEdit(false)}
-        fakultas={
-          selectedFakultas
-            ? null // Replace USER_ENTITIES with the correct data source or remove this logic
-            : null
-        } />
-      <DeleteFakultasModal
-        open={openDelete}
-        onClose={() => setOpenDelete(false)}
-        onConfirm={() => setOpenDelete(false)}
+      <AddFakultasModal
+        open={openAdd}
+        onClose={() => setOpenAdd(false)}
+        onSuccess={() => refetch()}
+      />
+
+      <EditFakultasModal
+        key={selectedEntity?.id ?? selected?.id ?? "no-fakultas"}
+        open={openEdit}
+        onClose={() => {
+          setOpenEdit(false);
+          setSelected(null);
+        }}
+        fakultas={selectedEntity}
+        onSuccess={() => refetch()}
       />
 
 
-      {/* PAGINATION */}
       {totalPages > 1 && (
         <div className="mt-10 flex justify-center sm:justify-end">
           <Pagination>
@@ -221,9 +294,7 @@ export default function FakultasTable() {
 
               <PaginationItem>
                 <PaginationNext
-                  onClick={() =>
-                    setPage((p) => Math.min(p + 1, totalPages))
-                  }
+                  onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
                 />
               </PaginationItem>
             </PaginationContent>

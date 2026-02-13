@@ -5,35 +5,31 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-interface Props {
-  onEdit?: () => void;
-  onDelete?: () => void;
-}
+import { Button } from "@/components/ui/button";
 
 export default function TahunAkademikDanSemesterActionDropdown({
-  onEdit,
   onDelete,
-}: Props) {
+}: {
+  onDelete: () => void;
+}) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="border-2 border-black p-1 rounded shadow-[2px_2px_0_0_#000]">
-          <Icon icon="mdi:dots-horizontal" className="text-lg" />
-        </button>
+        <Button
+          size="icon"
+          variant="outline"
+          className="border-2 border-black shadow-[3px_3px_0_0_#000]"
+        >
+          <Icon icon="mdi:dots-horizontal" />
+        </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-64">
+      <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuItem
-          onClick={onEdit}
-          className="cursor-pointer text-base-700"
-        >
-          <Icon icon="mdi:pencil" className="mr-2" />
-          Edit Tahun Akademik dan Semester
-        </DropdownMenuItem>
-
-        <DropdownMenuItem
-          onClick={onDelete}
+          onSelect={(e) => {
+            e.preventDefault();
+            onDelete();
+          }}
           className="cursor-pointer text-red-600 focus:text-red-600"
         >
           <Icon icon="iconamoon:trash-fill" className="mr-2" />

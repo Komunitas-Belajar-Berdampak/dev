@@ -13,7 +13,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import type { TahunAkademikDanSemester } from "../types/tahun-akademik-dan-semester";
+import type { TahunAkademikDanSemesterEntity } from "../types/tahun-akademik-dan-semester";
 
 export default function EditTahunAkademikDanSemesterModal({
   open,
@@ -22,7 +22,7 @@ export default function EditTahunAkademikDanSemesterModal({
 }: {
   open: boolean;
   onClose: () => void;
-  data: TahunAkademikDanSemester | null;
+  data: TahunAkademikDanSemesterEntity | null;
 }) {
   if (!data) return null;
 

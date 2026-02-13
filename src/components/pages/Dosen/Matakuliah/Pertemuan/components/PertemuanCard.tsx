@@ -1,12 +1,34 @@
 import type { Pertemuan } from "../../types";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function PertemuanCard({ data }: { data: Pertemuan }) {
+  const navigate = useNavigate();
+  const { id } = useParams();
+
   return (
-    <div className="border-2 border-black rounded-xl p-4 shadow-[3px_3px_0_#000] hover:bg-blue-50 transition">
-      <h3 className="font-bold">
+    <div
+      onClick={() =>
+        navigate(`/dosen/matakuliah/${id}/pertemuan/${data.id}`)
+      }
+      className="
+        rounded-2xl
+        border-2 border-black
+        bg-white
+        p-6
+        shadow-[6px_6px_0_0_#000]
+        transition
+        hover:translate-x-0.5
+        hover:translate-y-0.5
+        hover:bg-blue-50
+      "
+    >
+      <h3 className="font-bold text-lg text-blue-900">
         Pertemuan {data.pertemuanKe}
       </h3>
-      <p className="text-sm">{data.judul}</p>
+
+      <p className="text-sm text-blue-800 mt-2 leading-relaxed">
+        {data.judul}
+      </p>
     </div>
   );
 }
