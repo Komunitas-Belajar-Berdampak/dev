@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useParams } from "react-router-dom";
+import { Icon } from "@iconify/react";
 
 import Title from "@/components/shared/Title";
 import { useMatakuliahDetail } from "../hooks/useMatakuliahDetail";
@@ -48,9 +49,7 @@ export default function MateriTugasPage() {
     () => [
       { label: "Courses", href: "/dosen" },
       {
-        label: course
-          ? `${course.kodeMatkul} ${course.namaMatkul}`
-          : "Detail",
+        label: course ? `${course.kodeMatkul} ${course.namaMatkul}` : "Detail",
         href: id ? `/dosen/courses/${id}` : undefined,
       },
       { label: "Materi & Tugas" },
@@ -79,6 +78,10 @@ export default function MateriTugasPage() {
     );
   }
 
+  const sortedMeetings = (meetings ?? [])
+    .slice()
+    .sort((a, b) => a.pertemuan - b.pertemuan);
+
   return (
     <div className="space-y-6">
       <div className="text-xl sm:text-2xl">
@@ -103,25 +106,28 @@ export default function MateriTugasPage() {
           </div>
         )}
 
-        {!meetingsLoading && !meetingsError && meetings?.length === 0 && (
-          <div className="rounded-xl border border-gray-200 bg-white p-6 text-sm text-gray-500">
-            Belum ada pertemuan untuk mata kuliah ini.
+        {!meetingsLoading && !meetingsError && sortedMeetings.length === 0 && (
+          <div className="mt-16 flex flex-col items-center justify-center text-center">
+            <Icon
+              icon="mdi:calendar-blank-outline"
+              className="text-7xl text-gray-200"
+            />
+            <p className="mt-6 text-lg font-bold text-blue-900">
+              Belum Ada Pertemuan
+            </p>
+            <p className="mt-2 text-sm text-gray-500 max-w-sm">
+              Pertemuan yang dibuat untuk mata kuliah ini akan muncul di sini.
+            </p>
           </div>
         )}
 
-        {!meetingsLoading &&
-          !meetingsError &&
-          meetings &&
-          meetings.length > 0 && (
-            <div className="grid gap-3">
-              {meetings
-                .slice()
-                .sort((a, b) => a.pertemuan - b.pertemuan)
-                .map((m) => (
-                  <MateriTugasPertemuanCard key={m.id} data={m} />
-                ))}
-            </div>
-          )}
+        {!meetingsLoading && !meetingsError && sortedMeetings.length > 0 && (
+          <div className="grid gap-3">
+            {sortedMeetings.map((m) => (
+              <MateriTugasPertemuanCard key={m.id} data={m} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
