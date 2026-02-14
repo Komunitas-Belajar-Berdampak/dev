@@ -28,6 +28,7 @@ import SuperAdmin from '@/components/pages/SuperAdmin/SuperAdmin';
 import TahunAkademikDanSemesterPage from '@/components/pages/SuperAdmin/TahunAkademikDanSemester/TahunAkademikDanSemesterPage';
 import PertemuanDetail from '@/components/pages/Dosen/Matakuliah/Pertemuan/PertemuanDetail';
 import MahasiswaList from '@/components/pages/Dosen/Matakuliah/Mahasiswa/MahasiswaList';
+import MateriTugasPage from "@/components/pages/Dosen/Matakuliah/MateriTugas/MateriTugasPage";
 import UserPage from '@/components/pages/SuperAdmin/Users/UserPage';
 import { type RouteObject } from 'react-router-dom';
 import GuestRoute from './GuestRoute';
@@ -115,6 +116,11 @@ const routes: RouteObject[] = [
                 path: ":matkulId/mahasiswa",
                 element: <MahasiswaList />,
               },
+              {
+                path: ":id/materi-tugas",
+                element: <MateriTugasPage />,
+              },
+
             ],
           },
           {

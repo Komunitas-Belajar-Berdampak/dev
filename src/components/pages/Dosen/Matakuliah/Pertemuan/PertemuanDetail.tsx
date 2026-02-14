@@ -28,7 +28,7 @@ export default function PertemuanDetail() {
       label: `${matkul.kodeMatkul} ${matkul.namaMatkul}`,
       href: `/dosen/matakuliah/${matkul.id}`,
     },
-    { label: `Pertemuan ${pertemuan.pertemuanKe}` },
+    { label: `Pertemuan ${pertemuan.pertemuan}` },
   ];
 
   return (
@@ -42,7 +42,7 @@ export default function PertemuanDetail() {
       {/* PERTEMUAN TITLE CARD */}
       <div className="rounded-2xl border border-gray-200 bg-white px-8 py-6 text-center">
         <h2 className="text-2xl sm:text-3xl font-bold text-blue-900">
-          Pertemuan {pertemuan.pertemuanKe} – {pertemuan.judul}
+          Pertemuan {pertemuan.pertemuan} – {pertemuan.judul}
         </h2>
       </div>
 

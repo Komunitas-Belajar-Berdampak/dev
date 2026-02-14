@@ -12,21 +12,21 @@ export const matakuliahDetailDummy: MatakuliahDetail[] = [
     pertemuan: [
       {
         id: "p1",
-        pertemuanKe: 1,
+        pertemuan: 1,
         judul: "Pengenalan Web",
         deskripsi:
           "Membahas sejarah perkembangan web, cara kerja internet, serta peran web dalam sistem informasi modern.",
       },
       {
         id: "p2",
-        pertemuanKe: 2,
+        pertemuan: 2,
         judul: "HTML Dasar",
         deskripsi:
           "Mempelajari struktur dasar HTML, penggunaan tag, atribut, serta semantic HTML untuk membangun halaman web yang terstruktur.",
       },
       {
         id: "p3",
-        pertemuanKe: 3,
+        pertemuan: 3,
         judul: "CSS Dasar",
         deskripsi:
           "Mengenal konsep styling, layout dasar, serta penggunaan CSS untuk mempercantik dan mengatur tampilan halaman web.",
@@ -45,14 +45,14 @@ export const matakuliahDetailDummy: MatakuliahDetail[] = [
     pertemuan: [
       {
         id: "p1",
-        pertemuanKe: 1,
+        pertemuan: 1,
         judul: "Pengantar Jaringan",
         deskripsi:
           "Pengenalan konsep jaringan komputer, jenis jaringan, serta manfaat jaringan dalam kehidupan sehari-hari.",
       },
       {
         id: "p2",
-        pertemuanKe: 2,
+        pertemuan: 2,
         judul: "Model OSI & TCP/IP",
         deskripsi:
           "Pembahasan lapisan-lapisan pada model OSI dan TCP/IP serta fungsi masing-masing layer dalam komunikasi data.",
@@ -71,21 +71,21 @@ export const matakuliahDetailDummy: MatakuliahDetail[] = [
     pertemuan: [
       {
         id: "p1",
-        pertemuanKe: 1,
+        pertemuan: 1,
         judul: "Konsep Basis Data",
         deskripsi:
           "Pengenalan konsep data, informasi, basis data, serta peran DBMS dalam pengelolaan data.",
       },
       {
         id: "p2",
-        pertemuanKe: 2,
+        pertemuan: 2,
         judul: "ERD & Normalisasi",
         deskripsi:
           "Mempelajari perancangan database menggunakan ERD serta proses normalisasi untuk menghasilkan struktur tabel yang efisien.",
       },
       {
         id: "p3",
-        pertemuanKe: 3,
+        pertemuan: 3,
         judul: "SQL Dasar",
         deskripsi:
           "Pengenalan perintah SQL dasar untuk mengelola dan mengambil data dari basis data relasional.",
