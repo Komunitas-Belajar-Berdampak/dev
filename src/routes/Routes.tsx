@@ -109,11 +109,11 @@ const routes: RouteObject[] = [
                 element: <MatakuliahDetail />,
               },
               {
-                path: ':matkulId/pertemuan/:pertemuanId',
+                path: ':id/pertemuan/:pertemuanId',
                 element: <PertemuanDetail />,
               },
               {
-                path: ":matkulId/mahasiswa",
+                path: ":id/mahasiswa",
                 element: <MahasiswaList />,
               },
               {
