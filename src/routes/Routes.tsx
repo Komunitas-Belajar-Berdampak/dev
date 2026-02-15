@@ -3,6 +3,8 @@ import DefaultLayout from '@/components/layouts/Default';
 import Dosen from '@/components/pages/Dosen/DosenCourses';
 import MatakuliahDetail from '@/components/pages/Dosen/Matakuliah/Detail/MatakuliahDetail';
 import MatakuliahLayout from '@/components/pages/Dosen/Matakuliah/index';
+import MahasiswaList from '@/components/pages/Dosen/Matakuliah/Mahasiswa/MahasiswaList';
+import PertemuanDetail from '@/components/pages/Dosen/Matakuliah/Pertemuan/PertemuanDetail';
 import StudyGroupLayout from '@/components/pages/Dosen/StudyGroup';
 import AddStudyGroup from '@/components/pages/Dosen/StudyGroup/Add';
 import AddPost from '@/components/pages/Dosen/StudyGroup/AddPost';
@@ -18,6 +20,7 @@ import Login from '@/components/pages/Login';
 import AddPostMhs from '@/components/pages/Mahasiswa/StudyGroup/AddPost';
 import StudyGroupDetailMhs from '@/components/pages/Mahasiswa/StudyGroup/Detail';
 import EditPostMhs from '@/components/pages/Mahasiswa/StudyGroup/EditPost';
+import KontribusiMahasiswaDetailMhs from '@/components/pages/Mahasiswa/StudyGroup/Kontribusi';
 import StudyGroupListMhs from '@/components/pages/Mahasiswa/StudyGroup/List';
 import StudyGroupMainMhs from '@/components/pages/Mahasiswa/StudyGroup/Main';
 import TopikPembahasanDetailMhs from '@/components/pages/Mahasiswa/StudyGroup/TopikDetail';
@@ -26,8 +29,6 @@ import MatakuliahPage from '@/components/pages/SuperAdmin/Matakuliah/MatakuliahP
 import ProgramStudiPage from '@/components/pages/SuperAdmin/ProgramStudi/ProgramStudiPage';
 import SuperAdmin from '@/components/pages/SuperAdmin/SuperAdmin';
 import TahunAkademikDanSemesterPage from '@/components/pages/SuperAdmin/TahunAkademikDanSemester/TahunAkademikDanSemesterPage';
-import PertemuanDetail from '@/components/pages/Dosen/Matakuliah/Pertemuan/PertemuanDetail';
-import MahasiswaList from '@/components/pages/Dosen/Matakuliah/Mahasiswa/MahasiswaList';
 import UserPage from '@/components/pages/SuperAdmin/Users/UserPage';
 import { type RouteObject } from 'react-router-dom';
 import GuestRoute from './GuestRoute';
@@ -112,7 +113,7 @@ const routes: RouteObject[] = [
                 element: <PertemuanDetail />,
               },
               {
-                path: ":matkulId/mahasiswa",
+                path: ':matkulId/mahasiswa',
                 element: <MahasiswaList />,
               },
             ],
@@ -188,7 +189,7 @@ const routes: RouteObject[] = [
               },
               {
                 path: ':namaMatkul/:idMatkul/:namaSg/:idSg/kontribusi/:namaAnggota/:idAnggota',
-                element: <KontribusiMahasiswaDetail />,
+                element: <KontribusiMahasiswaDetailMhs />,
               },
               {
                 path: ':namaMatkul/:idMatkul/:namaSg/:idSg/:namaTopik/:idTopik',
