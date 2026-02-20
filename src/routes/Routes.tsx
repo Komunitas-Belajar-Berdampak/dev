@@ -3,8 +3,6 @@ import DefaultLayout from '@/components/layouts/Default';
 import Dosen from '@/components/pages/Dosen/DosenCourses';
 import MatakuliahDetail from '@/components/pages/Dosen/Matakuliah/Detail/MatakuliahDetail';
 import MatakuliahLayout from '@/components/pages/Dosen/Matakuliah/index';
-import MahasiswaList from '@/components/pages/Dosen/Matakuliah/Mahasiswa/MahasiswaList';
-import PertemuanDetail from '@/components/pages/Dosen/Matakuliah/Pertemuan/PertemuanDetail';
 import StudyGroupLayout from '@/components/pages/Dosen/StudyGroup';
 import AddStudyGroup from '@/components/pages/Dosen/StudyGroup/Add';
 import AddPost from '@/components/pages/Dosen/StudyGroup/AddPost';
@@ -29,6 +27,9 @@ import MatakuliahPage from '@/components/pages/SuperAdmin/Matakuliah/MatakuliahP
 import ProgramStudiPage from '@/components/pages/SuperAdmin/ProgramStudi/ProgramStudiPage';
 import SuperAdmin from '@/components/pages/SuperAdmin/SuperAdmin';
 import TahunAkademikDanSemesterPage from '@/components/pages/SuperAdmin/TahunAkademikDanSemester/TahunAkademikDanSemesterPage';
+import PertemuanDetail from '@/components/pages/Dosen/Matakuliah/Pertemuan/PertemuanDetail';
+import MahasiswaList from '@/components/pages/Dosen/Matakuliah/Mahasiswa/MahasiswaList';
+import MateriTugasPage from "@/components/pages/Dosen/Matakuliah/MateriTugas/MateriTugasPage";
 import UserPage from '@/components/pages/SuperAdmin/Users/UserPage';
 import { type RouteObject } from 'react-router-dom';
 import GuestRoute from './GuestRoute';
@@ -109,13 +110,18 @@ const routes: RouteObject[] = [
                 element: <MatakuliahDetail />,
               },
               {
-                path: ':matkulId/pertemuan/:pertemuanId',
+                path: ':id/pertemuan/:pertemuanId',
                 element: <PertemuanDetail />,
               },
               {
-                path: ':matkulId/mahasiswa',
+                path: ":id/mahasiswa",
                 element: <MahasiswaList />,
               },
+              {
+                path: ":id/materi-tugas",
+                element: <MateriTugasPage />,
+              },
+
             ],
           },
           {
