@@ -11,8 +11,8 @@ type UseSgMemberCapacityOptions<TFieldValues extends FieldValues> = {
 };
 
 export function useSgMemberCapacityLimit<TFieldValues extends FieldValues>({ form, kapasitasName, membersName, toastOnTrim = true, toasterId = 'global' }: UseSgMemberCapacityOptions<TFieldValues>) {
-  const kapasitas = useWatch({ control: form.control, name: kapasitasName, defaultValue: 1 as any }) as unknown as number;
-  const selected = useWatch({ control: form.control, name: membersName, defaultValue: [] as any }) as unknown as unknown[];
+  const kapasitas = (useWatch({ control: form.control, name: kapasitasName }) as unknown as number) ?? 1;
+  const selected = (useWatch({ control: form.control, name: membersName }) as unknown as unknown[]) ?? [];
 
   useEffect(() => {
     if (!Array.isArray(selected)) return;

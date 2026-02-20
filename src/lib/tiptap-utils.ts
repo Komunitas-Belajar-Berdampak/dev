@@ -312,7 +312,27 @@ export const handleImageUpload = async (
     onProgress?.({ progress })
   }
 
-  return "/images/tiptap-ui-placeholder-image.jpg"
+  // Demo fallback: return a data URL so the inserted image can render immediately.
+  // Note: This embeds the image content in the editor JSON; for production, upload the
+  // file to your backend/storage and return the resulting public URL instead.
+  const dataUrl = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader()
+
+    reader.onload = () => {
+      const result = reader.result
+      if (typeof result === "string") resolve(result)
+      else reject(new Error("Failed to read file"))
+    }
+    reader.onerror = () => reject(new Error("Failed to read file"))
+
+    reader.readAsDataURL(file)
+  })
+
+  if (abortSignal?.aborted) {
+    throw new Error("Upload cancelled")
+  }
+
+  return dataUrl
 }
 
 type ProtocolOptions = {

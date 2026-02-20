@@ -32,6 +32,12 @@ export interface FileItem {
    * @optional
    */
   url?: string
+
+  /**
+   * Local object URL used for client-side thumbnail preview
+   * @optional
+   */
+  previewUrl?: string
   /**
    * Controller that can be used to abort the upload process
    * @optional
@@ -96,6 +102,7 @@ function useFileUpload(options: UploadOptions) {
 
     const abortController = new AbortController()
     const fileId = crypto.randomUUID()
+    const previewUrl = URL.createObjectURL(file)
 
     const newFileItem: FileItem = {
       id: fileId,
@@ -103,6 +110,7 @@ function useFileUpload(options: UploadOptions) {
       progress: 0,
       status: "uploading",
       abortController,
+      previewUrl,
     }
 
     setFileItems((prev) => [...prev, newFileItem])
@@ -185,8 +193,8 @@ function useFileUpload(options: UploadOptions) {
       if (fileToRemove?.abortController) {
         fileToRemove.abortController.abort()
       }
-      if (fileToRemove?.url) {
-        URL.revokeObjectURL(fileToRemove.url)
+      if (fileToRemove?.previewUrl) {
+        URL.revokeObjectURL(fileToRemove.previewUrl)
       }
       return prev.filter((item) => item.id !== fileId)
     })
@@ -197,8 +205,8 @@ function useFileUpload(options: UploadOptions) {
       if (item.abortController) {
         item.abortController.abort()
       }
-      if (item.url) {
-        URL.revokeObjectURL(item.url)
+      if (item.previewUrl) {
+        URL.revokeObjectURL(item.previewUrl)
       }
     })
     setFileItems([])
@@ -366,14 +374,23 @@ const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = ({
   return (
     <div className="tiptap-image-upload-preview">
       {fileItem.status === "uploading" && (
-        <div
+        <progress
           className="tiptap-image-upload-progress"
-          style={{ width: `${fileItem.progress}%` }}
+          value={fileItem.progress}
+          max={100}
         />
       )}
 
       <div className="tiptap-image-upload-preview-content">
         <div className="tiptap-image-upload-file-info">
+          {fileItem.previewUrl && (
+            <img
+              className="tiptap-image-upload-thumbnail"
+              src={fileItem.previewUrl}
+              alt={fileItem.file.name}
+              draggable={false}
+            />
+          )}
           <div className="tiptap-image-upload-file-icon">
             <CloudUploadIcon />
           </div>
@@ -548,6 +565,7 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
         multiple={limit > 1}
         onChange={handleChange}
         onClick={(e: React.MouseEvent<HTMLInputElement>) => e.stopPropagation()}
+        aria-label="Upload image"
       />
     </NodeViewWrapper>
   )

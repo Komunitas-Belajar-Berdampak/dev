@@ -1,7 +1,7 @@
 import { Combobox, ComboboxChip, ComboboxChips, ComboboxChipsInput, ComboboxContent, ComboboxEmpty, ComboboxItem, ComboboxList, ComboboxValue, useComboboxAnchor } from '@/components/ui/combobox';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { toast } from 'sonner';
 import { Controller, type Control, type FieldValues, type Path } from 'react-hook-form';
+import { toast } from 'sonner';
 
 type StudyGroupMembersFieldProps<TFieldValues extends FieldValues> = {
   control: Control<TFieldValues>;
@@ -13,15 +13,7 @@ type StudyGroupMembersFieldProps<TFieldValues extends FieldValues> = {
   label?: string;
 };
 
-export function StudyGroupMembersField<TFieldValues extends FieldValues>({
-  control,
-  name,
-  items,
-  namaById,
-  kapasitas,
-  isLoading,
-  label = 'Masukkan Anggota (Optional)',
-}: StudyGroupMembersFieldProps<TFieldValues>) {
+export function StudyGroupMembersField<TFieldValues extends FieldValues>({ control, name, items, namaById, kapasitas, isLoading, label = 'Masukkan Anggota (Optional)' }: StudyGroupMembersFieldProps<TFieldValues>) {
   const anchor = useComboboxAnchor();
 
   return (
