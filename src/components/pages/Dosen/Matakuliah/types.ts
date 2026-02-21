@@ -31,3 +31,33 @@ export interface DosenCourse {
   kelas: string;
 }
 
+export type BEStatus = "HIDE" | "VISIBLE";
+
+export type Material = {
+  _id: string;
+  id: string;
+  idMeeting: string;
+  idCourse: string;
+  pathFile: string;
+  namaFile: string;
+  tipe: string;
+  status: BEStatus;
+  createdAt: string;
+  updatedAt: string;
+  __v?: number;
+};
+
+export type Assignment = {
+  _id: string;
+  id: string;
+  idMeeting: string;
+  judul: string;
+  pertemuan: number;
+  statusTugas: boolean;
+  tenggat: string;
+  status: BEStatus;
+  pathLampiran?: string;
+  createdAt: string;
+  updatedAt: string;
+  __v?: number;
+};

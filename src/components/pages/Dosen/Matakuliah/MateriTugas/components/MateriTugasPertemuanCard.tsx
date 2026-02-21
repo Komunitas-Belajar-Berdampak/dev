@@ -1,6 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import type { MeetingEntity } 
-  from "../../services/meeting.service";
+import type { MeetingEntity } from "../../services/meeting.service";
 
 export default function MateriTugasPertemuanCard({
   data,
@@ -14,7 +13,7 @@ export default function MateriTugasPertemuanCard({
     <button
       type="button"
       onClick={() =>
-        navigate(`/dosen/courses/${id}/pertemuan/${data.id}`)
+        navigate(`/dosen/courses/${id}/materi-tugas/pertemuan/${data.id}`)
       }
       className="
         w-full text-left
@@ -28,15 +27,11 @@ export default function MateriTugasPertemuanCard({
     >
       <div className="flex items-center justify-between">
         <div className="space-y-1">
-          
-          <p className="text-sm text-gray-600">
-            Pertemuan {data.pertemuan}
-          </p>
+          <p className="text-sm text-gray-600">Pertemuan {data.pertemuan}</p>
 
           <h2 className="text-2xl sm:text-2xl font-bold text-primary">
             {data.judul || `Pertemuan ${data.pertemuan}`}
           </h2>
-
         </div>
 
         <span className="text-[#0B1C7A] text-lg">{">"}</span>

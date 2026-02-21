@@ -35,6 +35,7 @@ import { type RouteObject } from 'react-router-dom';
 import GuestRoute from './GuestRoute';
 import ProtectedRoute from './ProtectedRoute';
 import RoleRedirect from './RoleRedirect';
+import PertemuanMateriTugasDetailPage from "@/components/pages/Dosen/Matakuliah/MateriTugas/PertemuanDetailPage";
 
 const routes: RouteObject[] = [
   {
@@ -120,6 +121,15 @@ const routes: RouteObject[] = [
               {
                 path: ":id/materi-tugas",
                 element: <MateriTugasPage />,
+                children: [
+                  {
+                    index: true,
+                  },
+                  {
+                    path: "pertemuan/:pertemuanId",
+                    element: <PertemuanMateriTugasDetailPage />,
+                  },
+                ],
               },
 
             ],

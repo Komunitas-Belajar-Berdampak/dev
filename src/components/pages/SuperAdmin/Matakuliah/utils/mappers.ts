@@ -1,6 +1,8 @@
+import { type ReactNode } from "react";
 import type { Matakuliah, MatakuliahEntity } from "../types/matakuliah";
 
 export type MatakuliahTableRow = {
+  deskripsi: ReactNode;
   id: string;
   kodeMatkul: string;
   namaMatkul: string;
@@ -39,4 +41,5 @@ export const toMatakuliahTableRow = (m: Matakuliah): MatakuliahTableRow => ({
   status: m.status === "aktif" ? "Aktif" : "Tidak Aktif",
   namaPeriode: m.namaPeriode || "-",
   namaPengajar: m.namaPengajar || "-",
+  deskripsi: m.deskripsi,
 });
