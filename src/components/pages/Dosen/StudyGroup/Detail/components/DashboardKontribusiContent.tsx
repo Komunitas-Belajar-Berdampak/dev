@@ -1,5 +1,6 @@
 import NoData from '@/components/shared/NoData';
 import Circle from '@/components/ui/circle';
+import { getUser } from '@/lib/authStorage';
 import type { StudyGroupDetail } from '@/types/sg';
 import { UserRoundX } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -10,6 +11,9 @@ type DashboardKontribusiContentProps = {
 };
 
 const DashboardKontribusiContent = ({ totalKontribusi = 0, anggota = [] }: DashboardKontribusiContentProps) => {
+  const user = getUser();
+  const nrp = user?.nrp;
+
   return (
     <>
       {!anggota.length ? (
@@ -26,7 +30,7 @@ const DashboardKontribusiContent = ({ totalKontribusi = 0, anggota = [] }: Dashb
               </div>
 
               <div className='flex flex-col w-full'>
-                <span className='text-primary font-bold text-sm'>{member.nama}</span>
+                <span className={`text-primary font-bold text-sm`}>{member.nrp === nrp ? `${member.nama} (Anda)` : member.nama}</span>
                 <span className='text-accent text-sm'>{member.nrp}</span>
               </div>
 

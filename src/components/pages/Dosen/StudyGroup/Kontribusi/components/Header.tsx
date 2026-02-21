@@ -16,8 +16,8 @@ const KontribusiHeader = ({ namaAnggota, data, totalKontribusi }: KontribusiHead
 
       {data.map((e) => (
         <div className='flex flex-row gap-6 items-center mt-4 w-full px-4 ' key={e.thread}>
-          <Circle size={35} className='flex justify-center items-center'>
-            <ListChecks className='text-primary w-8 h-8 p-2' />
+          <Circle size={12} className='flex justify-center items-center'>
+            <ListChecks className='text-primary w-12 h-12 p-3.5' />
           </Circle>
 
           <span className='text-primary font-bold text-sm w-full'>{e.thread}</span>
@@ -27,7 +27,10 @@ const KontribusiHeader = ({ namaAnggota, data, totalKontribusi }: KontribusiHead
           </div>
           <span className='text-primary font-bold text-sm'>{e.kontribusi}</span>
         </div>
+        
       ))}
+
+      
     </ContentHeader>
   );
 };
