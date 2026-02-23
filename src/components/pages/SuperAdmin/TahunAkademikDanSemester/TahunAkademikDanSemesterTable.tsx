@@ -154,7 +154,7 @@ export default function TahunAkademikDanSemesterTable() {
           onClick={() => setOpenAdd(true)}
           className="w-full sm:w-auto border-2 border-black shadow-[3px_3px_0_0_#000]"
         >
-          <Icon icon="mdi:plus" className="mr-2" />
+          <Icon icon="icon-park-solid:add" className="mr-2" />
           Add Periode
         </Button>
       </div>
@@ -201,7 +201,6 @@ export default function TahunAkademikDanSemesterTable() {
                     </TableCell>
 
                     <TableCell className="text-center">
-                      {/* penting: stopPropagation biar klik dropdown ga ikut navigate */}
                       <div onClick={(e) => e.stopPropagation()}>
                         <TahunAkademikDanSemesterActionDropdown
                           onDelete={() => {

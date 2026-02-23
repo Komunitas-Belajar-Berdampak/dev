@@ -7,7 +7,7 @@ export default function MatakuliahPage() {
   const breadcrumbItems = [
     { label: "Home", href: "/admin" },
     { label: "Data Matakuliah", href: "/admin/courses" },
-    ...(id ? [{ label: "Detail" }] : []),
+    ...(id ? [{ label: "Detail Pengajar" }] : []),
   ];
 
   return (

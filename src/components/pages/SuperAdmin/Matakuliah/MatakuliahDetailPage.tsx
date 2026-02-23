@@ -230,7 +230,7 @@ export default function MatakuliahDetailPengajarPage() {
           onClick={() => setOpenAdd(true)}
           className="border-2 border-black shadow-[3px_3px_0_0_#000]"
         >
-          <Icon icon="mdi:plus" className="mr-2" />
+          <Icon icon="icon-park-solid:add" className="mr-2" />
           Tambah Pengajar
         </Button>
       </div>
@@ -259,8 +259,8 @@ export default function MatakuliahDetailPengajarPage() {
                   const no = (page - 1) * limit + idx + 1;
                   return (
                     <TableRow key={p.id} className="h-14 border-b border-black/5">
-                      <TableCell className="font-mono">{no}</TableCell>
-                      <TableCell className="font-mono">{p.nrp || "-"}</TableCell>
+                      <TableCell className="font-medium">{no}</TableCell>
+                      <TableCell className="font-medium">{p.nrp || "-"}</TableCell>
                       <TableCell className="font-medium">{p.nama || "-"}</TableCell>
                       <TableCell>
                         <PengajarActionDropdown
@@ -301,9 +301,6 @@ export default function MatakuliahDetailPengajarPage() {
         </div>
       )}
 
-      {/* =========================
-          ✅ Modals (Dummy)
-          ========================= */}
       <AddPengajarModal
         open={openAdd}
         onClose={() => setOpenAdd(false)}
