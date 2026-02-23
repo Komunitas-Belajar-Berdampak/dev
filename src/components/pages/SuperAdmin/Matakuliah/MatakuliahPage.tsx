@@ -1,34 +1,25 @@
-import Title from '@/components/shared/Title';
-// import UserTable from "./UserTable";
-import MatakuliahTable from './MatakuliahTable';
+import Title from "@/components/shared/Title";
+import { Outlet, useParams } from "react-router-dom";
 
-const breadcrumbItems = [{ label: 'Home', href: '/admin' }, { label: 'Data Matakuliah' }];
+export default function MatakuliahPage() {
+  const { id } = useParams();
 
-const UserPage = () => {
+  const breadcrumbItems = [
+    { label: "Home", href: "/admin" },
+    { label: "Data Matakuliah", href: "/admin/courses" },
+    ...(id ? [{ label: "Detail" }] : []),
+  ];
+
   return (
-    <div
-      className='
-        w-full
-        max-w-[1400px]
-        mx-auto
-        px-4 sm:px-6 lg:px-8
-        space-y-6 sm:space-y-8
-      '
-    >
-      {/* TITLE + BREADCRUMB */}
-      <div className='space-y-2 sm:space-y-3'>
-        {/* TITLE RESPONSIVE */}
-        <div className='text-xl sm:text-2xl'>
-          <Title title='Data Matakuliah' items={breadcrumbItems} />
+    <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
+      <div className="space-y-2 sm:space-y-3">
+        <div className="text-xl sm:text-2xl">
+          <Title title="Data Matakuliah" items={breadcrumbItems} />
         </div>
       </div>
-
-      {/* TABLE */}
-      <div className='overflow-x-auto'>
-        <MatakuliahTable />
+      <div className="overflow-x-auto">
+        <Outlet />
       </div>
     </div>
   );
-};
-
-export default UserPage;
+}

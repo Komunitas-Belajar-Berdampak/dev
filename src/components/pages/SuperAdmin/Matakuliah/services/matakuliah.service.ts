@@ -16,8 +16,8 @@ export type CreateMatakuliahPayload = {
   sks: number;
   status: string;
   idPeriode: string;
-  idPengajar: string;
   idMahasiswa?: string[];
+  pengajar?: { id: string; nama: string }[];
   kelas: string;
   deskripsi?: string;
 };
@@ -51,9 +51,12 @@ export const MatakuliahService = {
       sks: Number(payload.sks),
       status: safeString(payload.status),
       idPeriode: safeString(payload.idPeriode),
-      idPengajar: safeString(payload.idPengajar),
       idMahasiswa: ensureMahasiswaArray(payload.idMahasiswa),
+      pengajar: Array.isArray(payload.pengajar) ? payload.pengajar : [],
       kelas: safeString(payload.kelas),
+      ...(payload.deskripsi !== undefined
+        ? { deskripsi: safeString(payload.deskripsi) || null }
+        : {}),
     };
 
     const res = await api.post<any>("/courses", apiPayload);
@@ -62,15 +65,24 @@ export const MatakuliahService = {
 
   async updateMatakuliah(id: string, payload: UpdateMatakuliahPayload) {
     const apiPayload: any = {
-      ...(payload.kodeMatkul !== undefined ? { kodeMatkul: safeString(payload.kodeMatkul) } : {}),
-      ...(payload.namaMatkul !== undefined ? { namaMatkul: safeString(payload.namaMatkul) } : {}),
+      ...(payload.kodeMatkul !== undefined
+        ? { kodeMatkul: safeString(payload.kodeMatkul) }
+        : {}),
+      ...(payload.namaMatkul !== undefined
+        ? { namaMatkul: safeString(payload.namaMatkul) }
+        : {}),
       ...(payload.sks !== undefined ? { sks: Number(payload.sks) } : {}),
       ...(payload.status !== undefined ? { status: safeString(payload.status) } : {}),
       ...(payload.idPeriode !== undefined ? { idPeriode: safeString(payload.idPeriode) } : {}),
-      ...(payload.idPengajar !== undefined ? { idPengajar: safeString(payload.idPengajar) } : {}),
       ...(payload.kelas !== undefined ? { kelas: safeString(payload.kelas) } : {}),
       ...(payload.idMahasiswa !== undefined
         ? { idMahasiswa: ensureMahasiswaArray(payload.idMahasiswa) }
+        : {}),
+      ...(payload.pengajar !== undefined
+        ? { pengajar: Array.isArray(payload.pengajar) ? payload.pengajar : [] }
+        : {}),
+      ...(payload.deskripsi !== undefined
+        ? { deskripsi: safeString(payload.deskripsi) || null }
         : {}),
     };
 

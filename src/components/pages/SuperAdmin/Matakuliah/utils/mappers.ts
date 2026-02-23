@@ -13,24 +13,52 @@ export type MatakuliahTableRow = {
   namaPengajar: string;
 };
 
-export const toMatakuliah = (e: MatakuliahEntity): Matakuliah => ({
-  id: e.id,
-  kodeMatkul: e.kodeMatkul,
-  namaMatkul: e.namaMatkul,
-  sks: e.sks,
-  kelas: e.kelas,
-  status: e.status,
+function parsePengajar(p: MatakuliahEntity["pengajar"]) {
+  // API baru: array object
+  if (Array.isArray(p)) {
+    return {
+      idPengajar: p?.[0]?.id ?? "",
+      namaPengajar:
+        p.length > 0
+          ? p
+              .map((x) => x?.nama)
+              .filter(Boolean)
+              .join(", ")
+          : "-",
+    };
+  }
 
-  idPeriode: "",
-  namaPeriode: e.periode ?? "-",
+  if (typeof p === "string") {
+    return {
+      idPengajar: "",
+      namaPengajar: p.trim() ? p : "-",
+    };
+  }
 
-  idPengajar: "",
-  namaPengajar: e.pengajar ?? "-",
+  return {
+    idPengajar: "",
+    namaPengajar: "-",
+  };
+}
 
-  idMahasiswa: [],
+export const toMatakuliah = (e: MatakuliahEntity): Matakuliah => {
+  const pj = parsePengajar(e.pengajar);
 
-  deskripsi: e.deskripsi ?? undefined,
-});
+  return {
+    id: e.id,
+    kodeMatkul: e.kodeMatkul,
+    namaMatkul: e.namaMatkul,
+    sks: e.sks,
+    kelas: e.kelas,
+    status: e.status,
+    idPeriode: "",
+    namaPeriode: e.periode ?? "-",
+    idPengajar: pj.idPengajar,
+    namaPengajar: pj.namaPengajar,
+    idMahasiswa: [],
+    deskripsi: e.deskripsi ?? undefined,
+  };
+};
 
 export const toMatakuliahTableRow = (m: Matakuliah): MatakuliahTableRow => ({
   id: m.id,

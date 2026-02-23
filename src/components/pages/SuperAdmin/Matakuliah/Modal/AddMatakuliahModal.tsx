@@ -1,18 +1,13 @@
 import { useMemo, useState } from "react";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
-} from "@/components/ui/select";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
 import type { StatusMatakuliah } from "../types/matakuliah";
 import { useCreateMatakuliah } from "../hooks/useCreateMatakuliah";
 import { useAcademicTermsOptions } from "../hooks/useAcademicTermsOptions";
-import { useDosenOptions } from "../hooks/useDosenOptions";
 
 export default function AddMatakuliahModal({
   open,
@@ -25,14 +20,12 @@ export default function AddMatakuliahModal({
 }) {
   const { createMatakuliah, loading: saving, error: saveError } = useCreateMatakuliah();
   const { options: termOptions, loading: loadingTerms, error: termError } = useAcademicTermsOptions();
-  const { options: dosenOptions, loading: loadingDosen, error: dosenError } = useDosenOptions();
 
   const [kodeMatkul, setKodeMatkul] = useState("");
   const [namaMatkul, setNamaMatkul] = useState("");
   const [sks, setSks] = useState("");
   const [kelas, setKelas] = useState("");
   const [idPeriode, setIdPeriode] = useState("");
-  const [idPengajar, setIdPengajar] = useState("");
   const [status, setStatus] = useState<StatusMatakuliah>("aktif");
   const [deskripsi, setDeskripsi] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
@@ -41,28 +34,15 @@ export default function AddMatakuliahModal({
     return (
       saving ||
       loadingTerms ||
-      loadingDosen ||
       !kodeMatkul.trim() ||
       !namaMatkul.trim() ||
       !kelas.trim() ||
       !sks.trim() ||
       Number(sks) <= 0 ||
       !idPeriode ||
-      !idPengajar ||
       !status
     );
-  }, [
-    saving,
-    loadingTerms,
-    loadingDosen,
-    kodeMatkul,
-    namaMatkul,
-    kelas,
-    sks,
-    idPeriode,
-    idPengajar,
-    status,
-  ]);
+  }, [saving, loadingTerms, kodeMatkul, namaMatkul, kelas, sks, idPeriode, status]);
 
   const submit = async () => {
     setLocalError(null);
@@ -73,7 +53,6 @@ export default function AddMatakuliahModal({
     if (!sks.trim()) return setLocalError("SKS wajib diisi.");
     if (Number(sks) <= 0) return setLocalError("SKS harus lebih dari 0.");
     if (!idPeriode) return setLocalError("Periode wajib dipilih.");
-    if (!idPengajar) return setLocalError("Pengajar wajib dipilih.");
 
     try {
       await createMatakuliah({
@@ -83,17 +62,16 @@ export default function AddMatakuliahModal({
         kelas: kelas.trim(),
         status,
         idPeriode,
-        idPengajar,
         idMahasiswa: [],
+        pengajar: [],
+        deskripsi: deskripsi.trim() ? deskripsi.trim() : undefined,
       });
 
-      // reset form
       setKodeMatkul("");
       setNamaMatkul("");
       setSks("");
       setKelas("");
       setIdPeriode("");
-      setIdPengajar("");
       setStatus("aktif");
       setDeskripsi("");
 
@@ -104,7 +82,7 @@ export default function AddMatakuliahModal({
     }
   };
 
-  const combinedError = localError ?? termError ?? dosenError ?? saveError ?? null;
+  const combinedError = localError ?? termError ?? saveError ?? null;
 
   return (
     <Dialog
@@ -128,17 +106,8 @@ export default function AddMatakuliahModal({
         ) : null}
 
         <div className="space-y-4 mt-4">
-          <Input
-            placeholder="Kode Matakuliah"
-            value={kodeMatkul}
-            onChange={(e) => setKodeMatkul(e.target.value)}
-          />
-
-          <Input
-            placeholder="Nama Matakuliah"
-            value={namaMatkul}
-            onChange={(e) => setNamaMatkul(e.target.value)}
-          />
+          <Input placeholder="Kode Matakuliah" value={kodeMatkul} onChange={(e) => setKodeMatkul(e.target.value)} />
+          <Input placeholder="Nama Matakuliah" value={namaMatkul} onChange={(e) => setNamaMatkul(e.target.value)} />
 
           <Input
             type="text"
@@ -152,11 +121,7 @@ export default function AddMatakuliahModal({
             }}
           />
 
-          <Input
-            placeholder="Kelas (contoh: A)"
-            value={kelas}
-            onChange={(e) => setKelas(e.target.value)}
-          />
+          <Input placeholder="Kelas (contoh: A)" value={kelas} onChange={(e) => setKelas(e.target.value)} />
 
           <Select value={idPeriode} onValueChange={setIdPeriode}>
             <SelectTrigger className="w-full border border-black/20">
@@ -164,18 +129,9 @@ export default function AddMatakuliahModal({
             </SelectTrigger>
             <SelectContent>
               {termOptions.map((t) => (
-                <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={idPengajar} onValueChange={setIdPengajar}>
-            <SelectTrigger className="w-full border border-black/20">
-              <SelectValue placeholder={loadingDosen ? "Memuat dosen..." : "Pilih Pengajar (Dosen)"} />
-            </SelectTrigger>
-            <SelectContent>
-              {dosenOptions.map((d) => (
-                <SelectItem key={d.id} value={d.id}>{d.label}</SelectItem>
+                <SelectItem key={t.id} value={t.id}>
+                  {t.label}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -190,11 +146,7 @@ export default function AddMatakuliahModal({
             </SelectContent>
           </Select>
 
-          <Textarea
-            placeholder="Deskripsi (opsional)"
-            value={deskripsi}
-            onChange={(e) => setDeskripsi(e.target.value)}
-          />
+          <Textarea placeholder="Deskripsi (opsional)" value={deskripsi} onChange={(e) => setDeskripsi(e.target.value)} />
         </div>
 
         <Button className="w-full mt-6" onClick={submit} disabled={disabled}>

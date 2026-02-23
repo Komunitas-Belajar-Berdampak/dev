@@ -20,7 +20,6 @@ import { api } from "@/lib/axios";
 import type { Matakuliah, StatusMatakuliah } from "../types/matakuliah";
 import { useUpdateMatakuliah } from "../hooks/useUpdateMatakuliah";
 import { useAcademicTermsOptions } from "../hooks/useAcademicTermsOptions";
-import { useDosenOptions } from "../hooks/useDosenOptions";
 
 function pickId(v: any): string {
   if (!v) return "";
@@ -40,6 +39,23 @@ function pickText(...vals: any[]): string {
   return "";
 }
 
+type PengajarPayload = { id: string };
+
+function normalizePengajarToPayload(pengajar: any): PengajarPayload[] {
+  // API baru: array of object {id,nama}
+  if (Array.isArray(pengajar)) {
+    return pengajar
+      .map((x) => ({ id: pickId(x?.id ?? x?._id ?? x) }))
+      .filter((x) => !!x.id);
+  }
+
+  // API lama (kalau ada): single object
+  const singleId = pickId(pengajar?.id ?? pengajar?._id ?? pengajar);
+  if (singleId) return [{ id: singleId }];
+
+  return [];
+}
+
 export default function EditMatakuliahModal({
   open,
   onClose,
@@ -51,9 +67,17 @@ export default function EditMatakuliahModal({
   data: Matakuliah | null;
   onSuccess?: () => void;
 }) {
-  const { updateMatakuliah, loading: saving, error: saveError } = useUpdateMatakuliah();
-  const { options: termOptions, loading: loadingTerms, error: termError } = useAcademicTermsOptions();
-  const { options: dosenOptions, loading: loadingDosen, error: dosenError } = useDosenOptions();
+  const {
+    updateMatakuliah,
+    loading: saving,
+    error: saveError,
+  } = useUpdateMatakuliah();
+
+  const {
+    options: termOptions,
+    loading: loadingTerms,
+    error: termError,
+  } = useAcademicTermsOptions();
 
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
@@ -62,10 +86,14 @@ export default function EditMatakuliahModal({
   const [sks, setSks] = useState("");
   const [kelas, setKelas] = useState("");
   const [idPeriode, setIdPeriode] = useState("");
-  const [idPengajar, setIdPengajar] = useState("");
   const [status, setStatus] = useState<StatusMatakuliah>("aktif");
   const [deskripsi, setDeskripsi] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
+
+  // ✅ simpan pengajar dari detail (buat dikirim balik saat update)
+  const [pengajarPayload, setPengajarPayload] = useState<PengajarPayload[]>(
+    []
+  );
 
   const matkulId = data?.id ?? null;
 
@@ -92,19 +120,14 @@ export default function EditMatakuliahModal({
 
         setIdPeriode(
           pickId(d?.idPeriode) ||
-          pickId(d?.periode?.id) ||
-          pickId(d?.periode?._id) ||
-          ""
+            pickId(d?.periode?.id) ||
+            pickId(d?.periode?._id) ||
+            ""
         );
 
-        setIdPengajar(
-          pickId(d?.idPengajar) ||
-          pickId(d?.pengajar?.id) ||
-          pickId(d?.pengajar?._id) ||
-          pickId(d?.dosen?.id) ||
-          pickId(d?.dosen?._id) ||
-          ""
-        );
+        // ✅ ambil pengajar dari detail, tapi TIDAK ditampilkan di input
+        // penting: supaya update tetap ngirim field wajib dan nggak ngapus pengajar existing
+        setPengajarPayload(normalizePengajarToPayload(d?.pengajar));
 
         setDeskripsi(
           pickText(
@@ -121,6 +144,7 @@ export default function EditMatakuliahModal({
         setLocalError(null);
       } catch (e: any) {
         if (!alive) return;
+
         setDetailError(
           e?.response?.data?.message ??
             e?.message ??
@@ -133,8 +157,11 @@ export default function EditMatakuliahModal({
         setKelas(data?.kelas ?? "");
         setStatus(((data as any)?.status ?? "aktif") as StatusMatakuliah);
         setIdPeriode(pickId((data as any)?.idPeriode) || "");
-        setIdPengajar(pickId((data as any)?.idPengajar) || "");
         setDeskripsi(pickText((data as any)?.deskripsi));
+
+        // fallback pengajar: pakai idPengajar kalau ada (meski biasanya kosong)
+        const fallbackId = pickId((data as any)?.idPengajar);
+        setPengajarPayload(fallbackId ? [{ id: fallbackId }] : []);
       } finally {
         if (!alive) return;
         setLoadingDetail(false);
@@ -148,30 +175,28 @@ export default function EditMatakuliahModal({
 
   const disabled = useMemo(() => {
     if (!data) return true;
+
     return (
       saving ||
       loadingDetail ||
       loadingTerms ||
-      loadingDosen ||
       !namaMatkul.trim() ||
       !kelas.trim() ||
       !sks.trim() ||
       Number(sks) <= 0 ||
       !idPeriode ||
-      !idPengajar ||
       !status
+      // ✅ idPengajar TIDAK dipakai lagi di UI
     );
   }, [
     data,
     saving,
     loadingDetail,
     loadingTerms,
-    loadingDosen,
     namaMatkul,
     kelas,
     sks,
     idPeriode,
-    idPengajar,
     status,
   ]);
 
@@ -179,13 +204,15 @@ export default function EditMatakuliahModal({
     if (!data) return;
     setLocalError(null);
 
-    if (!namaMatkul.trim()) return setLocalError("Nama matakuliah wajib diisi.");
+    if (!namaMatkul.trim())
+      return setLocalError("Nama matakuliah wajib diisi.");
     if (!kelas.trim()) return setLocalError("Kelas wajib diisi.");
     if (!sks.trim()) return setLocalError("SKS wajib diisi.");
     if (Number(sks) <= 0) return setLocalError("SKS harus > 0.");
     if (!idPeriode) return setLocalError("Periode wajib dipilih.");
-    if (!idPengajar) return setLocalError("Pengajar wajib dipilih.");
 
+    // ✅ backend wajib pengajar → kirim pengajar yang sudah ada dari detail
+    // kalau memang belum ada pengajar sama sekali, kirim [] (biar tetap valid)
     await updateMatakuliah({
       id: data.id,
       payload: {
@@ -194,16 +221,18 @@ export default function EditMatakuliahModal({
         kelas: kelas.trim(),
         status,
         idPeriode,
-        idPengajar,
-      },
+        deskripsi: deskripsi.trim() ? deskripsi.trim() : undefined,
+
+        // ✅ WAJIB: pengajar disertakan tapi tanpa input UI
+        pengajar: pengajarPayload,
+      } as any, // biar lolos kalau types payload update belum include pengajar
     });
 
     onSuccess?.();
     onClose();
   };
 
-  const combinedError =
-    localError ?? detailError ?? termError ?? dosenError ?? saveError ?? null;
+  const combinedError = localError ?? detailError ?? termError ?? saveError ?? null;
 
   if (!open) return null;
 
@@ -238,7 +267,10 @@ export default function EditMatakuliahModal({
             <div className="space-y-4 mt-4">
               <Input value={(data as any).kodeMatkul} disabled />
 
-              <Input value={namaMatkul} onChange={(e) => setNamaMatkul(e.target.value)} />
+              <Input
+                value={namaMatkul}
+                onChange={(e) => setNamaMatkul(e.target.value)}
+              />
 
               <Input
                 type="text"
@@ -256,7 +288,9 @@ export default function EditMatakuliahModal({
 
               <Select value={idPeriode} onValueChange={setIdPeriode}>
                 <SelectTrigger className="w-full border border-black/20">
-                  <SelectValue placeholder={loadingTerms ? "Memuat periode..." : "Pilih Periode"} />
+                  <SelectValue
+                    placeholder={loadingTerms ? "Memuat periode..." : "Pilih Periode"}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {termOptions.map((t) => (
@@ -267,20 +301,13 @@ export default function EditMatakuliahModal({
                 </SelectContent>
               </Select>
 
-              <Select value={idPengajar} onValueChange={setIdPengajar}>
-                <SelectTrigger className="w-full border border-black/20">
-                  <SelectValue placeholder={loadingDosen ? "Memuat dosen..." : "Pilih Pengajar (Dosen)"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {dosenOptions.map((d) => (
-                    <SelectItem key={d.id} value={d.id}>
-                      {d.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {/* ✅ Pengajar tidak ditampilkan lagi di input */}
+              {/* Tapi tetap dikirim via pengajarPayload dari GET detail */}
 
-              <Select value={status} onValueChange={(v) => setStatus(v as StatusMatakuliah)}>
+              <Select
+                value={status}
+                onValueChange={(v) => setStatus(v as StatusMatakuliah)}
+              >
                 <SelectTrigger className="w-full border border-black/20">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
@@ -295,10 +322,19 @@ export default function EditMatakuliahModal({
                 onChange={(e) => setDeskripsi(e.target.value)}
                 placeholder="Deskripsi (opsional)"
               />
+
+              {/* Optional: info kecil biar jelas */}
+              <div className="text-xs text-muted-foreground">
+                Pengajar dikelola di halaman detail matakuliah.
+              </div>
             </div>
 
             <Button className="w-full mt-6" onClick={submit} disabled={disabled}>
-              {saving ? "Menyimpan..." : loadingDetail ? "Memuat detail..." : "Simpan Perubahan"}
+              {saving
+                ? "Menyimpan..."
+                : loadingDetail
+                ? "Memuat detail..."
+                : "Simpan Perubahan"}
             </Button>
           </>
         )}

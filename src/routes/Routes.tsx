@@ -37,6 +37,8 @@ import ProtectedRoute from './ProtectedRoute';
 import RoleRedirect from './RoleRedirect';
 import PertemuanMateriTugasDetailPage from "@/components/pages/Dosen/Matakuliah/MateriTugas/PertemuanDetailPage";
 import TahunAkademikDanSemesterDetailPage from '@/components/pages/SuperAdmin/TahunAkademikDanSemester/TahunAkademikDanSemesterDetailPage';
+import MatakuliahDetailPage from "@/components/pages/SuperAdmin/Matakuliah/MatakuliahDetailPage";
+import MatakuliahTable from '@/components/pages/SuperAdmin/Matakuliah/MatakuliahTable';
 
 const routes: RouteObject[] = [
   {
@@ -90,8 +92,12 @@ const routes: RouteObject[] = [
             element: <TahunAkademikDanSemesterDetailPage />,
           },
           {
-            path: 'courses',
+            path: "courses",
             element: <MatakuliahPage />,
+            children: [
+              { index: true, element: <MatakuliahTable /> },
+              { path: ":id", element: <MatakuliahDetailPage /> },
+            ],
           },
         ],
       },
