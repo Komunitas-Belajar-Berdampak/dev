@@ -126,7 +126,6 @@ export default function ProgramStudiTable() {
   const [openEdit, setOpenEdit] = useState(false);
   const [selected, setSelected] = useState<ProgramStudiTableRow | null>(null);
 
-  // ✅ FIX: entity biasanya _id, bukan id (mirip kasus fakultas/user)
   const selectedEntity: ProgramStudiEntity | null = useMemo(() => {
     if (!selected) return null;
     return (
@@ -176,7 +175,7 @@ export default function ProgramStudiTable() {
           onClick={() => setOpenAdd(true)}
           className="w-full sm:w-auto border-2 border-black shadow-[3px_3px_0_0_#000]"
         >
-          <Icon icon="mdi:plus" className="mr-2" />
+          <Icon icon="icon-park-solid:add" className="mr-2" />
           Add Program Studi
         </Button>
       </div>
@@ -214,7 +213,6 @@ export default function ProgramStudiTable() {
                     <TableCell>{item.namaFakultas}</TableCell>
                     <TableCell className="text-center">
                       <ProgramStudiActionDropdown
-                        // ✅ sekarang dropdown cuma edit
                         onEdit={() => {
                           setSelected(item);
                           setOpenEdit(true);

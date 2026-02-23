@@ -35,6 +35,10 @@ import { type RouteObject } from 'react-router-dom';
 import GuestRoute from './GuestRoute';
 import ProtectedRoute from './ProtectedRoute';
 import RoleRedirect from './RoleRedirect';
+import PertemuanMateriTugasDetailPage from "@/components/pages/Dosen/Matakuliah/MateriTugas/PertemuanDetailPage";
+import TahunAkademikDanSemesterDetailPage from '@/components/pages/SuperAdmin/TahunAkademikDanSemester/TahunAkademikDanSemesterDetailPage';
+import MatakuliahDetailPage from "@/components/pages/SuperAdmin/Matakuliah/MatakuliahDetailPage";
+import MatakuliahTable from '@/components/pages/SuperAdmin/Matakuliah/MatakuliahTable';
 
 const routes: RouteObject[] = [
   {
@@ -84,8 +88,16 @@ const routes: RouteObject[] = [
             element: <TahunAkademikDanSemesterPage />,
           },
           {
-            path: 'courses',
+            path: 'academic-terms/:id',
+            element: <TahunAkademikDanSemesterDetailPage />,
+          },
+          {
+            path: "courses",
             element: <MatakuliahPage />,
+            children: [
+              { index: true, element: <MatakuliahTable /> },
+              { path: ":id", element: <MatakuliahDetailPage /> },
+            ],
           },
         ],
       },
@@ -120,6 +132,15 @@ const routes: RouteObject[] = [
               {
                 path: ":id/materi-tugas",
                 element: <MateriTugasPage />,
+                children: [
+                  {
+                    index: true,
+                  },
+                  {
+                    path: "pertemuan/:pertemuanId",
+                    element: <PertemuanMateriTugasDetailPage />,
+                  },
+                ],
               },
 
             ],

@@ -1,4 +1,5 @@
 import { Icon } from "@iconify/react";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,9 +7,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export default function TahunAkademikDanSemesterActionDropdown({
+export default function PengajarActionDropdown({
+  onEdit,
   onDelete,
 }: {
+  onEdit: () => void;
   onDelete: () => void;
 }) {
   return (
@@ -19,16 +22,18 @@ export default function TahunAkademikDanSemesterActionDropdown({
         </button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuContent align="end" className="w-44">
+        <DropdownMenuItem onClick={onEdit} className="cursor-pointer">
+          <Icon icon="mdi:pencil" className="mr-2" />
+          Edit Pengajar
+        </DropdownMenuItem>
+
         <DropdownMenuItem
-          onSelect={(e) => {
-            e.preventDefault();
-            onDelete();
-          }}
+          onClick={onDelete}
           className="cursor-pointer text-red-600 focus:text-red-600"
         >
-          <Icon icon="iconamoon:trash-fill" className="mr-2" />
-          Delete Tahun Akademik dan Semester
+          <Icon icon="mdi:trash" className="mr-2" />
+          Hapus Pengajar
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

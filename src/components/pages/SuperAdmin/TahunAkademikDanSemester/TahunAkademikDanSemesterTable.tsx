@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useNavigate } from "react-router-dom";
 
 import {
   Table,
@@ -49,10 +50,11 @@ function TahunAkademikDanSemesterTableSkeleton() {
 
       <div className="relative -mx-4 sm:mx-0">
         <div className="overflow-x-auto max-w-[calc(100vw-2rem)] sm:max-w-full">
-          <Table className="min-w-[800px] text-blue-800">
+          <Table className="min-w-[900px] text-blue-800">
             <TableHeader>
               <TableRow className="border-b border-black/10">
                 <TableHead className="font-bold text-blue-900">Periode</TableHead>
+                <TableHead className="font-bold text-blue-900">Semester Type</TableHead>
                 <TableHead className="font-bold text-blue-900">Mulai</TableHead>
                 <TableHead className="font-bold text-blue-900">Selesai</TableHead>
                 <TableHead className="font-bold text-blue-900">Status</TableHead>
@@ -66,6 +68,7 @@ function TahunAkademikDanSemesterTableSkeleton() {
                   <TableCell className="font-medium">
                     <Skeleton className="h-4 w-[420px] max-w-full" />
                   </TableCell>
+                  <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-28" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-28" /></TableCell>
                   <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
@@ -85,14 +88,13 @@ function TahunAkademikDanSemesterTableSkeleton() {
 }
 
 export default function TahunAkademikDanSemesterTable() {
+  const navigate = useNavigate();
+
   const { academicTerms: entities, loading, error, refetch } =
     useTahunAkademikDanSemester();
 
   const rows: TahunAkademikDanSemesterTableRow[] = useMemo(
-    () =>
-      entities.map((t: TahunAkademikDanSemesterEntity) =>
-        toTahunAkademikDanSemesterTableRow(t),
-      ),
+    () => entities.map((t: TahunAkademikDanSemesterEntity) => toTahunAkademikDanSemesterTableRow(t)),
     [entities],
   );
 
@@ -109,9 +111,10 @@ export default function TahunAkademikDanSemesterTable() {
 
   const [openAdd, setOpenAdd] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
-  const [selected, setSelected] = useState<TahunAkademikDanSemesterTableRow | null>(null);
 
-  const selectedId = selected?.id ?? null;
+  const [selectedRow, setSelectedRow] = useState<TahunAkademikDanSemesterTableRow | null>(null);
+
+  const selectedId = selectedRow?.id ?? null;
 
   if (loading) return <TahunAkademikDanSemesterTableSkeleton />;
 
@@ -151,17 +154,18 @@ export default function TahunAkademikDanSemesterTable() {
           onClick={() => setOpenAdd(true)}
           className="w-full sm:w-auto border-2 border-black shadow-[3px_3px_0_0_#000]"
         >
-          <Icon icon="mdi:plus" className="mr-2" />
+          <Icon icon="icon-park-solid:add" className="mr-2" />
           Add Periode
         </Button>
       </div>
-
+      
       <div className="relative -mx-4 sm:mx-0">
         <div className="overflow-x-auto max-w-[calc(100vw-2rem)] sm:max-w-full">
-          <Table className="min-w-[800px] text-blue-800">
+          <Table className="min-w-[900px] text-blue-800">
             <TableHeader>
               <TableRow className="border-b border-black/10">
                 <TableHead className="font-bold text-blue-900">Periode</TableHead>
+                <TableHead className="font-bold text-blue-900">Semester Type</TableHead>
                 <TableHead className="font-bold text-blue-900">Mulai</TableHead>
                 <TableHead className="font-bold text-blue-900">Selesai</TableHead>
                 <TableHead className="font-bold text-blue-900">Status</TableHead>
@@ -172,14 +176,20 @@ export default function TahunAkademikDanSemesterTable() {
             <TableBody>
               {paginated.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-12">
+                  <TableCell colSpan={6} className="text-center py-12">
                     Data tidak ditemukan
                   </TableCell>
                 </TableRow>
               ) : (
                 paginated.map((item) => (
-                  <TableRow key={item.id} className="h-14 border-b border-black/5">
+                  <TableRow
+                    key={item.id}
+                    className="h-14 border-b border-black/5 cursor-pointer hover:bg-black/[0.03]"
+                    onClick={() => navigate(`/admin/academic-terms/${item.id}`)}
+                    title="Klik untuk lihat detail semester"
+                  >
                     <TableCell className="font-medium">{item.periode}</TableCell>
+                    <TableCell>{item.semesterType}</TableCell>
                     <TableCell>{item.startDate}</TableCell>
                     <TableCell>{item.endDate}</TableCell>
                     <TableCell>
@@ -189,13 +199,16 @@ export default function TahunAkademikDanSemesterTable() {
                         <Badge variant="danger">Tidak Aktif</Badge>
                       )}
                     </TableCell>
+
                     <TableCell className="text-center">
-                      <TahunAkademikDanSemesterActionDropdown
-                        onDelete={() => {
-                          setSelected(item);
-                          setOpenDelete(true);
-                        }}
-                      />
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <TahunAkademikDanSemesterActionDropdown
+                          onDelete={() => {
+                            setSelectedRow(item);
+                            setOpenDelete(true);
+                          }}
+                        />
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -205,6 +218,7 @@ export default function TahunAkademikDanSemesterTable() {
         </div>
       </div>
 
+      {/* Modals */}
       <AddTahunAkademikDanSemesterModal
         open={openAdd}
         onClose={() => setOpenAdd(false)}
@@ -215,31 +229,39 @@ export default function TahunAkademikDanSemesterTable() {
         open={openDelete}
         onClose={() => {
           setOpenDelete(false);
-          setSelected(null);
+          setSelectedRow(null);
         }}
         id={selectedId}
-        periode={selected?.periode ?? null}
+        periode={selectedRow?.periode ?? null}
         onSuccess={() => refetch()}
       />
 
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className="mt-10 flex justify-center sm:justify-end">
           <Pagination>
             <PaginationContent>
               <PaginationItem>
-                <PaginationPrevious onClick={() => setPage((p) => Math.max(p - 1, 1))} />
+                <PaginationPrevious
+                  onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                />
               </PaginationItem>
 
               {Array.from({ length: totalPages }).map((_, i) => (
                 <PaginationItem key={i}>
-                  <PaginationLink isActive={page === i + 1} onClick={() => setPage(i + 1)}>
+                  <PaginationLink
+                    isActive={page === i + 1}
+                    onClick={() => setPage(i + 1)}
+                  >
                     {i + 1}
                   </PaginationLink>
                 </PaginationItem>
               ))}
 
               <PaginationItem>
-                <PaginationNext onClick={() => setPage((p) => Math.min(p + 1, totalPages))} />
+                <PaginationNext
+                  onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+                />
               </PaginationItem>
             </PaginationContent>
           </Pagination>
@@ -248,3 +270,4 @@ export default function TahunAkademikDanSemesterTable() {
     </div>
   );
 }
+      

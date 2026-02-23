@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useParams } from "react-router-dom";
+import {Outlet, useParams } from "react-router-dom";
 import { Icon } from "@iconify/react";
 
 import Title from "@/components/shared/Title";
@@ -31,8 +31,10 @@ function PertemuanCardSkeleton() {
 }
 
 export default function MateriTugasPage() {
-  const { id } = useParams<{ id: string }>();
+  const { id, pertemuanId } = useParams<{ id: string; pertemuanId?: string }>();
 
+  if (pertemuanId) return <Outlet />;
+  
   const {
     data: course,
     isLoading: courseLoading,

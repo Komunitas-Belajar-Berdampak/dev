@@ -30,6 +30,7 @@ import DeleteMatakuliahModal from "./Modal/DeleteMatakuliahModal";
 import { useMatakuliah } from "./hooks/useMatakuliah";
 import type { Matakuliah } from "./types/matakuliah";
 import { toMatakuliahTableRow, type MatakuliahTableRow } from "./utils/mappers";
+import { useNavigate } from "react-router-dom";
 
 function MatakuliahTableSkeleton() {
   const rows = Array.from({ length: 10 });
@@ -117,6 +118,7 @@ function MatakuliahTableSkeleton() {
 
 export default function MatakuliahTable() {
   const { matakuliah: entities, loading, error, refetch } = useMatakuliah();
+  const navigate = useNavigate();
 
   const rows: MatakuliahTableRow[] = useMemo(
     () => entities.map((m: Matakuliah) => toMatakuliahTableRow(m)),
@@ -185,7 +187,7 @@ export default function MatakuliahTable() {
           onClick={() => setOpenAdd(true)}
           className="w-full sm:w-auto border-2 border-black shadow-[3px_3px_0_0_#000]"
         >
-          <Icon icon="mdi:plus" className="mr-2" />
+          <Icon icon="icon-park-solid:add" className="mr-2" />
           Add Matakuliah
         </Button>
       </div>
@@ -215,7 +217,11 @@ export default function MatakuliahTable() {
                 </TableRow>
               ) : (
                 paginated.map((item) => (
-                  <TableRow key={item.id} className="h-14 border-b border-black/5">
+                    <TableRow
+                      key={item.id}
+                      className="h-14 border-b border-black/5 cursor-pointer hover:bg-black/5"
+                      onClick={() => navigate(`/admin/courses/${item.id}`)}
+                    >
                     <TableCell>{item.kodeMatkul}</TableCell>
                     <TableCell className="font-medium">{item.namaMatkul}</TableCell>
                     <TableCell>{item.sks}</TableCell>
@@ -229,7 +235,10 @@ export default function MatakuliahTable() {
                         <Badge variant="secondary">Tidak Aktif</Badge>
                       )}
                     </TableCell>
-                    <TableCell className="text-center">
+                    <TableCell
+                      className="text-center"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <MataKuliahActionDropdown
                         onEdit={() => {
                           setSelected(item);

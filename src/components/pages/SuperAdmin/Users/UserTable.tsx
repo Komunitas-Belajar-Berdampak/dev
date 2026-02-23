@@ -122,7 +122,6 @@ export default function UserTable() {
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
 
-  // ✅ FIX: state yang bener untuk id edit
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   if (loading) return <UsersTableSkeleton />;
@@ -166,7 +165,7 @@ export default function UserTable() {
           onClick={() => setOpenAdd(true)}
           className="w-full sm:w-auto border-2 border-black shadow-[3px_3px_0_0_#000]"
         >
-          <Icon icon="mdi:plus" className="mr-2" />
+          <Icon icon="icon-park-solid:add" className="mr-2" />
           Add User
         </Button>
       </div>
@@ -218,7 +217,7 @@ export default function UserTable() {
                     <TableCell className="text-center">
                       <UserActionDropdown
                         onEdit={() => {
-                          setSelectedUserId(row.id); // ✅ id untuk fetch detail user
+                          setSelectedUserId(row.id);
                           setOpenEdit(true);
                         }}
                       />

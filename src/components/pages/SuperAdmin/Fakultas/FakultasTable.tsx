@@ -134,7 +134,6 @@ export default function FakultasTable() {
   const [openEdit, setOpenEdit] = useState(false);
   const [selected, setSelected] = useState<FakultasTableRow | null>(null);
 
-  // ✅ FIX utama: entity biasanya _id (bukan id)
   const selectedEntity: FakultasEntity | null = useMemo(() => {
     if (!selected) return null;
     return (
@@ -184,7 +183,7 @@ export default function FakultasTable() {
           onClick={() => setOpenAdd(true)}
           className="w-full sm:w-auto border-2 border-black shadow-[3px_3px_0_0_#000] font-semibold"
         >
-          <Icon icon="mdi:plus" className="mr-2 text-lg" />
+          <Icon icon="icon-park-solid:add" className="mr-2 text-lg" />
           Add Fakultas
         </Button>
       </div>
