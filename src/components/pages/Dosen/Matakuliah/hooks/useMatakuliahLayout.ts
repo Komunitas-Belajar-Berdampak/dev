@@ -10,6 +10,16 @@ type UseCoursesState = {
 };
 
 function mapToDosenCourse(raw: any): DosenCourse {
+  const pengajar =
+    Array.isArray(raw?.pengajar)
+      ? raw.pengajar
+          .map((p: any) => p?.nama)
+          .filter(Boolean)
+          .join(", ")
+      : typeof raw?.pengajar === "object" && raw?.pengajar !== null
+        ? String(raw.pengajar?.nama ?? "")
+        : String(raw?.pengajar ?? "");
+
   return {
     id: raw.id,
     kodeMatkul: raw.kodeMatkul,
@@ -18,7 +28,7 @@ function mapToDosenCourse(raw: any): DosenCourse {
     status: raw.status,
     periode: raw.periode,
     deskripsi: raw.deskripsi ?? "",
-    pengajar: raw.pengajar,
+    pengajar,
     kelas: raw.kelas,
   };
 }
