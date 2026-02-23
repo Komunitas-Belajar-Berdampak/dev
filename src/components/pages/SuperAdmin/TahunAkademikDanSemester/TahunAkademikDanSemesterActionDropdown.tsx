@@ -5,7 +5,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 
 export default function TahunAkademikDanSemesterActionDropdown({
   onDelete,
@@ -15,13 +14,9 @@ export default function TahunAkademikDanSemesterActionDropdown({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          size="icon"
-          variant="outline"
-          className="border-2 border-black shadow-[3px_3px_0_0_#000]"
-        >
-          <Icon icon="mdi:dots-horizontal" />
-        </Button>
+        <button className="border-2 border-black p-1 rounded shadow-[2px_2px_0_0_#000]">
+          <Icon icon="mdi:dots-horizontal" className="text-lg" />
+        </button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-56">
