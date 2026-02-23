@@ -2,14 +2,14 @@ import { useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   TahunAkademikDanSemesterService,
-  type CreateAcademicTermPayload,
+  type AcademicTermUpsertPayload,
 } from "../services/tahun-akademik-dan-semester.service";
 
 export function useCreateTahunAkademikDanSemester() {
   const qc = useQueryClient();
 
   const m = useMutation({
-    mutationFn: (payload: CreateAcademicTermPayload) =>
+    mutationFn: (payload: AcademicTermUpsertPayload) =>
       TahunAkademikDanSemesterService.create(payload),
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["academic-terms"] });

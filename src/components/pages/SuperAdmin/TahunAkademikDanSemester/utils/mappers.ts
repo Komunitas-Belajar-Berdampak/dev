@@ -20,10 +20,15 @@ const fmt = (iso: string) => {
 
 export const toTahunAkademikDanSemesterTableRow = (
   t: TahunAkademikDanSemesterEntity,
-): TahunAkademikDanSemesterTableRow => ({
-  id: String(t.id ?? (t as any)._id ?? ""),
-  periode: t.periode,
-  startDate: fmt(t.startDate),
-  endDate: fmt(t.endDate),
-  status: toStatusFE(t.status),
-});
+): TahunAkademikDanSemesterTableRow => {
+  const id = String((t as any)._id ?? t.id ?? "");
+
+  return {
+    id,
+    periode: t.periode,
+    semesterType: t.semesterType,
+    startDate: fmt(t.startDate),
+    endDate: fmt(t.endDate),
+    status: toStatusFE(t.status),
+  };
+};

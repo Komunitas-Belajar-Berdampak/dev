@@ -2,10 +2,13 @@ import { api } from "@/lib/axios";
 import type {
   TahunAkademikDanSemesterEntity,
   StatusTahunAkademikBE,
+  SemesterType,
 } from "../types/tahun-akademik-dan-semester";
 
-export type CreateAcademicTermPayload = {
+export type AcademicTermUpsertPayload = {
   periode: string;
+  semesterType: SemesterType;
+  semesters?: number[];
   startDate: string;
   endDate: string;
   status: StatusTahunAkademikBE;
@@ -28,12 +31,17 @@ export const TahunAkademikDanSemesterService = {
 
   async getById(id: string) {
     const res = await api.get<any>(`/academic-terms/${id}`);
-    return res.data?.data ?? res.data;
+    return (res.data?.data ?? res.data) as TahunAkademikDanSemesterEntity;
   },
 
-  async create(payload: CreateAcademicTermPayload) {
+  async create(payload: AcademicTermUpsertPayload) {
     const res = await api.post<any>("/academic-terms", payload);
-    return res.data?.data ?? res.data;
+    return (res.data?.data ?? res.data) as TahunAkademikDanSemesterEntity;
+  },
+
+  async update(id: string, payload: AcademicTermUpsertPayload) {
+    const res = await api.patch<any>(`/academic-terms/${id}`, payload);
+    return (res.data?.data ?? res.data) as TahunAkademikDanSemesterEntity;
   },
 
   async deleteById(id: string) {

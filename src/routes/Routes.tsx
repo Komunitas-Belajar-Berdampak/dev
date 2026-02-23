@@ -36,6 +36,7 @@ import GuestRoute from './GuestRoute';
 import ProtectedRoute from './ProtectedRoute';
 import RoleRedirect from './RoleRedirect';
 import PertemuanMateriTugasDetailPage from "@/components/pages/Dosen/Matakuliah/MateriTugas/PertemuanDetailPage";
+import TahunAkademikDanSemesterDetailPage from '@/components/pages/SuperAdmin/TahunAkademikDanSemester/TahunAkademikDanSemesterDetailPage';
 
 const routes: RouteObject[] = [
   {
@@ -83,6 +84,10 @@ const routes: RouteObject[] = [
           {
             path: 'academic-terms',
             element: <TahunAkademikDanSemesterPage />,
+          },
+          {
+            path: 'academic-terms/:id',
+            element: <TahunAkademikDanSemesterDetailPage />,
           },
           {
             path: 'courses',

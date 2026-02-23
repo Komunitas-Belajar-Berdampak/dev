@@ -15,7 +15,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 
-import type { StatusTahunAkademikBE } from "../types/tahun-akademik-dan-semester";
+import type { StatusTahunAkademikBE, SemesterType } from "../types/tahun-akademik-dan-semester";
 import { useCreateTahunAkademikDanSemester } from "../hooks/useCreateTahunAkademikDanSemester";
 
 export default function AddTahunAkademikDanSemesterModal({
@@ -31,8 +31,9 @@ export default function AddTahunAkademikDanSemesterModal({
     useCreateTahunAkademikDanSemester();
 
   const [periode, setPeriode] = useState("");
-  const [startDate, setStartDate] = useState(""); // YYYY-MM-DD
-  const [endDate, setEndDate] = useState("");     // YYYY-MM-DD
+  const [semesterType, setSemesterType] = useState<SemesterType>("Ganjil");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [status, setStatus] = useState<StatusTahunAkademikBE>("aktif");
   const [localError, setLocalError] = useState<string | null>(null);
 
@@ -42,9 +43,10 @@ export default function AddTahunAkademikDanSemesterModal({
       !periode.trim() ||
       !startDate ||
       !endDate ||
+      !semesterType ||
       !status
     );
-  }, [loading, periode, startDate, endDate, status]);
+  }, [loading, periode, startDate, endDate, semesterType, status]);
 
   const submit = async () => {
     setLocalError(null);
@@ -53,27 +55,27 @@ export default function AddTahunAkademikDanSemesterModal({
     if (!p) return setLocalError("Periode wajib diisi.");
     if (!startDate) return setLocalError("Tanggal mulai wajib diisi.");
     if (!endDate) return setLocalError("Tanggal selesai wajib diisi.");
-
-    // validasi sederhana: end >= start
-    if (endDate < startDate) return setLocalError("Tanggal selesai harus >= tanggal mulai.");
+    if (endDate < startDate)
+      return setLocalError("Tanggal selesai harus >= tanggal mulai.");
 
     try {
       await createAcademicTerm({
         periode: p,
+        semesterType,
         startDate,
         endDate,
         status,
+        // semesters tidak diinput di sini
       });
 
       setPeriode("");
+      setSemesterType("Ganjil");
       setStartDate("");
       setEndDate("");
       setStatus("aktif");
       onSuccess?.();
       onClose();
-    } catch {
-      // error sudah dihandle hook
-    }
+    } catch {}
   };
 
   const combinedError = localError ?? error ?? null;
@@ -106,17 +108,21 @@ export default function AddTahunAkademikDanSemesterModal({
             onChange={(e) => setPeriode(e.target.value)}
           />
 
-          <Input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-          />
+          <Select
+            value={semesterType}
+            onValueChange={(v) => setSemesterType(v as SemesterType)}
+          >
+            <SelectTrigger className="w-full border border-black/20">
+              <SelectValue placeholder="Pilih Semester Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Ganjil">Ganjil</SelectItem>
+              <SelectItem value="Genap">Genap</SelectItem>
+            </SelectContent>
+          </Select>
 
-          <Input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-          />
+          <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+          <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
 
           <Select value={status} onValueChange={(v) => setStatus(v as StatusTahunAkademikBE)}>
             <SelectTrigger className="w-full border border-black/20">
