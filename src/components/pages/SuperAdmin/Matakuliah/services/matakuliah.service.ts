@@ -94,4 +94,20 @@ export const MatakuliahService = {
     const res = await api.delete<any>(`/courses/${id}`);
     return res.data?.data ?? res.data;
   },
+
+  async addPengajarToCourse(id: string, dosenIds: string[]) {
+    const res = await api.post(`/courses/${id}/pengajar`, {
+      idPengajar: dosenIds,
+    });
+
+    return res.data?.data ?? res.data;
+  },
+
+  async deletePengajarFromCourse(id: string, dosenId: string) {
+    const res = await api.delete(
+      `/courses/${id}/pengajar/${dosenId}`,
+    );
+
+    return res.data?.data ?? res.data;
+  },
 };

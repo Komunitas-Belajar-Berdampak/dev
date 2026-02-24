@@ -14,7 +14,7 @@ export default function TahunAkademikDanSemesterDetailPage() {
   const { id } = useParams();
   const termId = String(id ?? "");
 
-  const { data, loading, error, refetch, isFetching } =
+  const { data, loading, error, refetch } =
     useTahunAkademikDanSemesterById(termId);
 
   const [openAddSemester, setOpenAddSemester] = useState(false);
@@ -63,98 +63,105 @@ export default function TahunAkademikDanSemesterDetailPage() {
     );
   }
 
-  const statusBadge =
-    data.status === "aktif" ? (
-      <Badge variant="success">Aktif</Badge>
-    ) : (
-      <Badge variant="danger">Tidak Aktif</Badge>
-    );
-
   return (
-    <div className="bg-white w-full space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="icon"
-            className="border-2 border-black shadow-[3px_3px_0_0_#000]"
-            onClick={() => navigate(-1)}
-          >
-            <Icon icon="mdi:arrow-left" />
-          </Button>
+    <div className="space-y-8">
+      <div className="bg-white rounded-2xl border border-black/10 shadow-sm p-6">
 
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <div className="text-lg font-bold text-blue-900">
-              Detail Tahun Akademik
-            </div>
-            <div className="text-sm text-muted-foreground">
-              Klik tombol tambah untuk menambah semester
+            <h2 className="text-base font-semibold text-blue-900">
+              Informasi Tahun Akademik
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              Detail periode akademik yang sedang dipilih
+            </p>
+          </div>
+
+          {data.status === "aktif" ? (
+            <Badge variant="success">Aktif</Badge>
+          ) : (
+            <Badge variant="danger">Tidak Aktif</Badge>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-sm text-blue-900">
+          
+          <div className="space-y-1">
+            <div className="text-xs text-muted-foreground">Periode</div>
+            <div className="font-semibold">{data.periode}</div>
+          </div>
+
+          <div className="space-y-1">
+            <div className="text-xs text-muted-foreground">Semester Type</div>
+            <div className="font-semibold">{data.semesterType}</div>
+          </div>
+
+          <div className="space-y-1">
+            <div className="text-xs text-muted-foreground">Tanggal Mulai</div>
+            <div className="font-semibold">
+              {new Date(data.startDate).toLocaleDateString("id-ID")}
             </div>
           </div>
-        </div>
 
-        <div className="flex items-center gap-2">
-          {isFetching ? (
-            <div className="text-xs text-muted-foreground">Refreshing...</div>
-          ) : null}
-          {statusBadge}
-        </div>
-      </div>
-
-      {/* Card info periode */}
-      <div className="rounded-md border border-black/10 p-4 space-y-2">
-        <div className="text-base font-semibold text-blue-900">{data.periode}</div>
-        <div className="text-sm text-muted-foreground">
-          Semester Type: <span className="font-medium text-blue-900">{data.semesterType}</span>
-        </div>
-        <div className="text-sm text-muted-foreground">
-          Periode tanggal:{" "}
-          <span className="font-medium text-blue-900">
-            {new Date(data.startDate).toLocaleDateString("id-ID")} -{" "}
-            {new Date(data.endDate).toLocaleDateString("id-ID")}
-          </span>
-        </div>
-      </div>
-
-      {/* Section semesters */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="font-semibold text-blue-900">Daftar Semester</div>
-          <div className="text-sm text-muted-foreground">
-            Semester yang termasuk dalam periode ini
+          <div className="space-y-1">
+            <div className="text-xs text-muted-foreground">Tanggal Selesai</div>
+            <div className="font-semibold">
+              {new Date(data.endDate).toLocaleDateString("id-ID")}
+            </div>
           </div>
-        </div>
 
-        <Button
-          className="border-2 border-black shadow-[3px_3px_0_0_#000]"
-          onClick={() => setOpenAddSemester(true)}
-        >
-          <Icon icon="mdi:plus" className="mr-2" />
-          Tambah Semester
-        </Button>
+        </div>
       </div>
 
-      <div className="rounded-md border border-black/10 p-4">
+      <div className="bg-white rounded-2xl border border-black/10 shadow-sm p-6">
+
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-base font-semibold text-blue-900">
+              Daftar Semester
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              Semester yang tersedia dalam periode ini
+            </p>
+          </div>
+
+          <Button
+            size="sm"
+            className="border-2 border-black shadow-[3px_3px_0_0_#000]"
+            onClick={() => setOpenAddSemester(true)}
+          >
+            <Icon icon="mdi:plus" className="mr-2" />
+            Tambah Semester
+          </Button>
+        </div>
+
         {semesters.length === 0 ? (
-          <div className="text-sm text-muted-foreground">
-            Belum ada semester di periode ini.
+          <div className="text-sm text-muted-foreground py-6 text-center border border-dashed rounded-xl">
+            Belum ada semester yang ditambahkan.
           </div>
         ) : (
-          <div className="flex flex-wrap gap-2">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {semesters.map((s) => (
-              <span
+              <div
                 key={s}
-                className="px-3 py-1 rounded-full border border-black/10 text-sm text-blue-900"
+                className="border border-black/10 rounded-xl p-4 bg-white hover:shadow-md transition"
               >
-                Semester {s}
-              </span>
+                <div className="flex items-center justify-between">
+                  <div className="font-semibold text-blue-900">
+                    Semester {s}
+                  </div>
+
+                  <Icon
+                    icon="mdi:calendar-month"
+                    className="text-blue-900/50"
+                  />
+                </div>
+              </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* Modal tambah semester */}
       <AddSemesterModal
         open={openAddSemester}
         onClose={() => setOpenAddSemester(false)}
