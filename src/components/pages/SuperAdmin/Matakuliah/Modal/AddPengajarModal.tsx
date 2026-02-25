@@ -1,7 +1,15 @@
 import { useMemo, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
+
+import { useDosenOptions } from "../hooks/useDosenOptions";
 
 export type PengajarEntity = {
   id: string;
@@ -16,29 +24,20 @@ export default function AddPengajarModal({
 }: {
   open: boolean;
   onClose: () => void;
-  onSubmit: (payload: Omit<PengajarEntity, "id">) => void;
+  onSubmit: (payload: { id: string }) => void;
 }) {
-  const [nrp, setNrp] = useState("");
-  const [nama, setNama] = useState("");
-  const [localError, setLocalError] = useState<string | null>(null);
+  const { options, loading } = useDosenOptions();
+  const [selectedId, setSelectedId] = useState<string>("");
 
   const disabled = useMemo(() => {
-    return !nrp.trim() || !nama.trim();
-  }, [nrp, nama]);
+    return !selectedId;
+  }, [selectedId]);
 
   const submit = () => {
-    setLocalError(null);
+    if (!selectedId) return;
 
-    if (!nrp.trim()) return setLocalError("NRP wajib diisi.");
-    if (!nama.trim()) return setLocalError("Nama wajib diisi.");
-
-    onSubmit({
-      nrp: nrp.trim(),
-      nama: nama.trim(),
-    });
-
-    setNrp("");
-    setNama("");
+    onSubmit({ id: selectedId });
+    setSelectedId("");
     onClose();
   };
 
@@ -47,7 +46,7 @@ export default function AddPengajarModal({
       open={open}
       onOpenChange={(v) => {
         if (!v) {
-          setLocalError(null);
+          setSelectedId("");
           onClose();
         }
       }}
@@ -57,26 +56,30 @@ export default function AddPengajarModal({
           <DialogTitle>Tambah Pengajar</DialogTitle>
         </DialogHeader>
 
-        {localError ? (
-          <div className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-            {localError}
-          </div>
-        ) : null}
+        <div className="mt-4">
+          <Select
+            value={selectedId}
+            onValueChange={setSelectedId}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Pilih Dosen" />
+            </SelectTrigger>
 
-        <div className="space-y-4 mt-4">
-          <Input
-            placeholder="NRP / NIP"
-            value={nrp}
-            onChange={(e) => setNrp(e.target.value)}
-          />
-          <Input
-            placeholder="Nama Pengajar"
-            value={nama}
-            onChange={(e) => setNama(e.target.value)}
-          />
+            <SelectContent>
+              {options.map((o) => (
+                <SelectItem key={o.id} value={o.id}>
+                  {o.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
-        <Button className="w-full mt-6" onClick={submit} disabled={disabled}>
+        <Button
+          className="w-full mt-6"
+          onClick={submit}
+          disabled={disabled || loading}
+        >
           Tambah Pengajar
         </Button>
       </DialogContent>

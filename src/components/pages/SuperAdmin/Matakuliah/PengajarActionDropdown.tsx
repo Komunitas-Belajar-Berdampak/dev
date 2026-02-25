@@ -8,10 +8,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export default function PengajarActionDropdown({
-  onEdit,
   onDelete,
 }: {
-  onEdit: () => void;
   onDelete: () => void;
 }) {
   return (
@@ -23,11 +21,6 @@ export default function PengajarActionDropdown({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-44">
-        <DropdownMenuItem onClick={onEdit} className="cursor-pointer">
-          <Icon icon="mdi:pencil" className="mr-2" />
-          Edit Pengajar
-        </DropdownMenuItem>
-
         <DropdownMenuItem
           onClick={onDelete}
           className="cursor-pointer text-red-600 focus:text-red-600"

@@ -37,6 +37,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import RoleRedirect from "./RoleRedirect";
 import PertemuanMateriTugasDetailPage from "@/components/pages/Dosen/Matakuliah/MateriTugas/PertemuanDetailPage";
 import TahunAkademikDanSemesterDetailPage from "@/components/pages/SuperAdmin/TahunAkademikDanSemester/TahunAkademikDanSemesterDetailPage";
+import TahunAkademikDanSemesterTable from "@/components/pages/SuperAdmin/TahunAkademikDanSemester/TahunAkademikDanSemesterTable";
 import MatakuliahDetailPage from "@/components/pages/SuperAdmin/Matakuliah/MatakuliahDetailPage";
 import MatakuliahTable from "@/components/pages/SuperAdmin/Matakuliah/MatakuliahTable";
 import ProfilePage from "@/components/pages/Profile";
@@ -102,10 +103,16 @@ const routes: RouteObject[] = [
           {
             path: "academic-terms",
             element: <TahunAkademikDanSemesterPage />,
-          },
-          {
-            path: "academic-terms/:id",
-            element: <TahunAkademikDanSemesterDetailPage />,
+            children: [
+              {
+                index: true,
+                element: <TahunAkademikDanSemesterTable />,
+              },
+              {
+                path: ":id",
+                element: <TahunAkademikDanSemesterDetailPage />,
+              },
+            ],
           },
           {
             path: "courses",
