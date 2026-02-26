@@ -41,6 +41,7 @@ import TahunAkademikDanSemesterTable from "@/components/pages/SuperAdmin/TahunAk
 import MatakuliahDetailPage from "@/components/pages/SuperAdmin/Matakuliah/MatakuliahDetailPage";
 import MatakuliahTable from "@/components/pages/SuperAdmin/Matakuliah/MatakuliahTable";
 import ProfilePage from "@/components/pages/Profile";
+import EditProfilePage from "@/components/pages/Profile/Edit";
 
 const routes: RouteObject[] = [
   {
@@ -76,6 +77,10 @@ const routes: RouteObject[] = [
             path: "",
             index: true,
             element: <ProfilePage />,
+          },
+          {
+            path: "edit",
+            element: <EditProfilePage />,
           },
         ],
       },

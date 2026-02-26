@@ -1,6 +1,7 @@
-import type { Role } from './role';
+import type { Role } from "./role";
 
 export type AuthUser = {
+  id: string;
   nrp: string;
   nama: string;
   namaRole: Role;
