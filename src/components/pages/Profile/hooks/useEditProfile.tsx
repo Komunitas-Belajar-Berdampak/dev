@@ -13,6 +13,7 @@ const useEditProfile = () => {
       toast.success(data?.message || "Profile updated successfully", {
         toasterId: "global",
       });
+      console.log("responnya", data);
       navigate("/profile");
     },
     onError: (error) => {

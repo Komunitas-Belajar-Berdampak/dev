@@ -18,13 +18,7 @@ import ProfileCard from "./ProfileCard";
 import { useNavigate } from "react-router-dom";
 import PasswordInput from "@/components/shared/PasswordInput";
 import useEditProfile from "../hooks/useEditProfile";
-
-const majors = [
-  {
-    id: "1",
-    name: "Teknik Informatika",
-  },
-];
+import AvatarUpload from "@/components/shared/AvatarUpload";
 
 const genders = [
   {
@@ -52,10 +46,8 @@ const ProfileContent = ({ isEditing }: { isEditing: boolean }) => {
   const navigate = useNavigate();
   const { data, isPending } = useFetchProfile();
   const { mutate, isPending: isSubmitting } = useEditProfile();
-  // const { data: majors } = useQuery({
-  //   queryKey: ["majors"],
-  //   queryFn: () => getMajors(),
-  // });
+
+  console.log(data);
 
   const form = useForm<updateProfile>({
     resolver: zodResolver(updateProfileSchema),
@@ -92,13 +84,34 @@ const ProfileContent = ({ isEditing }: { isEditing: boolean }) => {
       <section className="flex flex-col gap-7.5">
         <div className="flex gap-6">
           <ProfileCard className="w-[220px] flex flex-col gap-3 h-fit">
-            <ProfileCard className="p-4.5 rounded-xl border border-primary w-fit">
-              <Icon
-                icon="boxicons:user-filled"
-                className="text-primary"
-                width="60"
-                height="60"
-              />
+            <ProfileCard className="p-0 rounded-xl overflow-hidden border border-primary w-fit">
+              {isEditing ? (
+                <Controller
+                  name="fotoProfil"
+                  control={form.control}
+                  render={({ field }) => (
+                    <AvatarUpload
+                      className="p-4.5"
+                      currentImage={data?.fotoProfil}
+                      disabled={!isEditing || isSubmitting}
+                      onChange={(file) => field.onChange(file)}
+                    />
+                  )}
+                />
+              ) : data?.fotoProfil ? (
+                <img
+                  src={data?.fotoProfil}
+                  alt="avatar"
+                  className="object-cover h-30 w-30"
+                />
+              ) : (
+                <Icon
+                  icon="boxicons:user-filled"
+                  className="p-4.5 text-primary"
+                  width="120"
+                  height="120"
+                />
+              )}
             </ProfileCard>
             <div className="text-xs text-neutral-500">
               <p className="font-bold text-lg text-black">{data?.nrp}</p>
@@ -167,18 +180,7 @@ const ProfileContent = ({ isEditing }: { isEditing: boolean }) => {
 
               <Field>
                 <FieldLabel>Major</FieldLabel>
-                <Select disabled>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your major..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {majors?.map((major) => (
-                      <SelectItem key={major.id} value={major.id}>
-                        {major.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Input value={data?.prodi} disabled />
               </Field>
 
               <Field>

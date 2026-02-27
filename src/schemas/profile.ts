@@ -12,12 +12,7 @@ export const updateProfileSchema = z
       .string()
       .optional()
       .transform((v) => (v === "" ? undefined : v))
-      .pipe(
-        z
-          .string()
-          .min(8, "Password minimal terdiri dari 8 karakter")
-          .optional(),
-      ),
+      .pipe(z.string().optional()),
     passwordBaru: z
       .string()
       .optional()
@@ -28,7 +23,7 @@ export const updateProfileSchema = z
           .min(8, "Password minimal terdiri dari 8 karakter")
           .optional(),
       ),
-    fotoProfil: z.any().optional(),
+    fotoProfil: z.union([z.instanceof(File), z.string(), z.null()]).optional(),
   })
   .refine(
     (data) => {
