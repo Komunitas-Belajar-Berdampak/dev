@@ -82,9 +82,9 @@ const ProfileContent = ({ isEditing }: { isEditing: boolean }) => {
   return (
     <form onSubmit={form.handleSubmit(onSubmit)}>
       <section className="flex flex-col gap-7.5">
-        <div className="flex gap-6">
-          <ProfileCard className="w-[220px] flex flex-col gap-3 h-fit">
-            <ProfileCard className="p-0 rounded-xl overflow-hidden border border-primary w-fit">
+        <div className="flex flex-col lg:flex-row gap-6">
+          <ProfileCard className="lg:w-[220px] flex flex-col gap-3 h-fit">
+            <ProfileCard className="p-0 rounded-xl overflow-hidden border border-primary lg:w-fit">
               {isEditing ? (
                 <Controller
                   name="fotoProfil"
@@ -102,7 +102,7 @@ const ProfileContent = ({ isEditing }: { isEditing: boolean }) => {
                 <img
                   src={data?.fotoProfil}
                   alt="avatar"
-                  className="object-cover h-30 w-30"
+                  className="object-cover lg:h-30 lg:w-30"
                 />
               ) : (
                 <Icon
@@ -123,7 +123,7 @@ const ProfileContent = ({ isEditing }: { isEditing: boolean }) => {
             <h1 className="font-semibold text-primary text-lg">
               Personal Information
             </h1>
-            <div className="grid grid-cols-2 gap-9">
+            <div className="grid lg:grid-cols-2 gap-9">
               <Field>
                 <FieldLabel>NRP</FieldLabel>
                 <Input disabled value={data?.nrp} />
@@ -265,7 +265,7 @@ const ProfileContent = ({ isEditing }: { isEditing: boolean }) => {
               : () => navigate("/profile/edit")
           }
           variant={"default"}
-          className="ml-auto shadow-sm"
+          className="lg:ml-auto shadow-sm"
           disabled={isPending || isSubmitting}
         >
           {isEditing
