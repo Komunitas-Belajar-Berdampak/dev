@@ -14,7 +14,6 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 
 import { api } from "@/lib/axios";
 import type { Matakuliah, StatusMatakuliah } from "../types/matakuliah";
@@ -31,28 +30,36 @@ function pickId(v: any): string {
   return !s || s === "undefined" || s === "null" ? "" : s;
 }
 
-function pickText(...vals: any[]): string {
-  for (const v of vals) {
-    const s = String(v ?? "").trim();
-    if (s) return s;
-  }
+/** Ekstrak idPeriode dari berbagai format response backend */
+function extractIdPeriode(d: any): string {
+  const direct = pickId(d?.idPeriode);
+  if (direct) return direct;
+  const fromObj = pickId(d?.periode?.id ?? d?.periode?._id ?? d?.periode);
+  if (fromObj) return fromObj;
   return "";
 }
 
-type PengajarPayload = { id: string };
-
-function normalizePengajarToPayload(pengajar: any): PengajarPayload[] {
-  // API baru: array of object {id,nama}
-  if (Array.isArray(pengajar)) {
-    return pengajar
-      .map((x) => ({ id: pickId(x?.id ?? x?._id ?? x) }))
-      .filter((x) => !!x.id);
+/** Ekstrak idPengajar (string[]) dari berbagai format response backend */
+function extractIdPengajar(d: any): string[] {
+  if (Array.isArray(d?.idPengajar)) {
+    return d.idPengajar.map((x: any) => pickId(x)).filter(Boolean);
   }
+  if (Array.isArray(d?.pengajar)) {
+    return d.pengajar.map((x: any) => pickId(x?.id ?? x?._id ?? x)).filter(Boolean);
+  }
+  const single = pickId(d?.idPengajar ?? d?.pengajar?.id ?? d?.pengajar?._id);
+  if (single) return [single];
+  return [];
+}
 
-  // API lama (kalau ada): single object
-  const singleId = pickId(pengajar?.id ?? pengajar?._id ?? pengajar);
-  if (singleId) return [{ id: singleId }];
-
+/** Ekstrak idMahasiswa (string[]) */
+function extractIdMahasiswa(d: any): string[] {
+  if (Array.isArray(d?.idMahasiswa)) {
+    return d.idMahasiswa.map((x: any) => pickId(x)).filter(Boolean);
+  }
+  if (Array.isArray(d?.mahasiswa)) {
+    return d.mahasiswa.map((x: any) => pickId(x?.id ?? x?._id ?? x)).filter(Boolean);
+  }
   return [];
 }
 
@@ -67,33 +74,21 @@ export default function EditMatakuliahModal({
   data: Matakuliah | null;
   onSuccess?: () => void;
 }) {
-  const {
-    updateMatakuliah,
-    loading: saving,
-    error: saveError,
-  } = useUpdateMatakuliah();
-
-  const {
-    options: termOptions,
-    loading: loadingTerms,
-    error: termError,
-  } = useAcademicTermsOptions();
+  const { updateMatakuliah, loading: saving, error: saveError } = useUpdateMatakuliah();
+  const { options: termOptions, loading: loadingTerms, error: termError } = useAcademicTermsOptions();
 
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
 
+  const [kodeMatkul, setKodeMatkul] = useState("");
   const [namaMatkul, setNamaMatkul] = useState("");
   const [sks, setSks] = useState("");
   const [kelas, setKelas] = useState("");
   const [idPeriode, setIdPeriode] = useState("");
   const [status, setStatus] = useState<StatusMatakuliah>("aktif");
-  const [deskripsi, setDeskripsi] = useState("");
+  const [idPengajarPayload, setIdPengajarPayload] = useState<string[]>([]);
+  const [idMahasiswaPayload, setIdMahasiswaPayload] = useState<string[]>([]);
   const [localError, setLocalError] = useState<string | null>(null);
-
-  // ✅ simpan pengajar dari detail (buat dikirim balik saat update)
-  const [pengajarPayload, setPengajarPayload] = useState<PengajarPayload[]>(
-    []
-  );
 
   const matkulId = data?.id ?? null;
 
@@ -107,75 +102,46 @@ export default function EditMatakuliahModal({
     (async () => {
       try {
         const res = await api.get(`/courses/${matkulId}`);
-        const payload = res.data?.data ?? res.data;
+        const d = res.data?.data ?? res.data;
 
         if (!alive) return;
 
-        const d = payload ?? data;
-
+        setKodeMatkul(d?.kodeMatkul ?? data?.kodeMatkul ?? "");
         setNamaMatkul(d?.namaMatkul ?? "");
         setSks(String(d?.sks ?? ""));
         setKelas(d?.kelas ?? "");
         setStatus((d?.status ?? "aktif") as StatusMatakuliah);
-
-        setIdPeriode(
-          pickId(d?.idPeriode) ||
-            pickId(d?.periode?.id) ||
-            pickId(d?.periode?._id) ||
-            ""
-        );
-
-        // ✅ ambil pengajar dari detail, tapi TIDAK ditampilkan di input
-        // penting: supaya update tetap ngirim field wajib dan nggak ngapus pengajar existing
-        setPengajarPayload(normalizePengajarToPayload(d?.pengajar));
-
-        setDeskripsi(
-          pickText(
-            d?.deskripsi,
-            d?.description,
-            d?.keterangan,
-            d?.desc,
-            d?.detail,
-            d?.notes,
-            d?.catatan
-          )
-        );
-
+        setIdPeriode(extractIdPeriode(d));
+        setIdPengajarPayload(extractIdPengajar(d));
+        setIdMahasiswaPayload(extractIdMahasiswa(d));
         setLocalError(null);
       } catch (e: any) {
         if (!alive) return;
 
         setDetailError(
-          e?.response?.data?.message ??
-            e?.message ??
-            "Gagal memuat detail matakuliah"
+          e?.response?.data?.message ?? e?.message ?? "Gagal memuat detail matakuliah"
         );
 
-        // fallback ke data ringkas agar tetap bisa edit
+        // fallback ke data ringkas dari list
+        setKodeMatkul(data?.kodeMatkul ?? "");
         setNamaMatkul(data?.namaMatkul ?? "");
         setSks(String(data?.sks ?? ""));
         setKelas(data?.kelas ?? "");
         setStatus(((data as any)?.status ?? "aktif") as StatusMatakuliah);
-        setIdPeriode(pickId((data as any)?.idPeriode) || "");
-        setDeskripsi(pickText((data as any)?.deskripsi));
-
-        // fallback pengajar: pakai idPengajar kalau ada (meski biasanya kosong)
-        const fallbackId = pickId((data as any)?.idPengajar);
-        setPengajarPayload(fallbackId ? [{ id: fallbackId }] : []);
+        setIdPeriode(extractIdPeriode(data));
+        setIdPengajarPayload(extractIdPengajar(data));
+        setIdMahasiswaPayload(extractIdMahasiswa(data));
       } finally {
         if (!alive) return;
         setLoadingDetail(false);
       }
     })();
 
-    return () => {
-      alive = false;
-    };
+    return () => { alive = false; };
   }, [open, matkulId]);
 
   const disabled = useMemo(() => {
     if (!data) return true;
-
     return (
       saving ||
       loadingDetail ||
@@ -186,47 +152,33 @@ export default function EditMatakuliahModal({
       Number(sks) <= 0 ||
       !idPeriode ||
       !status
-      // ✅ idPengajar TIDAK dipakai lagi di UI
     );
-  }, [
-    data,
-    saving,
-    loadingDetail,
-    loadingTerms,
-    namaMatkul,
-    kelas,
-    sks,
-    idPeriode,
-    status,
-  ]);
+  }, [data, saving, loadingDetail, loadingTerms, namaMatkul, kelas, sks, idPeriode, status]);
 
   const submit = async () => {
     if (!data) return;
     setLocalError(null);
 
-    if (!namaMatkul.trim())
-      return setLocalError("Nama matakuliah wajib diisi.");
+    if (!namaMatkul.trim()) return setLocalError("Nama matakuliah wajib diisi.");
     if (!kelas.trim()) return setLocalError("Kelas wajib diisi.");
     if (!sks.trim()) return setLocalError("SKS wajib diisi.");
     if (Number(sks) <= 0) return setLocalError("SKS harus > 0.");
     if (!idPeriode) return setLocalError("Periode wajib dipilih.");
 
-    // ✅ backend wajib pengajar → kirim pengajar yang sudah ada dari detail
-    // kalau memang belum ada pengajar sama sekali, kirim [] (biar tetap valid)
     await updateMatakuliah({
       id: data.id,
       payload: {
+        kodeMatkul: kodeMatkul.trim() || data.kodeMatkul,
         namaMatkul: namaMatkul.trim(),
         sks: Number(sks),
         kelas: kelas.trim(),
         status,
         idPeriode,
-        deskripsi: deskripsi.trim() ? deskripsi.trim() : undefined,
-
-        // ✅ WAJIB: pengajar disertakan tapi tanpa input UI
-        pengajar: pengajarPayload,
-      } as any, // biar lolos kalau types payload update belum include pengajar
+        idPengajar: idPengajarPayload,
+        idMahasiswa: idMahasiswaPayload,
+      },
     });
+    
 
     onSuccess?.();
     onClose();
@@ -265,9 +217,11 @@ export default function EditMatakuliahModal({
         ) : (
           <>
             <div className="space-y-4 mt-4">
-              <Input value={(data as any).kodeMatkul} disabled />
+              {/* kodeMatkul: disabled di UI tapi tetap dikirim via state */}
+              <Input value={kodeMatkul || data.kodeMatkul} disabled />
 
               <Input
+                placeholder="Nama Matakuliah"
                 value={namaMatkul}
                 onChange={(e) => setNamaMatkul(e.target.value)}
               />
@@ -284,7 +238,11 @@ export default function EditMatakuliahModal({
                 }}
               />
 
-              <Input value={kelas} onChange={(e) => setKelas(e.target.value)} />
+              <Input
+                placeholder="Kelas"
+                value={kelas}
+                onChange={(e) => setKelas(e.target.value)}
+              />
 
               <Select value={idPeriode} onValueChange={setIdPeriode}>
                 <SelectTrigger className="w-full border border-black/20">
@@ -301,9 +259,6 @@ export default function EditMatakuliahModal({
                 </SelectContent>
               </Select>
 
-              {/* ✅ Pengajar tidak ditampilkan lagi di input */}
-              {/* Tapi tetap dikirim via pengajarPayload dari GET detail */}
-
               <Select
                 value={status}
                 onValueChange={(v) => setStatus(v as StatusMatakuliah)}
@@ -317,13 +272,6 @@ export default function EditMatakuliahModal({
                 </SelectContent>
               </Select>
 
-              <Textarea
-                value={deskripsi}
-                onChange={(e) => setDeskripsi(e.target.value)}
-                placeholder="Deskripsi (opsional)"
-              />
-
-              {/* Optional: info kecil biar jelas */}
               <div className="text-xs text-muted-foreground">
                 Pengajar dikelola di halaman detail matakuliah.
               </div>

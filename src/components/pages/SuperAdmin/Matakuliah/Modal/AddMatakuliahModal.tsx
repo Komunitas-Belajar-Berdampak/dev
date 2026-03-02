@@ -3,7 +3,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 
 import type { StatusMatakuliah } from "../types/matakuliah";
 import { useCreateMatakuliah } from "../hooks/useCreateMatakuliah";
@@ -27,7 +26,6 @@ export default function AddMatakuliahModal({
   const [kelas, setKelas] = useState("");
   const [idPeriode, setIdPeriode] = useState("");
   const [status, setStatus] = useState<StatusMatakuliah>("aktif");
-  const [deskripsi, setDeskripsi] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
 
   const disabled = useMemo(() => {
@@ -62,9 +60,8 @@ export default function AddMatakuliahModal({
         kelas: kelas.trim(),
         status,
         idPeriode,
+        idPengajar: [],
         idMahasiswa: [],
-        pengajar: [],
-        deskripsi: deskripsi.trim() ? deskripsi.trim() : undefined,
       });
 
       setKodeMatkul("");
@@ -73,12 +70,10 @@ export default function AddMatakuliahModal({
       setKelas("");
       setIdPeriode("");
       setStatus("aktif");
-      setDeskripsi("");
 
       onSuccess?.();
       onClose();
     } catch {
-      // handled by hook
     }
   };
 
@@ -146,7 +141,9 @@ export default function AddMatakuliahModal({
             </SelectContent>
           </Select>
 
-          <Textarea placeholder="Deskripsi (opsional)" value={deskripsi} onChange={(e) => setDeskripsi(e.target.value)} />
+          <div className="text-xs text-muted-foreground">
+            Pengajar dapat ditambahkan di halaman detail matakuliah.
+          </div>
         </div>
 
         <Button className="w-full mt-6" onClick={submit} disabled={disabled}>
