@@ -41,6 +41,10 @@ import TahunAkademikDanSemesterTable from '@/components/pages/SuperAdmin/TahunAk
 import MatakuliahDetailPage from "@/components/pages/SuperAdmin/Matakuliah/MatakuliahDetailPage";
 import MatakuliahTable from '@/components/pages/SuperAdmin/Matakuliah/MatakuliahTable';
 import DeskripsiPage from '@/components/pages/Dosen/Matakuliah/Deskripsi/DeskripsiPage';
+import DashboardPage from '@/components/pages/Dosen/Matakuliah/Dashboard/DashboardPage';
+import AllPertemuanDashboard from '@/components/pages/Dosen/Matakuliah/Dashboard/AllPertemuanDashboard';
+import PerPertemuanDashboard from '@/components/pages/Dosen/Matakuliah/Dashboard/PerPertemuanDashboard';
+import PertemuanDashboardDetail from '@/components/pages/Dosen/Matakuliah/Dashboard/PertemuanDashboardDetail';
 
 const routes: RouteObject[] = [
   {
@@ -153,6 +157,22 @@ const routes: RouteObject[] = [
                     element: <PertemuanMateriTugasDetailPage />,
                   },
                 ],
+              },
+              {
+                path: ":id/dashboard",
+                element: <DashboardPage />,
+              },
+              {
+                path: ":id/dashboard/all",
+                element: <AllPertemuanDashboard />,
+              },
+              {
+                path: ":id/dashboard/per-pertemuan",
+                element: <PerPertemuanDashboard />,
+              },
+              {
+                path: ":id/dashboard/per-pertemuan/:pertemuanId",
+                element: <PertemuanDashboardDetail />,
               },
 
             ],
