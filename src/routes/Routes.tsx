@@ -40,6 +40,7 @@ import TahunAkademikDanSemesterDetailPage from '@/components/pages/SuperAdmin/Ta
 import TahunAkademikDanSemesterTable from '@/components/pages/SuperAdmin/TahunAkademikDanSemester/TahunAkademikDanSemesterTable';
 import MatakuliahDetailPage from "@/components/pages/SuperAdmin/Matakuliah/MatakuliahDetailPage";
 import MatakuliahTable from '@/components/pages/SuperAdmin/Matakuliah/MatakuliahTable';
+import DeskripsiPage from '@/components/pages/Dosen/Matakuliah/Deskripsi/DeskripsiPage';
 
 const routes: RouteObject[] = [
   {
@@ -135,6 +136,10 @@ const routes: RouteObject[] = [
               {
                 path: ":id/mahasiswa",
                 element: <MahasiswaList />,
+              },
+              {
+                path: ":id/deskripsi",
+                element: <DeskripsiPage />,
               },
               {
                 path: ":id/materi-tugas",

@@ -141,7 +141,7 @@ export default function MatakuliahDetail() {
               View Materi & Tugas
             </button>
             <button
-              onClick={() => navigate(`/dosen/courses/${id}/edit-deskripsi`)}
+              onClick={() => navigate(`/dosen/courses/${id}/deskripsi`)}
               className="w-full px-4 py-3 text-left hover:bg-gray-50"
             >
               Edit Deskripsi
