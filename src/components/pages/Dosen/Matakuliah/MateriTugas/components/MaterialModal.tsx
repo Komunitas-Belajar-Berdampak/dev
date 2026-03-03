@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,40 +10,86 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Icon } from "@iconify/react";
 
-type MaterialForm = {
+export type MaterialFormPayload = {
   namaFile: string;
-  file?: File | null;
+  tipe: string;
+  pathFile: string;
+  visibility: "HIDE" | "VISIBLE";
   deskripsi: string;
+};
+
+type Props = {
+  open: boolean;
+  mode: "add" | "edit";
+  kodeMatkul?: string;
+  pertemuan?: number;
+  initial?: {
+    namaFile?: string;
+    tipe?: string;
+    pathFile?: string;
+    visibility?: "HIDE" | "VISIBLE";
+    deskripsi?: string;
+  } | null;
+  onClose: () => void;
+  onSubmit: (payload: MaterialFormPayload) => void;
 };
 
 export default function MaterialModal({
   open,
   mode,
+  kodeMatkul,
+  pertemuan,
   initial,
   onClose,
   onSubmit,
-}: {
-  open: boolean;
-  mode: "add" | "edit";
-  initial?: { judul?: string; deskripsi?: string; namaFile?: string } | null;
-  onClose: () => void;
-  onSubmit: (payload: MaterialForm) => void;
-}) {
+}: Props) {
   const title = useMemo(
     () => (mode === "add" ? "Tambah Materi" : "Edit Materi"),
     [mode]
   );
 
   const [namaFile, setNamaFile] = useState("");
+  const [tipe, setTipe] = useState("");
+  const [pathFile, setPathFile] = useState("");
+  const [visibility, setVisibility] = useState<"HIDE" | "VISIBLE">("VISIBLE");
   const [deskripsi, setDeskripsi] = useState("");
-  const [file, setFile] = useState<File | null>(null);
+  const [fileName, setFileName] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!open) return;
-    setNamaFile(initial?.judul ?? "");
+    setNamaFile(initial?.namaFile ?? "");
+    setTipe(initial?.tipe ?? "");
+    setPathFile(initial?.pathFile ?? "");
+    setVisibility(initial?.visibility ?? "VISIBLE");
     setDeskripsi(initial?.deskripsi ?? "");
-    setFile(null);
+    setFileName("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
   }, [open, initial]);
+
+  const generatePathFile = (nama: string) => {
+    if (!kodeMatkul || !pertemuan || !nama) return "";
+    const meetPad = `meet${String(pertemuan).padStart(2, "0")}`;
+    return `materials/${kodeMatkul}/${meetPad}/${nama}`;
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+
+    const generated = generatePathFile(f.name);
+    console.log("[MaterialModal] kodeMatkul:", kodeMatkul, "pertemuan:", pertemuan, "generated:", generated);
+
+    setFileName(f.name);
+    setNamaFile(f.name);
+    setTipe(f.type);
+    setPathFile(generated);
+  };
+
+  const handleNamaFileChange = (val: string) => {
+    setNamaFile(val);
+    setPathFile(generatePathFile(val));
+  };
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
@@ -55,34 +101,88 @@ export default function MaterialModal({
         <div className="space-y-5">
           <div className="space-y-2">
             <label className="text-sm font-bold text-blue-900">
-              Judul Materi<span className="text-red-500">*</span>
+              Upload File{" "}
+              {mode === "add" && <span className="text-red-500">*</span>}
+            </label>
+            {mode === "edit" && initial?.namaFile && (
+              <p className="text-xs text-gray-500">
+                File saat ini:{" "}
+                <span className="font-semibold">{initial.namaFile}</span>
+              </p>
+            )}
+            <Input
+              ref={fileInputRef}
+              type="file"
+              onChange={handleFileChange}
+              className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+            />
+            {fileName && (
+              <p className="text-xs text-gray-500">
+                Dipilih:{" "}
+                <span className="font-medium">{fileName}</span>{" "}
+                <span className="text-gray-400">({tipe})</span>
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-blue-900">
+              Nama File <span className="text-red-500">*</span>
             </label>
             <Input
-              placeholder="Masukkan judul materi"
+              placeholder="Otomatis terisi dari file yang dipilih"
               value={namaFile}
-              onChange={(e) => setNamaFile(e.target.value)}
+              onChange={(e) => handleNamaFileChange(e.target.value)}
+              className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-blue-900">Tipe File</label>
+            <Input
+              placeholder="Otomatis terisi dari file yang dipilih"
+              value={tipe}
+              onChange={(e) => setTipe(e.target.value)}
               className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
             />
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-bold text-blue-900">
-              File Materi<span className="text-red-500">*</span>
+              Path File{" "}
+              <span className="text-xs font-normal text-gray-400">
+                (auto-generate)
+              </span>
             </label>
-
-            {mode === "edit" && initial?.namaFile && (
-              <div className="text-xs text-gray-600">
-                File saat ini: <span className="font-semibold">{initial.namaFile}</span>
-              </div>
-            )}
-
             <Input
-              type="file"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+              placeholder="Otomatis terisi setelah pilih file"
+              value={pathFile}
+              onChange={(e) => setPathFile(e.target.value)}
+              className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-gray-600"
             />
           </div>
 
+          {/* Visibility */}
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-blue-900">Visibility</label>
+            <div className="flex items-center gap-6">
+              {(["VISIBLE", "HIDE"] as const).map((v) => (
+                <label key={v} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="material-visibility"
+                    value={v}
+                    checked={visibility === v}
+                    onChange={() => setVisibility(v)}
+                    className="accent-blue-700"
+                  />
+                  <span className="text-sm text-blue-900">{v}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Deskripsi */}
           <div className="space-y-2">
             <label className="text-sm font-bold text-blue-900">
               Deskripsi Materi
@@ -91,10 +191,11 @@ export default function MaterialModal({
               placeholder="Masukkan deskripsi materi (opsional)"
               value={deskripsi}
               onChange={(e) => setDeskripsi(e.target.value)}
-              className="min-h-[160px] border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+              className="min-h-[120px] border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
             />
           </div>
 
+          {/* Actions */}
           <div className="flex items-center justify-end gap-2 pt-2">
             <Button
               type="button"
@@ -104,10 +205,11 @@ export default function MaterialModal({
             >
               Batal
             </Button>
-
             <Button
               type="button"
-              onClick={() => onSubmit({ namaFile, file, deskripsi })}
+              onClick={() =>
+                onSubmit({ namaFile, tipe, pathFile, visibility, deskripsi })
+              }
               className="
                 inline-flex items-center gap-2
                 rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white
