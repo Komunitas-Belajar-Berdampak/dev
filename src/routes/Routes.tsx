@@ -28,6 +28,9 @@ import ProgramStudiPage from '@/components/pages/SuperAdmin/ProgramStudi/Program
 import SuperAdmin from '@/components/pages/SuperAdmin/SuperAdmin';
 import TahunAkademikDanSemesterPage from '@/components/pages/SuperAdmin/TahunAkademikDanSemester/TahunAkademikDanSemesterPage';
 import PertemuanDetail from '@/components/pages/Dosen/Matakuliah/Pertemuan/PertemuanDetail';
+import ViewSubmissionPage from '@/components/pages/Dosen/Matakuliah/Submission/ViewSubmissionPage';
+import ViewAllSubmissionPage from '@/components/pages/Dosen/Matakuliah/Submission/ViewAllSubmissionPage';
+import EditNilaiPage from '@/components/pages/Dosen/Matakuliah/Submission/EditNilaiPage';
 import MahasiswaList from '@/components/pages/Dosen/Matakuliah/Mahasiswa/MahasiswaList';
 import MateriTugasPage from "@/components/pages/Dosen/Matakuliah/MateriTugas/MateriTugasPage";
 import UserPage from '@/components/pages/SuperAdmin/Users/UserPage';
@@ -136,6 +139,18 @@ const routes: RouteObject[] = [
               {
                 path: ':id/pertemuan/:pertemuanId',
                 element: <PertemuanDetail />,
+              },
+              {
+                path: ':id/pertemuan/:assignmentId/submissions',
+                element: <ViewSubmissionPage />,
+              },
+              {
+                path: ':id/pertemuan/:assignmentId/submissions/all',
+                element: <ViewAllSubmissionPage />,
+              },
+              {
+                path: ':id/pertemuan/:assignmentId/submissions/all/edit',
+                element: <EditNilaiPage />,
               },
               {
                 path: ":id/mahasiswa",

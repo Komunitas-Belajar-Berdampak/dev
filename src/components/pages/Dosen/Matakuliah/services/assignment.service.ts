@@ -1,18 +1,22 @@
 import { api } from "@/lib/axios";
-import type { Assignment, BEStatus } from "../types";
+import type { Assignment } from "../types";
 
 function normalizeAssignmentOne(payload: any): Assignment {
   return (payload?.data ?? payload) as Assignment;
 }
 
+export type BEStatus = "HIDE" | "VISIBLE";
+
 export type CreateAssignmentPayload = {
   judul: string;
-  tenggat: string; // ISO string
-  status?: BEStatus;
+  tenggat: string;
   statusTugas?: boolean;
-  file?: File;
-  deskripsi?: any;
+  status?: BEStatus;
+  lampiran?: string;
+  deskripsi?: string;
 };
+
+export type UpdateAssignmentPayload = Partial<CreateAssignmentPayload>;
 
 export const AssignmentService = {
   async getAssignmentsByCourse(idCourse: string): Promise<Assignment[]> {
@@ -31,32 +35,45 @@ export const AssignmentService = {
     pertemuan: number,
     payload: CreateAssignmentPayload
   ): Promise<Assignment> {
-    const form = new FormData();
+    const body: Record<string, any> = {
+      judul: payload.judul,
+      statusTugas: payload.statusTugas ?? false,
+      tenggat: payload.tenggat,
+      lampiran: payload.lampiran ?? "",
+      status: payload.status ?? "VISIBLE",
+    };
 
-    form.append("judul", payload.judul);
-    form.append("tenggat", payload.tenggat);
-
-    if (payload.status) form.append("status", payload.status);
-    if (payload.statusTugas !== undefined)
-      form.append("statusTugas", String(payload.statusTugas));
-
-    if (payload.file) form.append("file", payload.file);
-
-    if (payload.deskripsi !== undefined) {
-      form.append(
-        "deskripsi",
-        typeof payload.deskripsi === "string"
-          ? payload.deskripsi
-          : JSON.stringify(payload.deskripsi)
-      );
+    if (payload.deskripsi && payload.deskripsi.trim() !== "") {
+      body.deskripsi = { text: payload.deskripsi };
     }
 
     const res = await api.post<any>(
       `/assignments/${idCourse}/meetings/${pertemuan}`,
-      form,
-      { headers: { "Content-Type": "multipart/form-data" } }
+      body
     );
 
     return normalizeAssignmentOne(res.data);
+  },
+
+  async updateAssignment(
+    idAssignment: string,
+    payload: UpdateAssignmentPayload
+  ): Promise<void> {
+    const body: Record<string, any> = {};
+
+    if (payload.judul !== undefined) body.judul = payload.judul;
+    if (payload.statusTugas !== undefined) body.statusTugas = payload.statusTugas;
+    if (payload.tenggat !== undefined) body.tenggat = payload.tenggat;
+    if (payload.status !== undefined) body.status = payload.status;
+    if (payload.lampiran !== undefined) body.lampiran = payload.lampiran;
+    if (payload.deskripsi !== undefined && payload.deskripsi.trim() !== "") {
+      body.deskripsi = { text: payload.deskripsi };
+    }
+
+    await api.put(`/assignments/${idAssignment}`, body);
+  },
+
+  async deleteAssignment(idAssignment: string): Promise<void> {
+    await api.delete(`/assignments/${idAssignment}`);
   },
 };
