@@ -16,6 +16,10 @@ function normalizeMeetings(payload: any): MeetingEntity[] {
   return [];
 }
 
+function normalizeMeetingOne(payload: any): any {
+  return payload?.data ?? payload;
+}
+
 function mapToMeetingEntity(raw: any): MeetingEntity {
   const d = raw.deskripsi ?? raw.description;
 
@@ -23,15 +27,23 @@ function mapToMeetingEntity(raw: any): MeetingEntity {
     id: raw.id ?? raw._id ?? "",
     pertemuan: Number(raw.pertemuan ?? 0),
     judul: raw.judul ?? raw.title ?? "",
-    deskripsi: d == null ? "" : String(d),
+    deskripsi: d == null ? "" : typeof d === "object" ? JSON.stringify(d) : String(d),
   };
 }
-
 
 export const MeetingService = {
   async getMeetingsByCourseId(courseId: string): Promise<MeetingEntity[]> {
     const res = await api.get<any>(`/meetings/${courseId}`);
     const list = normalizeMeetings(res.data);
     return list.map(mapToMeetingEntity);
+  },
+
+  async getMeetingDetail(
+    pertemuan: number | string,
+    idCourse: string
+  ): Promise<MeetingEntity> {
+    const res = await api.get<any>(`/meetings/${pertemuan}/courses/${idCourse}`);
+    const raw = normalizeMeetingOne(res.data);
+    return mapToMeetingEntity(raw);
   },
 };

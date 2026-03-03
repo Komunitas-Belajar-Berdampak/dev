@@ -8,7 +8,7 @@ export default function PertemuanCard({ data }: { data: Pertemuan }) {
   return (
     <div
       onClick={() =>
-        navigate(`/dosen/matakuliah/${id}/pertemuan/${data.id}`)
+        navigate(`/dosen/courses/${id}/pertemuan/${data.id}`)
       }
       className="
         rounded-2xl
@@ -17,6 +17,7 @@ export default function PertemuanCard({ data }: { data: Pertemuan }) {
         p-6
         shadow-[6px_6px_0_0_#000]
         transition
+        cursor-pointer
         hover:translate-x-0.5
         hover:translate-y-0.5
         hover:bg-blue-50
