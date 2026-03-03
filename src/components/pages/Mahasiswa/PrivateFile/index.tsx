@@ -9,6 +9,7 @@ const PrivateFileLayout = () => {
         mx-auto
         px-4 sm:px-6 lg:px-8
         space-y-6 sm:space-y-8
+        h-full
       "
     >
       <Outlet />

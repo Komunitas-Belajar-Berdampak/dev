@@ -10,10 +10,10 @@ const breadcrumbsItems = [
 
 const PrivateFilePage = () => {
   return (
-    <div className="">
+    <section className="flex flex-col gap-6 h-full">
       <Title title="Private File" items={breadcrumbsItems} />
       <PrivateFileContent />
-    </div>
+    </section>
   );
 };
 

@@ -42,6 +42,8 @@ import MatakuliahDetailPage from "@/components/pages/SuperAdmin/Matakuliah/Matak
 import MatakuliahTable from "@/components/pages/SuperAdmin/Matakuliah/MatakuliahTable";
 import PrivateFileLayout from "@/components/pages/Mahasiswa/PrivateFile";
 import PrivateFilePage from "@/components/pages/Mahasiswa/PrivateFile/components/PrivateFilePage";
+import CreatePrivateFilePage from "@/components/pages/Mahasiswa/PrivateFile/create";
+import EditPrivateFilePage from "@/components/pages/Mahasiswa/PrivateFile/edit";
 
 const routes: RouteObject[] = [
   {
@@ -213,6 +215,14 @@ const routes: RouteObject[] = [
               {
                 index: true,
                 element: <PrivateFilePage />,
+              },
+              {
+                path: "create",
+                element: <CreatePrivateFilePage />,
+              },
+              {
+                path: "edit/:id",
+                element: <EditPrivateFilePage />,
               },
             ],
           },
