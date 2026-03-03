@@ -289,7 +289,9 @@ export default function PertemuanDetail() {
                   </div>
                 </div>
 
-                <button className="text-sm text-blue-900 hover:underline shrink-0">
+                <button 
+                  onClick={() => navigate(`/dosen/courses/${idCourse}/pertemuan/${t.id}/submissions`)}
+                  className="text-sm text-blue-900 hover:underline shrink-0">
                   View Submission
                 </button>
               </div>
