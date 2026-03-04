@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Field, FieldError, FieldLabel, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -19,6 +19,8 @@ import { useNavigate } from "react-router-dom";
 import PasswordInput from "@/components/shared/PasswordInput";
 import useEditProfile from "../hooks/useEditProfile";
 import AvatarUpload from "@/components/shared/AvatarUpload";
+import { useQuery } from "@tanstack/react-query";
+import { getLearningApproach } from "@/api/approach";
 
 const genders = [
   {
@@ -45,9 +47,14 @@ const status = [
 const ProfileContent = ({ isEditing }: { isEditing: boolean }) => {
   const navigate = useNavigate();
   const { data, isPending } = useFetchProfile();
+  // const { data: approach } = useQuery({
+  //   queryKey: ["approach"],
+  //   queryFn: () => getLearningApproach(data?.id as string),
+  // });
   const { mutate, isPending: isSubmitting } = useEditProfile();
 
   console.log(data);
+  // console.log("gaya apa bos", approach);
 
   const form = useForm<updateProfile>({
     resolver: zodResolver(updateProfileSchema),
@@ -120,141 +127,149 @@ const ProfileContent = ({ isEditing }: { isEditing: boolean }) => {
             </div>
           </ProfileCard>
           <ProfileCard className="grow flex flex-col gap-6">
-            <h1 className="font-semibold text-primary text-lg">
-              Personal Information
-            </h1>
-            <div className="grid lg:grid-cols-2 gap-9">
-              <Field>
-                <FieldLabel>NRP</FieldLabel>
-                <Input disabled value={data?.nrp} />
-              </Field>
-              <Controller
-                name="nama"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Name</FieldLabel>
-                    <Input
-                      {...field}
-                      id={field.name}
-                      aria-invalid={fieldState.invalid}
-                      placeholder="John Doe..."
-                      disabled={!isEditing || isSubmitting}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
+            <FieldSet className="flex flex-col gap-4">
+              <h1 className="font-semibold text-primary text-lg">
+                Personal Information
+              </h1>
+              <div className="grid lg:grid-cols-2 gap-9">
+                <Field>
+                  <FieldLabel>NRP</FieldLabel>
+                  <Input disabled value={data?.nrp} />
+                </Field>
+                <Controller
+                  name="nama"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>Name</FieldLabel>
+                      <Input
+                        {...field}
+                        id={field.name}
+                        aria-invalid={fieldState.invalid}
+                        placeholder="John Doe..."
+                        disabled={!isEditing || isSubmitting}
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
 
-              <Field>
-                <FieldLabel>Email</FieldLabel>
-                <Input value={data?.email} type="email" disabled />
-              </Field>
+                <Field>
+                  <FieldLabel>Email</FieldLabel>
+                  <Input value={data?.email} type="email" disabled />
+                </Field>
 
-              <Controller
-                name="alamat"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Address</FieldLabel>
-                    <Input
-                      {...field}
-                      id={field.name}
-                      aria-invalid={fieldState.invalid}
-                      placeholder="Jl. Raya Maranatha..."
-                      disabled={!isEditing || isSubmitting}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
+                <Controller
+                  name="alamat"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>Address</FieldLabel>
+                      <Input
+                        {...field}
+                        id={field.name}
+                        aria-invalid={fieldState.invalid}
+                        placeholder="Jl. Raya Maranatha..."
+                        disabled={!isEditing || isSubmitting}
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
 
-              <Field>
-                <FieldLabel>Class Of</FieldLabel>
-                <Input value={data?.angkatan} disabled />
-              </Field>
+                <Field>
+                  <FieldLabel>Class Of</FieldLabel>
+                  <Input value={data?.angkatan} disabled />
+                </Field>
 
-              <Field>
-                <FieldLabel>Major</FieldLabel>
-                <Input value={data?.prodi} disabled />
-              </Field>
+                <Field>
+                  <FieldLabel>Major</FieldLabel>
+                  <Input value={data?.prodi} disabled />
+                </Field>
 
-              <Field>
-                <FieldLabel>Gender</FieldLabel>
-                <Select disabled value={data?.jenisKelamin}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your gender..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {genders?.map((gender) => (
-                      <SelectItem key={gender.value} value={gender.value}>
-                        {gender.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Field>
+                <Field>
+                  <FieldLabel>Gender</FieldLabel>
+                  <Select disabled value={data?.jenisKelamin}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select your gender..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {genders?.map((gender) => (
+                        <SelectItem key={gender.value} value={gender.value}>
+                          {gender.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
 
-              <Field>
-                <FieldLabel>Status</FieldLabel>
-                <Select value={data?.status} disabled>
-                  <SelectTrigger>
-                    <SelectValue placeholder="update status..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {status?.map((stat) => (
-                      <SelectItem key={stat.value} value={stat.value}>
-                        {stat.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Field>
+                <Field>
+                  <FieldLabel>Status</FieldLabel>
+                  <Select value={data?.status} disabled>
+                    <SelectTrigger>
+                      <SelectValue placeholder="update status..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {status?.map((stat) => (
+                        <SelectItem key={stat.value} value={stat.value}>
+                          {stat.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </div>
+            </FieldSet>
+            <FieldSet className="flex flex-col gap-4">
+              <h1 className="font-semibold text-primary text-lg">
+                Change Password
+              </h1>
+              <div className="grid lg:grid-cols-2 gap-9">
+                <Controller
+                  name="passwordLama"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>Old Password</FieldLabel>
+                      <PasswordInput
+                        {...field}
+                        id={field.name}
+                        aria-invalid={fieldState.invalid}
+                        placeholder="Input your old password here..."
+                        disabled={!isEditing || isSubmitting}
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
 
-              <Controller
-                name="passwordLama"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Old Password</FieldLabel>
-                    <PasswordInput
-                      {...field}
-                      id={field.name}
-                      aria-invalid={fieldState.invalid}
-                      placeholder="Input your old password here..."
-                      disabled={!isEditing || isSubmitting}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-
-              <Controller
-                name="passwordBaru"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>New Password</FieldLabel>
-                    <PasswordInput
-                      {...field}
-                      id={field.name}
-                      aria-invalid={fieldState.invalid}
-                      placeholder="Input your old password here..."
-                      disabled={!isEditing || isSubmitting}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-            </div>
+                <Controller
+                  name="passwordBaru"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>New Password</FieldLabel>
+                      <PasswordInput
+                        {...field}
+                        id={field.name}
+                        aria-invalid={fieldState.invalid}
+                        placeholder="Input your old password here..."
+                        disabled={!isEditing || isSubmitting}
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
+              </div>
+            </FieldSet>
           </ProfileCard>
         </div>
         <Button
