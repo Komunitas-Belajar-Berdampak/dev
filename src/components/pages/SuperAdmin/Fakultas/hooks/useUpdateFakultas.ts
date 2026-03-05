@@ -11,8 +11,8 @@ export function useUpdateFakultas() {
       return FakultasService.updateFakultas(args.id, args.payload);
     },
     onSuccess: async () => {
-      // refresh list fakultas
       await qc.invalidateQueries({ queryKey: ["fakultas"] });
+      await qc.refetchQueries({ queryKey: ["fakultas"] });
     },
   });
 
