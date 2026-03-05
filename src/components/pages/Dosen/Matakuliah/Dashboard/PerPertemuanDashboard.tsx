@@ -4,9 +4,8 @@ import Title from "@/components/shared/Title";
 import { useMatakuliahDetail } from "../hooks/useMatakuliahDetail";
 import { useMeetingsByCourse } from "../hooks/useMeetingsByCourse";
 
-// Dummy fallback — dipakai sebelum data dari API tersedia
 const dummyPertemuanList = Array.from({ length: 4 }, (_, i) => ({
-  id: String(i + 1),
+  index: i + 1,
   label: `Pertemuan ${i + 1}`,
 }));
 
@@ -32,8 +31,8 @@ export default function PerPertemuanDashboard() {
 
   const pertemuanList =
     meetings && meetings.length > 0
-      ? meetings.map((m, idx) => ({
-          id: m.id,
+      ? meetings.map((_, idx) => ({
+          index: idx + 1,
           label: `Pertemuan ${idx + 1}`,
         }))
       : dummyPertemuanList;
@@ -62,9 +61,11 @@ export default function PerPertemuanDashboard() {
         <div className="space-y-3">
           {pertemuanList.map((p) => (
             <button
-              key={p.id}
+              key={p.index}
               onClick={() =>
-                navigate(`/dosen/courses/${id}/dashboard/per-pertemuan/${p.id}`)
+                navigate(
+                  `/dosen/courses/${id}/dashboard/per-pertemuan/${p.index}`
+                )
               }
               className="w-full rounded-2xl border border-gray-200 bg-white px-6 py-5 text-left transition hover:bg-gray-50"
             >
