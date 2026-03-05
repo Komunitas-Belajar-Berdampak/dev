@@ -10,6 +10,7 @@ export function useCreateUser() {
     mutationFn: (payload: CreateUserPayload) => UsersService.createUser(payload),
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["users"] });
+      await qc.refetchQueries({ queryKey: ["users"] });
     },
   });
 

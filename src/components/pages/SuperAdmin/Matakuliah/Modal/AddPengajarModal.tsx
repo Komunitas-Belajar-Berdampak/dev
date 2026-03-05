@@ -2,6 +2,7 @@ import { useMemo, useState, useRef, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@iconify/react";
+import { toast } from "sonner";
 
 import { useDosenOptions } from "../hooks/useDosenOptions";
 
@@ -13,6 +14,11 @@ export type PengajarEntity = {
 
 const PAGE_SIZE = 10;
 
+const errorIcon = (
+  <Icon icon="lets-icons:check-fill" className="text-white text-lg shrink-0 mt-0.5 rotate-45" />
+);
+const errorStyle = { background: "#dc2626", color: "#ffffff", border: "none", alignItems: "flex-start" };
+
 export default function AddPengajarModal({
   open,
   onClose,
@@ -20,7 +26,7 @@ export default function AddPengajarModal({
 }: {
   open: boolean;
   onClose: () => void;
-  onSubmit: (payload: { id: string }) => void;
+  onSubmit: (payload: { id: string }) => Promise<void> | void;
 }) {
   const { options, loading } = useDosenOptions();
 
@@ -29,23 +35,21 @@ export default function AddPengajarModal({
   const [search, setSearch] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [page, setPage] = useState(1);
+  const [submitting, setSubmitting] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  // Filter by search
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
     return options.filter((o) => o.label.toLowerCase().includes(q));
   }, [options, search]);
 
-  // Paginated (infinite)
   const visible = useMemo(() => filtered.slice(0, page * PAGE_SIZE), [filtered, page]);
   const hasMore = visible.length < filtered.length;
 
-  // Close on outside click
   useEffect(() => {
     if (!dropdownOpen) return;
     const handler = (e: MouseEvent) => {
@@ -57,15 +61,12 @@ export default function AddPengajarModal({
     return () => document.removeEventListener("mousedown", handler);
   }, [dropdownOpen]);
 
-  // Focus search when dropdown opens
   useEffect(() => {
     if (dropdownOpen) setTimeout(() => searchRef.current?.focus(), 50);
   }, [dropdownOpen]);
 
-  // Reset page when search changes
   useEffect(() => { setPage(1); }, [search]);
 
-  // Infinite scroll sentinel
   useEffect(() => {
     if (!sentinelRef.current || !hasMore) return;
     const obs = new IntersectionObserver(
@@ -83,12 +84,57 @@ export default function AddPengajarModal({
     setSearch("");
   };
 
-  const submit = () => {
+  const submit = async () => {
     if (!selectedId) return;
-    onSubmit({ id: selectedId });
-    setSelectedId("");
-    setSelectedLabel("");
-    onClose();
+
+    setSubmitting(true);
+    try {
+      await onSubmit({ id: selectedId });
+      setSelectedId("");
+      setSelectedLabel("");
+      onClose();
+
+      toast.success("Pengajar Berhasil Ditambahkan!", {
+        description: `${selectedLabel} berhasil ditambahkan sebagai pengajar.`,
+        icon: <Icon icon="lets-icons:check-fill" className="text-white text-lg shrink-0 mt-0.5" />,
+        style: { background: "#16a34a", color: "#ffffff", border: "none", alignItems: "flex-start" },
+        descriptionClassName: "!text-white/90",
+      });
+    } catch (err: any) {
+      const data = err?.response?.data;
+      const msg: string =
+        (typeof data === "string" ? data : null) ??
+        data?.message ??
+        data?.error ??
+        err?.message ??
+        "Terjadi kesalahan saat menambahkan pengajar.";
+      const msgLower = msg.toLowerCase();
+
+      let title = "Gagal Menambahkan Pengajar!";
+      let description = "Terjadi kesalahan pada server. Silakan coba lagi.";
+
+      if (msgLower.includes("already") || msgLower.includes("sudah") || msgLower.includes("duplicate") || err?.response?.status === 409) {
+        title = "Pengajar Sudah Terdaftar!";
+        description = `${selectedLabel} sudah menjadi pengajar di matakuliah ini.`;
+      } else if (msgLower.includes("network") || msgLower.includes("timeout") || msgLower.includes("fetch")) {
+        title = "Koneksi Bermasalah!";
+        description = "Tidak dapat terhubung ke server. Periksa koneksi internet kamu.";
+      } else if (err?.response?.status >= 500) {
+        title = "Terjadi Kesalahan Server!";
+        description = "Server sedang bermasalah. Silakan coba beberapa saat lagi.";
+      } else if (msg && msg !== "Terjadi kesalahan saat menambahkan pengajar.") {
+        description = msg;
+      }
+
+      toast.error(title, {
+        description,
+        icon: errorIcon,
+        style: errorStyle,
+        descriptionClassName: "!text-white/90",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleClose = useCallback(() => {
@@ -107,7 +153,6 @@ export default function AddPengajarModal({
         </DialogHeader>
 
         <div className="mt-4 relative" ref={containerRef}>
-          {/* Trigger — pakai style SelectTrigger yang sama */}
           <button
             type="button"
             onClick={() => { setDropdownOpen((v) => !v); setSearch(""); setPage(1); }}
@@ -122,11 +167,8 @@ export default function AddPengajarModal({
             />
           </button>
 
-          {/* Dropdown */}
           {dropdownOpen && (
             <div className="absolute z-50 top-[calc(100%+4px)] left-0 right-0 rounded-md border border-black bg-white overflow-hidden">
-
-              {/* Search */}
               <div className="flex items-center gap-2 px-3 py-2 border-b border-black/10">
                 <Icon icon="mdi:magnify" className="text-muted-foreground shrink-0 text-base" />
                 <input
@@ -147,7 +189,6 @@ export default function AddPengajarModal({
                 )}
               </div>
 
-              {/* List */}
               <div ref={listRef} className="max-h-52 overflow-y-auto">
                 {loading ? (
                   <div className="flex items-center justify-center py-6 text-sm text-muted-foreground gap-2">
@@ -178,7 +219,6 @@ export default function AddPengajarModal({
                       </button>
                     ))}
 
-                    {/* Sentinel for infinite scroll */}
                     {hasMore && (
                       <div ref={sentinelRef} className="flex items-center justify-center py-3 text-xs text-muted-foreground gap-1">
                         <Icon icon="mdi:loading" className="animate-spin text-sm" />
@@ -189,7 +229,6 @@ export default function AddPengajarModal({
                 )}
               </div>
 
-              {/* Footer count */}
               {!loading && filtered.length > 0 && (
                 <div className="px-3 py-1.5 border-t border-black/10 text-xs text-muted-foreground">
                   {visible.length} dari {filtered.length} dosen
@@ -202,9 +241,9 @@ export default function AddPengajarModal({
         <Button
           className="w-full mt-6 border-2 border-black shadow-[3px_3px_0_0_#000]"
           onClick={submit}
-          disabled={!selectedId || loading}
+          disabled={!selectedId || loading || submitting}
         >
-          Tambah Pengajar
+          {submitting ? "Menyimpan..." : "Tambah Pengajar"}
         </Button>
       </DialogContent>
     </Dialog>

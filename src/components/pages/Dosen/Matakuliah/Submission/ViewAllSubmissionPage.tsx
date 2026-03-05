@@ -41,27 +41,25 @@ export default function ViewAllSubmissionPage() {
     <div className="space-y-8">
       <Title title={judulTugas} items={breadcrumbItems} />
 
-      {/* JUDUL CARD */}
       <div className="rounded-2xl border border-gray-200 bg-white px-8 py-6 text-center">
-        <h2 className="text-2xl sm:text-3xl font-bold text-blue-900">
+        <h2 className="text-2xl sm:text-3xl font-bold text-primary">
           {judulTugas}
         </h2>
       </div>
 
-      {/* TABLE */}
       {isLoading ? (
         <div className="flex justify-center py-12">
-          <Icon icon="mdi:loading" className="animate-spin text-3xl text-blue-900" />
+          <Icon icon="mdi:loading" className="animate-spin text-3xl text-primary" />
         </div>
       ) : (
-        <div className="rounded-xl border border-gray-200 overflow-hidden">
+        <div className="rounded-2xl border-1 border-black bg-white shadow-[5px_5px_0_0_#000] overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200">
-                <th className="text-left px-6 py-3 font-semibold text-blue-900">NRP</th>
-                <th className="text-left px-6 py-3 font-semibold text-blue-900">Nama</th>
-                <th className="text-left px-6 py-3 font-semibold text-blue-900">File Submission</th>
-                <th className="text-right px-6 py-3 font-semibold text-blue-900">Nilai</th>
+                <th className="text-left px-6 py-3 font-semibold text-primary">NRP</th>
+                <th className="text-left px-6 py-3 font-semibold text-primary">Nama</th>
+                <th className="text-left px-6 py-3 font-semibold text-primary">File Submission</th>
+                <th className="text-right px-6 py-3 font-semibold text-primary">Nilai</th>
               </tr>
             </thead>
             <tbody>
@@ -85,7 +83,7 @@ export default function ViewAllSubmissionPage() {
                             href={fileUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline"
+                            className="text-primary hover:underline"
                           >
                             {fileName}
                           </a>
@@ -105,7 +103,6 @@ export default function ViewAllSubmissionPage() {
         </div>
       )}
 
-      {/* EDIT NILAI BUTTON */}
       <div className="flex justify-center pt-2">
         <button
           onClick={() =>
@@ -113,8 +110,21 @@ export default function ViewAllSubmissionPage() {
               `/dosen/courses/${idCourse}/pertemuan/${assignmentId}/submissions/all/edit`
             )
           }
-          className="px-6 py-3 rounded-xl bg-blue-900 text-white font-semibold text-sm hover:opacity-90 transition"
+          className="
+            inline-flex items-center gap-2
+            px-6 py-3 rounded-xl
+            bg-primary text-white
+            font-semibold text-sm
+            border-2 border-black
+            shadow-[4px_4px_0_0_#000]
+            transition-all duration-150
+            hover:translate-x-[2px] hover:translate-y-[2px]
+            hover:shadow-[2px_2px_0_0_#000]
+            active:translate-x-[4px] active:translate-y-[4px]
+            active:shadow-none
+          "
         >
+          <Icon icon="mdi:pencil-outline" className="text-base" />
           Edit Nilai
         </button>
       </div>

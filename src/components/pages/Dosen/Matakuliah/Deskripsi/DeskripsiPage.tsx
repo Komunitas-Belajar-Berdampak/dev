@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react";
+import { toast } from "sonner";
 
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -15,7 +16,20 @@ import { Button } from "@/components/ui/button";
 import Title from "@/components/shared/Title";
 import { useDeskripsi } from "../hooks/useDeskripsi";
 
-// ── Toolbar helpers ────────────────────────────────────────────────────────────
+const errorIcon = (
+  <Icon icon="lets-icons:check-fill" className="text-white text-lg shrink-0 mt-0.5 rotate-45" />
+);
+const errorStyle = { background: "#dc2626", color: "#ffffff", border: "none", alignItems: "flex-start" };
+
+function extractErrorMessage(err: any): string {
+  const data = err?.response?.data;
+  if (typeof data === "string" && data.length > 0) return data;
+  if (typeof data?.message === "string" && data.message.length > 0) return data.message;
+  if (typeof data?.error === "string" && data.error.length > 0) return data.error;
+  if (typeof err?.message === "string" && err.message.length > 0) return err.message;
+  return "Terjadi kesalahan saat menyimpan deskripsi.";
+}
+
 function ToolbarBtn({
   onClick,
   active,
@@ -48,7 +62,6 @@ function Divider() {
   return <div className="w-px h-5 bg-gray-200 mx-1 self-center shrink-0" />;
 }
 
-// ── Toolbar ────────────────────────────────────────────────────────────────────
 function Toolbar({ editor }: { editor: ReturnType<typeof useEditor> }) {
   if (!editor) return null;
 
@@ -190,7 +203,6 @@ function Toolbar({ editor }: { editor: ReturnType<typeof useEditor> }) {
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
 export default function DeskripsiPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -219,29 +231,22 @@ export default function DeskripsiPage() {
         class: [
           "min-h-[420px] px-6 py-5 outline-none focus:outline-none",
           "prose prose-sm max-w-none",
-          // headings
           "prose-headings:font-bold prose-headings:text-gray-900",
           "prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg",
-          // paragraph
           "prose-p:text-gray-800 prose-p:leading-relaxed",
-          // inline marks
           "prose-strong:font-bold prose-strong:text-gray-900",
           "prose-em:italic",
           "prose-u:underline",
           "prose-s:line-through",
           "prose-code:bg-gray-100 prose-code:rounded prose-code:px-1 prose-code:text-pink-600 prose-code:text-xs",
-          // blockquote
           "prose-blockquote:border-l-4 prose-blockquote:border-blue-400 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-600",
-          // lists
           "prose-ul:list-disc prose-ul:pl-5 prose-ol:list-decimal prose-ol:pl-5",
-          // link
           "prose-a:text-blue-600 prose-a:underline",
         ].join(" "),
       },
     },
   });
 
-  // deskripsi dari backend bisa berupa object { content: '...' } atau plain string
   const deskripsiContent =
     typeof data?.deskripsi === "object" && data?.deskripsi !== null
       ? (data.deskripsi as any).content ?? ""
@@ -256,20 +261,49 @@ export default function DeskripsiPage() {
   async function handleSave() {
     if (!editor) return;
     const html = editor.getHTML();
-    console.log("[DeskripsiPage] id:", id);
-    console.log("[DeskripsiPage] payload:", { deskripsi: html });
+
     try {
       await save(html);
+
+      toast.success("Deskripsi Berhasil Disimpan!", {
+        description: "Deskripsi matakuliah berhasil diperbarui.",
+        icon: <Icon icon="lets-icons:check-fill" className="text-white text-lg shrink-0 mt-0.5" />,
+        style: { background: "#16a34a", color: "#ffffff", border: "none", alignItems: "flex-start" },
+        descriptionClassName: "!text-white/90",
+      });
+
       navigate(`/dosen/courses/${id}`);
     } catch (err: any) {
-      console.error("[DeskripsiPage] save error:", err?.response?.data ?? err);
+      const msg = extractErrorMessage(err);
+      const msgLower = msg.toLowerCase();
+
+      let title = "Gagal Menyimpan Deskripsi!";
+      let description = "Terjadi kesalahan pada server. Silakan coba lagi.";
+
+      if (msgLower.includes("not found") || msgLower.includes("tidak ditemukan") || err?.response?.status === 404) {
+        title = "Matakuliah Tidak Ditemukan!";
+        description = "Data matakuliah tidak ditemukan. Mungkin sudah dihapus sebelumnya.";
+      } else if (msgLower.includes("network") || msgLower.includes("timeout") || msgLower.includes("fetch")) {
+        title = "Koneksi Bermasalah!";
+        description = "Tidak dapat terhubung ke server. Periksa koneksi internet kamu.";
+      } else if (err?.response?.status >= 500) {
+        title = "Terjadi Kesalahan Server!";
+        description = "Server sedang bermasalah. Silakan coba beberapa saat lagi.";
+      } else if (msg && msg !== "Terjadi kesalahan saat menyimpan deskripsi.") {
+        description = msg;
+      }
+
+      toast.error(title, {
+        description,
+        icon: errorIcon,
+        style: errorStyle,
+        descriptionClassName: "!text-white/90",
+      });
     }
   }
 
   return (
     <div className="w-full space-y-4">
-
-      {/* Header */}
       <div className="space-y-1">
         <h1 className="text-2xl sm:text-3xl font-bold text-primary">
           Edit Deskripsi Matakuliah
@@ -277,14 +311,12 @@ export default function DeskripsiPage() {
         <Title title="" items={breadcrumbItems} />
       </div>
 
-      {/* Error state */}
       {error && (
         <div className="rounded-xl border-2 border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
           Gagal memuat data. Coba refresh halaman.
         </div>
       )}
 
-      {/* Editor card */}
       {isLoading ? (
         <div className="rounded-2xl border border-gray-200 bg-white shadow-[5px_5px_0_0_#000] overflow-hidden p-8 space-y-3">
           <div className="h-8 w-full animate-pulse rounded bg-gray-200" />
@@ -297,7 +329,6 @@ export default function DeskripsiPage() {
         </div>
       )}
 
-      {/* Action buttons */}
       <div className="flex items-center justify-end gap-3 pb-4">
         <Button
           variant="outline"

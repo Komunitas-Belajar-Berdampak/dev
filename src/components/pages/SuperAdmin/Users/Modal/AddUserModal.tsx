@@ -15,6 +15,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { toast } from "sonner";
+import { Icon } from "@iconify/react";
 import { useCreateUser } from "../hooks/useCreateUser";
 import { useProgramStudi } from "../../ProgramStudi/hooks/useProgramStudi";
 import { useRoles } from "../hooks/useRoles";
@@ -61,14 +63,17 @@ async function fileToDataUrl(file: File) {
   });
 }
 
+const errorIcon = (
+  <Icon icon="lets-icons:check-fill" className="text-white text-lg shrink-0 mt-0.5 rotate-45" />
+);
+const errorStyle = { background: "#dc2626", color: "#ffffff", border: "none", alignItems: "flex-start" };
+
 export default function AddUserModal({ open, onClose, onSuccess }: Props) {
-  const { createUser, loading, error } = useCreateUser();
-  const { programStudi, loading: loadingProdi, error: errorProdi } = useProgramStudi();
-  const { roles, loading: loadingRoles, error: errorRoles } = useRoles();
+  const { createUser, loading } = useCreateUser();
+  const { programStudi, loading: loadingProdi } = useProgramStudi();
+  const { roles, loading: loadingRoles } = useRoles();
 
   const [form, setForm] = useState<CreateUserPayload>(initialForm);
-  const [localError, setLocalError] = useState<string | null>(null);
-
   const [preview, setPreview] = useState<string>(baldAvatarSvg);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
@@ -78,6 +83,14 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
       setForm((p) => ({ ...p, idRole: roles[0].id }));
     }
   }, [open, roles, form.idRole]);
+
+  // reset form saat modal ditutup
+  useEffect(() => {
+    if (!open) {
+      setForm(initialForm);
+      setPreview(baldAvatarSvg);
+    }
+  }, [open]);
 
   const disabled = useMemo(() => {
     return (
@@ -101,27 +114,38 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
     if (!file) return;
     const objectUrl = URL.createObjectURL(file);
     setPreview(objectUrl);
-
     const dataUrl = await fileToDataUrl(file);
     setForm((p) => ({ ...p, fotoProfil: dataUrl }));
   };
 
   const submit = async () => {
-    setLocalError(null);
-
     const nrpTrim = form.nrp.trim();
+
     if (!nrpTrim) {
-      setLocalError("NRP wajib diisi.");
+      toast.error("NRP Wajib Diisi!", {
+        description: "Silakan isi NRP sebelum melanjutkan.",
+        icon: errorIcon,
+        style: errorStyle,
+        descriptionClassName: "!text-white/90",
+      });
       return;
     }
-
     if (!form.idRole) {
-      setLocalError("Role wajib dipilih.");
+      toast.error("Role Wajib Dipilih!", {
+        description: "Silakan pilih role untuk user ini.",
+        icon: errorIcon,
+        style: errorStyle,
+        descriptionClassName: "!text-white/90",
+      });
       return;
     }
-
     if (!form.idProdi) {
-      setLocalError("Program Studi wajib dipilih.");
+      toast.error("Program Studi Wajib Dipilih!", {
+        description: "Silakan pilih program studi untuk user ini.",
+        icon: errorIcon,
+        style: errorStyle,
+        descriptionClassName: "!text-white/90",
+      });
       return;
     }
 
@@ -133,24 +157,53 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
         fotoProfil: form.fotoProfil?.trim() ? form.fotoProfil : "",
       });
 
-      setForm(initialForm);
-      setPreview(baldAvatarSvg);
       onSuccess?.();
       onClose();
-    } catch {
-      // error sudah ditangani hook
+
+      toast.success("User Berhasil Ditambahkan!", {
+        description: `Data user ${form.nama} dengan NRP ${nrpTrim} berhasil disimpan.`,
+        icon: <Icon icon="lets-icons:check-fill" className="text-white text-lg shrink-0 mt-0.5" />,
+        style: { background: "#16a34a", color: "#ffffff", border: "none", alignItems: "flex-start" },
+        descriptionClassName: "!text-white/90",
+      });
+    } catch (err: any) {
+      const msg: string =
+        err?.response?.data?.message ??
+        err?.message ??
+        "Terjadi kesalahan saat menambahkan user.";
+
+      const msgLower = msg.toLowerCase();
+      let title = "Gagal Menambahkan User!";
+      let description = msg;
+
+      if (msgLower.includes("nrp") || (msgLower.includes("duplicate") && msgLower.includes("nrp"))) {
+        title = "NRP Sudah Terdaftar!";
+        description = `NRP ${nrpTrim} sudah digunakan. Gunakan NRP yang berbeda.`;
+      } else if (msgLower.includes("email")) {
+        title = "Email Sudah Terdaftar!";
+        description = `Email ${form.email} sudah digunakan. Gunakan email yang berbeda.`;
+      } else if (msgLower.includes("duplicate") || msgLower.includes("already") || msgLower.includes("sudah")) {
+        title = "Data Sudah Terdaftar!";
+        description = "Beberapa data yang dimasukkan sudah terdaftar di sistem.";
+      } else if (msgLower.includes("validation") || msgLower.includes("invalid")) {
+        title = "Data Tidak Valid!";
+        description = msg;
+      } else if (msgLower.includes("network") || msgLower.includes("timeout") || msgLower.includes("econnrefused")) {
+        title = "Koneksi Bermasalah!";
+        description = "Tidak dapat terhubung ke server. Periksa koneksi internet kamu.";
+      }
+
+      toast.error(title, {
+        description,
+        icon: errorIcon,
+        style: errorStyle,
+        descriptionClassName: "!text-white/90",
+      });
     }
   };
 
-  const combinedError = localError ?? error ?? errorProdi ?? errorRoles ?? null;
-
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(v) => {
-        if (!v) onClose();
-      }}
-    >
+    <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>Add User</DialogTitle>
@@ -158,11 +211,10 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
 
         <div className="flex flex-col items-center gap-3 mt-2">
           <img
-            src={form.fotoProfil ? preview : baldAvatarSvg}
+            src={preview}
             alt="profile"
             className="w-24 h-24 rounded-full object-cover bg-gray-200"
           />
-
           <input
             ref={fileRef}
             type="file"
@@ -170,17 +222,10 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
             className="hidden"
             onChange={(e) => onFileChange(e.target.files?.[0] ?? null)}
           />
-
           <Button variant="outline" size="sm" type="button" onClick={pickFile}>
             Upload Profile Picture
           </Button>
         </div>
-
-        {combinedError ? (
-          <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-            {combinedError}
-          </div>
-        ) : null}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
           <Field label="NRP">
@@ -208,10 +253,7 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
           </Field>
 
           <Field label="Program Studi">
-            <Select
-              value={form.idProdi}
-              onValueChange={(v) => setForm((p) => ({ ...p, idProdi: v }))}
-            >
+            <Select value={form.idProdi} onValueChange={(v) => setForm((p) => ({ ...p, idProdi: v }))}>
               <SelectTrigger className="w-full h-10">
                 <SelectValue placeholder="Pilih Program Studi" />
               </SelectTrigger>
@@ -220,11 +262,7 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
                   const id = String(p._id ?? p.id ?? "");
                   const label = String(p.namaProdi ?? p.namaProgramStudi ?? "-");
                   if (!id) return null;
-                  return (
-                    <SelectItem key={id} value={id}>
-                      {label}
-                    </SelectItem>
-                  );
+                  return <SelectItem key={id} value={id}>{label}</SelectItem>;
                 })}
               </SelectContent>
             </Select>
@@ -249,9 +287,7 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
           <Field label="Jenis Kelamin">
             <Select
               value={form.jenisKelamin}
-              onValueChange={(v) =>
-                setForm((p) => ({ ...p, jenisKelamin: v as JenisKelamin }))
-              }
+              onValueChange={(v) => setForm((p) => ({ ...p, jenisKelamin: v as JenisKelamin }))}
             >
               <SelectTrigger className="w-full h-10">
                 <SelectValue placeholder="Pilih Jenis Kelamin" />
@@ -279,18 +315,13 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
           </Field>
 
           <Field label="Role">
-            <Select
-              value={form.idRole}
-              onValueChange={(v) => setForm((p) => ({ ...p, idRole: v }))}
-            >
+            <Select value={form.idRole} onValueChange={(v) => setForm((p) => ({ ...p, idRole: v }))}>
               <SelectTrigger className="w-full h-10">
                 <SelectValue placeholder="Pilih Role" />
               </SelectTrigger>
               <SelectContent>
                 {(roles ?? []).map((r) => (
-                  <SelectItem key={r.id} value={r.id}>
-                    {r.nama}
-                  </SelectItem>
+                  <SelectItem key={r.id} value={r.id}>{r.nama}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -302,12 +333,7 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
         </p>
 
         <div className="pt-6">
-          <Button
-            className="w-full md:w-1/3"
-            type="button"
-            onClick={submit}
-            disabled={disabled}
-          >
+          <Button className="w-full md:w-1/3" type="button" onClick={submit} disabled={disabled}>
             {loading ? "Menyimpan..." : "Tambah Data User"}
           </Button>
         </div>

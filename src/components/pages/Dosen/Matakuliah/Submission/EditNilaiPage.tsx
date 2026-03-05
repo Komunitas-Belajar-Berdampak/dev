@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { useSubmissions } from "../hooks/useSubmissions";
 import { useAssignmentsByCourse } from "../hooks/useAssignmentsByCourse";
 import { SubmissionService } from "../services/submission.service";
@@ -29,14 +30,8 @@ export default function EditNilaiPage() {
   const assignment = (assignments as any[]).find((a: any) => a.id === assignmentId);
   const judulTugas = assignment?.judul ?? "Tugas";
 
-  // nilaiMap: { [idSubmission]: string }
   const [nilaiMap, setNilaiMap] = useState<Record<string, string>>({});
-//   const [savingId, setSavingId] = useState<string | null>(null);
-//   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
-//   const [errorMap, setErrorMap] = useState<Record<string, string>>({});
   const [isSavingAll, setIsSavingAll] = useState(false);
-  const [saveAllSuccess, setSaveAllSuccess] = useState(false);
-  const [saveAllError, setSaveAllError] = useState<string | null>(null);
 
   useEffect(() => {
     if ((submissions as any[]).length > 0) {
@@ -48,12 +43,9 @@ export default function EditNilaiPage() {
     }
   }, [submissions]);
 
-  // Simpan semua nilai sekaligus (PATCH per submission)
   const handleSaveAll = async () => {
     if (!assignmentId) return;
     setIsSavingAll(true);
-    setSaveAllError(null);
-    setSaveAllSuccess(false);
 
     const toSave = (submissions as any[]).filter(
       (s: any) => nilaiMap[s.id] !== "" && !isNaN(Number(nilaiMap[s.id]))
@@ -65,16 +57,25 @@ export default function EditNilaiPage() {
           SubmissionService.updateGrade(assignmentId, s.id, Number(nilaiMap[s.id]))
         )
       );
-      setSaveAllSuccess(true);
+
+      toast.success("Nilai Berhasil Disimpan!", {
+        description: `${toSave.length} nilai mahasiswa berhasil diperbarui.`,
+        icon: <Icon icon="lets-icons:check-fill" className="text-white text-lg shrink-0 mt-0.5" />,
+        style: { background: "#16a34a", color: "#ffffff", border: "none", alignItems: "flex-start" },
+        descriptionClassName: "!text-white/90",
+      });
+
       setTimeout(() => {
-        navigate(
-          `/dosen/courses/${idCourse}/pertemuan/${assignmentId}/submissions/all`
-        );
+        navigate(`/dosen/courses/${idCourse}/pertemuan/${assignmentId}/submissions/all`);
       }, 800);
     } catch (e: any) {
-      setSaveAllError(
-        e?.response?.data?.message ?? e?.message ?? "Gagal menyimpan nilai."
-      );
+      const msg = e?.response?.data?.message ?? e?.message ?? "Gagal menyimpan nilai.";
+      toast.error("Gagal Menyimpan Nilai!", {
+        description: msg,
+        icon: <Icon icon="lets-icons:check-fill" className="text-white text-lg shrink-0 mt-0.5 rotate-45" />,
+        style: { background: "#dc2626", color: "#ffffff", border: "none", alignItems: "flex-start" },
+        descriptionClassName: "!text-white/90",
+      });
     } finally {
       setIsSavingAll(false);
     }
@@ -98,27 +99,25 @@ export default function EditNilaiPage() {
     <div className="space-y-8">
       <Title title={judulTugas} items={breadcrumbItems} />
 
-      {/* JUDUL CARD */}
       <div className="rounded-2xl border border-gray-200 bg-white px-8 py-6 text-center">
-        <h2 className="text-2xl sm:text-3xl font-bold text-blue-900">
+        <h2 className="text-2xl sm:text-3xl font-bold text-primary">
           {judulTugas}
         </h2>
       </div>
 
-      {/* TABLE */}
       {isLoading ? (
         <div className="flex justify-center py-12">
-          <Icon icon="mdi:loading" className="animate-spin text-3xl text-blue-900" />
+          <Icon icon="mdi:loading" className="animate-spin text-3xl text-primary" />
         </div>
       ) : (
-        <div className="rounded-xl border border-gray-200 overflow-hidden">
+        <div className="rounded-2xl border-1 border-black bg-white shadow-[5px_5px_0_0_#000] overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200">
-                <th className="text-left px-6 py-3 font-semibold text-blue-900">NRP</th>
-                <th className="text-left px-6 py-3 font-semibold text-blue-900">Nama</th>
-                <th className="text-left px-6 py-3 font-semibold text-blue-900">File Submission</th>
-                <th className="text-right px-6 py-3 font-semibold text-blue-900">Nilai</th>
+                <th className="text-left px-6 py-3 font-semibold text-primary">NRP</th>
+                <th className="text-left px-6 py-3 font-semibold text-primary">Nama</th>
+                <th className="text-left px-6 py-3 font-semibold text-primary">File Submission</th>
+                <th className="text-right px-6 py-3 font-semibold text-primary">Nilai</th>
               </tr>
             </thead>
             <tbody>
@@ -142,7 +141,7 @@ export default function EditNilaiPage() {
                             href={fileUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline"
+                            className="text-primary hover:underline"
                           >
                             {fileName}
                           </a>
@@ -162,7 +161,7 @@ export default function EditNilaiPage() {
                               [s.id]: e.target.value,
                             }))
                           }
-                          className="w-16 text-right border border-gray-200 rounded-lg px-2 py-1 text-sm text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                          className="w-16 text-right border border-gray-200 rounded-lg px-2 py-1 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-blue-300"
                         />
                       </td>
                     </tr>
@@ -174,21 +173,29 @@ export default function EditNilaiPage() {
         </div>
       )}
 
-      {saveAllError && (
-        <p className="text-sm text-red-600 text-center">{saveAllError}</p>
-      )}
-      {saveAllSuccess && (
-        <p className="text-sm text-green-600 text-center">Nilai berhasil disimpan!</p>
-      )}
-
-      {/* SIMPAN BUTTON */}
       <div className="flex justify-center pt-2">
         <button
           onClick={handleSaveAll}
           disabled={isSavingAll}
-          className="px-6 py-3 rounded-xl bg-blue-900 text-white font-semibold text-sm hover:opacity-90 transition disabled:opacity-60 flex items-center gap-2"
+          className="
+            inline-flex items-center gap-2
+            px-6 py-3 rounded-xl
+            bg-primary text-white
+            font-semibold text-sm
+            border-2 border-black
+            shadow-[4px_4px_0_0_#000]
+            transition-all duration-150
+            hover:translate-x-[2px] hover:translate-y-[2px]
+            hover:shadow-[2px_2px_0_0_#000]
+            active:translate-x-[4px] active:translate-y-[4px]
+            active:shadow-none
+            disabled:opacity-60 disabled:pointer-events-none
+          "
         >
-          {isSavingAll && <Icon icon="mdi:loading" className="animate-spin" />}
+          {isSavingAll
+            ? <Icon icon="mdi:loading" className="animate-spin text-base" />
+            : <Icon icon="mdi:content-save-outline" className="text-base" />
+          }
           Simpan Nilai
         </button>
       </div>

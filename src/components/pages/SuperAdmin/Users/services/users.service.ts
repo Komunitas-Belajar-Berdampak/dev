@@ -12,7 +12,9 @@ function normalizeUsers(payload: any): UserEntity[] {
 
 export const UsersService = {
   async getUsers() {
-    const res = await api.get<any>("/users");
+    const res = await api.get<any>("/users", {
+      params: { limit: 1000, page: 1 },
+    });
     return normalizeUsers(res.data);
   },
 

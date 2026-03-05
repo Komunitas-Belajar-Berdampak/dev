@@ -10,6 +10,7 @@ export function useCreateProgramStudi() {
       ProgramStudiService.createProgramStudi(payload),
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["program-studi"] });
+      await qc.refetchQueries({ queryKey: ["program-studi"] });
     },
   });
 

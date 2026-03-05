@@ -47,7 +47,6 @@ function PengajarTableSkeleton() {
           <Skeleton className="h-10 w-full sm:w-72 border border-black/20" />
           <Skeleton className="h-10 w-10 border-2 border-black shadow-[3px_3px_0_0_#000]" />
         </div>
-
         <Skeleton className="h-10 w-full sm:w-44 border-2 border-black shadow-[3px_3px_0_0_#000]" />
       </div>
 
@@ -82,7 +81,6 @@ function PengajarTableSkeleton() {
 export default function MatakuliahDetailPengajarPage() {
   const { id } = useParams();
 
-  // ================= QUERY =================
   const query = useQuery({
     queryKey: ["course", id],
     queryFn: () => MatakuliahService.getMatakuliahById(id!),
@@ -108,11 +106,9 @@ export default function MatakuliahDetailPengajarPage() {
       .filter((x) => x.id);
   }, [detail]);
 
-  // ================= HOOKS =================
   const addPengajarMutation = useAddPengajarToMatkul(id);
   const deletePengajarMutation = useDeletePengajarFromMatkul(id);
 
-  // ================= SEARCH & PAGINATION =================
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const limit = 10;
@@ -120,18 +116,14 @@ export default function MatakuliahDetailPengajarPage() {
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
     if (!q) return pengajar;
-
     return pengajar.filter(
-      (r) =>
-        r.nama.toLowerCase().includes(q) ||
-        r.nrp.toLowerCase().includes(q),
+      (r) => r.nama.toLowerCase().includes(q) || r.nrp.toLowerCase().includes(q),
     );
   }, [pengajar, search]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / limit));
   const paginated = filtered.slice((page - 1) * limit, page * limit);
 
-  // ================= MODAL STATE =================
   const [openAdd, setOpenAdd] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [selected, setSelected] = useState<PengajarRow | null>(null);
@@ -149,10 +141,7 @@ export default function MatakuliahDetailPengajarPage() {
       <div className="bg-white w-full p-6">
         <div className="mb-4 mt-4 text-red-600">{errorMessage}</div>
         <div className="flex gap-2">
-          <Button
-            onClick={() => query.refetch()}
-            className="border-2 border-black shadow-[3px_3px_0_0_#000]"
-          >
+          <Button onClick={() => query.refetch()} className="border-2 border-black shadow-[3px_3px_0_0_#000]">
             Coba lagi
           </Button>
           <Button
@@ -169,7 +158,6 @@ export default function MatakuliahDetailPengajarPage() {
 
   return (
     <div className="bg-white w-full">
-      {/* SEARCH + ADD */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
         <div className="flex w-full sm:w-auto gap-2">
           <Input
@@ -200,7 +188,6 @@ export default function MatakuliahDetailPengajarPage() {
         </Button>
       </div>
 
-      {/* TABLE */}
       <div className="relative -mx-4 sm:mx-0">
         <div className="overflow-x-auto max-w-[calc(100vw-2rem)] sm:max-w-full">
           <Table className="min-w-[900px] text-primary">
@@ -245,45 +232,30 @@ export default function MatakuliahDetailPengajarPage() {
         </div>
       </div>
 
-      {/* PAGINATION */}
       {totalPages > 1 && (
         <div className="mt-10 flex justify-center sm:justify-end">
           <Pagination>
             <PaginationContent>
               <PaginationItem>
-                <PaginationPrevious
-                  onClick={() =>
-                    setPage((p) => Math.max(p - 1, 1))
-                  }
-                />
+                <PaginationPrevious onClick={() => setPage((p) => Math.max(p - 1, 1))} />
               </PaginationItem>
 
               {Array.from({ length: totalPages }).map((_, i) => (
                 <PaginationItem key={i}>
-                  <PaginationLink
-                    isActive={page === i + 1}
-                    onClick={() => setPage(i + 1)}
-                  >
+                  <PaginationLink isActive={page === i + 1} onClick={() => setPage(i + 1)}>
                     {i + 1}
                   </PaginationLink>
                 </PaginationItem>
               ))}
 
               <PaginationItem>
-                <PaginationNext
-                  onClick={() =>
-                    setPage((p) =>
-                      Math.min(p + 1, totalPages),
-                    )
-                  }
-                />
+                <PaginationNext onClick={() => setPage((p) => Math.min(p + 1, totalPages))} />
               </PaginationItem>
             </PaginationContent>
           </Pagination>
         </div>
       )}
 
-      {/* ADD MODAL */}
       <AddPengajarModal
         open={openAdd}
         onClose={() => setOpenAdd(false)}
@@ -293,7 +265,6 @@ export default function MatakuliahDetailPengajarPage() {
         }}
       />
 
-      {/* DELETE MODAL */}
       <DeletePengajarModal
         open={openDelete}
         onClose={() => {

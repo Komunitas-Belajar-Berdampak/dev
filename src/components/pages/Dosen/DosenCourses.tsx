@@ -21,9 +21,9 @@ function SkeletonBlock({ className = "" }: { className?: string }) {
 
 function CourseCardSkeleton() {
   return (
-    <div className="rounded-2xl border-2 border-black bg-white shadow-[5px_5px_0_0_#000] overflow-hidden">
+    <div className="flex flex-col rounded-2xl border-2 border-black bg-white shadow-[5px_5px_0_0_#000] overflow-hidden">
       <div className="h-32 bg-gray-200/80 animate-pulse" />
-      <div className="p-4 space-y-3">
+      <div className="flex-1 p-4 space-y-3">
         <SkeletonBlock className="h-4 w-[80%]" />
         <SkeletonBlock className="h-3 w-full" />
         <SkeletonBlock className="h-3 w-[92%]" />
@@ -112,26 +112,21 @@ export default function DosenCourses() {
         const hay = norm(`${matkul.kodeMatkul} ${matkul.namaMatkul}`);
         if (!hay.includes(q)) return false;
       }
-
       if (k) {
         const mk = norm(matkul.kelas);
         if (!mk.includes(k)) return false;
       }
-
       if (p) {
         const mp = norm(matkul.periode);
         if (!mp.includes(p)) return false;
       }
-
       if (st) {
         const ms = norm(matkul.status);
         if (ms !== st) return false;
       }
-
       if (!Number.isNaN(sksN)) {
         if (Number(matkul.sks) !== sksN) return false;
       }
-
       return true;
     });
   }, [list, search, kelas, periode, status, sks]);
@@ -272,11 +267,11 @@ export default function DosenCourses() {
           {filteredMatakuliah.map((matkul) => (
             <div
               key={matkul.id}
-              className="rounded-2xl border-2 border-black bg-white shadow-[5px_5px_0_0_#000] overflow-hidden"
+              className="flex flex-col rounded-2xl border-2 border-black bg-white shadow-[5px_5px_0_0_#000] overflow-hidden"
             >
               <CourseCardArt seed={matkul.id} />
 
-              <div className="p-4 space-y-2">
+              <div className="flex-1 p-4 space-y-2">
                 <h3 className="font-bold text-sm leading-snug">
                   {matkul.kodeMatkul} - {matkul.namaMatkul}
                 </h3>

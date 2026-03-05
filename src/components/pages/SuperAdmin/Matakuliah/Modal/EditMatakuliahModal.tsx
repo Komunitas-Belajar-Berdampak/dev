@@ -14,11 +14,43 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { toast } from "sonner";
+import { Icon } from "@iconify/react";
 
 import { api } from "@/lib/axios";
 import type { Matakuliah, StatusMatakuliah } from "../types/matakuliah";
 import { useUpdateMatakuliah } from "../hooks/useUpdateMatakuliah";
 import { useAcademicTermsOptions } from "../hooks/useAcademicTermsOptions";
+
+const errorIcon = (
+  <Icon icon="lets-icons:check-fill" className="text-white text-lg shrink-0 mt-0.5 rotate-45" />
+);
+const errorStyle = { background: "#dc2626", color: "#ffffff", border: "none", alignItems: "flex-start" };
+
+function extractErrorMessage(err: any): string {
+  const data = err?.response?.data;
+  if (typeof data === "string" && data.length > 0) return data;
+  if (typeof data?.message === "string" && data.message.length > 0) return data.message;
+  if (typeof data?.error === "string" && data.error.length > 0) return data.error;
+  if (typeof err?.message === "string" && err.message.length > 0) return err.message;
+  return "Terjadi kesalahan saat memperbarui matakuliah.";
+}
+
+function isDuplicateError(err: any, msg: string): boolean {
+  const status = err?.response?.status;
+  const msgLower = msg.toLowerCase();
+  if (status === 409) return true;
+  if (msgLower.includes("e11000")) return true;
+  if (
+    msgLower.includes("duplicate") ||
+    msgLower.includes("already") ||
+    msgLower.includes("sudah terdaftar") ||
+    msgLower.includes("sudah ada")
+  ) return true;
+  const errData = err?.response?.data;
+  if (errData?.keyPattern || errData?.keyValue || errData?.code === 11000) return true;
+  return false;
+}
 
 function pickId(v: any): string {
   if (!v) return "";
@@ -30,7 +62,6 @@ function pickId(v: any): string {
   return !s || s === "undefined" || s === "null" ? "" : s;
 }
 
-/** Ekstrak idPeriode dari berbagai format response backend */
 function extractIdPeriode(d: any): string {
   const direct = pickId(d?.idPeriode);
   if (direct) return direct;
@@ -39,7 +70,6 @@ function extractIdPeriode(d: any): string {
   return "";
 }
 
-/** Ekstrak idPengajar (string[]) dari berbagai format response backend */
 function extractIdPengajar(d: any): string[] {
   if (Array.isArray(d?.idPengajar)) {
     return d.idPengajar.map((x: any) => pickId(x)).filter(Boolean);
@@ -52,7 +82,6 @@ function extractIdPengajar(d: any): string[] {
   return [];
 }
 
-/** Ekstrak idMahasiswa (string[]) */
 function extractIdMahasiswa(d: any): string[] {
   if (Array.isArray(d?.idMahasiswa)) {
     return d.idMahasiswa.map((x: any) => pickId(x)).filter(Boolean);
@@ -74,11 +103,10 @@ export default function EditMatakuliahModal({
   data: Matakuliah | null;
   onSuccess?: () => void;
 }) {
-  const { updateMatakuliah, loading: saving, error: saveError } = useUpdateMatakuliah();
-  const { options: termOptions, loading: loadingTerms, error: termError } = useAcademicTermsOptions();
+  const { updateMatakuliah, loading: saving } = useUpdateMatakuliah();
+  const { options: termOptions, loading: loadingTerms } = useAcademicTermsOptions();
 
   const [loadingDetail, setLoadingDetail] = useState(false);
-  const [detailError, setDetailError] = useState<string | null>(null);
 
   const [kodeMatkul, setKodeMatkul] = useState("");
   const [namaMatkul, setNamaMatkul] = useState("");
@@ -88,7 +116,6 @@ export default function EditMatakuliahModal({
   const [status, setStatus] = useState<StatusMatakuliah>("aktif");
   const [idPengajarPayload, setIdPengajarPayload] = useState<string[]>([]);
   const [idMahasiswaPayload, setIdMahasiswaPayload] = useState<string[]>([]);
-  const [localError, setLocalError] = useState<string | null>(null);
 
   const matkulId = data?.id ?? null;
 
@@ -96,7 +123,6 @@ export default function EditMatakuliahModal({
     if (!open || !matkulId) return;
 
     let alive = true;
-    setDetailError(null);
     setLoadingDetail(true);
 
     (async () => {
@@ -114,15 +140,9 @@ export default function EditMatakuliahModal({
         setIdPeriode(extractIdPeriode(d));
         setIdPengajarPayload(extractIdPengajar(d));
         setIdMahasiswaPayload(extractIdMahasiswa(d));
-        setLocalError(null);
       } catch (e: any) {
         if (!alive) return;
 
-        setDetailError(
-          e?.response?.data?.message ?? e?.message ?? "Gagal memuat detail matakuliah"
-        );
-
-        // fallback ke data ringkas dari list
         setKodeMatkul(data?.kodeMatkul ?? "");
         setNamaMatkul(data?.namaMatkul ?? "");
         setSks(String(data?.sks ?? ""));
@@ -131,6 +151,13 @@ export default function EditMatakuliahModal({
         setIdPeriode(extractIdPeriode(data));
         setIdPengajarPayload(extractIdPengajar(data));
         setIdMahasiswaPayload(extractIdMahasiswa(data));
+
+        toast.error("Gagal Memuat Detail Matakuliah!", {
+          description: "Data diisi dari cache. Beberapa informasi mungkin tidak lengkap.",
+          icon: errorIcon,
+          style: errorStyle,
+          descriptionClassName: "!text-white/90",
+        });
       } finally {
         if (!alive) return;
         setLoadingDetail(false);
@@ -157,67 +184,109 @@ export default function EditMatakuliahModal({
 
   const submit = async () => {
     if (!data) return;
-    setLocalError(null);
 
-    if (!namaMatkul.trim()) return setLocalError("Nama matakuliah wajib diisi.");
-    if (!kelas.trim()) return setLocalError("Kelas wajib diisi.");
-    if (!sks.trim()) return setLocalError("SKS wajib diisi.");
-    if (Number(sks) <= 0) return setLocalError("SKS harus > 0.");
-    if (!idPeriode) return setLocalError("Periode wajib dipilih.");
+    const nama = namaMatkul.trim();
+    const kel = kelas.trim();
 
-    await updateMatakuliah({
-      id: data.id,
-      payload: {
-        kodeMatkul: kodeMatkul.trim() || data.kodeMatkul,
-        namaMatkul: namaMatkul.trim(),
-        sks: Number(sks),
-        kelas: kelas.trim(),
-        status,
-        idPeriode,
-        idPengajar: idPengajarPayload,
-        idMahasiswa: idMahasiswaPayload,
-      },
-    });
-    
+    if (!nama) {
+      toast.error("Nama Matakuliah Wajib Diisi!", {
+        description: "Silakan isi nama matakuliah sebelum melanjutkan.",
+        icon: errorIcon, style: errorStyle, descriptionClassName: "!text-white/90",
+      });
+      return;
+    }
+    if (!kel) {
+      toast.error("Kelas Wajib Diisi!", {
+        description: "Silakan isi kelas sebelum melanjutkan.",
+        icon: errorIcon, style: errorStyle, descriptionClassName: "!text-white/90",
+      });
+      return;
+    }
+    if (!sks.trim() || Number(sks) <= 0) {
+      toast.error("SKS Tidak Valid!", {
+        description: "SKS harus berupa angka lebih dari 0.",
+        icon: errorIcon, style: errorStyle, descriptionClassName: "!text-white/90",
+      });
+      return;
+    }
+    if (!idPeriode) {
+      toast.error("Periode Wajib Dipilih!", {
+        description: "Silakan pilih periode untuk matakuliah ini.",
+        icon: errorIcon, style: errorStyle, descriptionClassName: "!text-white/90",
+      });
+      return;
+    }
 
-    onSuccess?.();
-    onClose();
+    try {
+      await updateMatakuliah({
+        id: data.id,
+        payload: {
+          kodeMatkul: kodeMatkul.trim() || data.kodeMatkul,
+          namaMatkul: nama,
+          sks: Number(sks),
+          kelas: kel,
+          status,
+          idPeriode,
+          idPengajar: idPengajarPayload,
+          idMahasiswa: idMahasiswaPayload,
+        },
+      });
+      onSuccess?.();
+      onClose();
+
+      toast.success("Matakuliah Berhasil Diperbarui!", {
+        description: `Matakuliah ${nama} berhasil disimpan.`,
+        icon: <Icon icon="lets-icons:check-fill" className="text-white text-lg shrink-0 mt-0.5" />,
+        style: { background: "#16a34a", color: "#ffffff", border: "none", alignItems: "flex-start" },
+        descriptionClassName: "!text-white/90",
+      });
+    } catch (err: any) {
+      const msg = extractErrorMessage(err);
+      const msgLower = msg.toLowerCase();
+
+      let title = "Gagal Memperbarui Matakuliah!";
+      let description = "Terjadi kesalahan pada server. Silakan coba lagi.";
+
+      if (isDuplicateError(err, msg)) {
+        title = "Nama Matakuliah Sudah Terdaftar!";
+        description = `Nama "${nama}" sudah terdaftar di sistem.`;
+      } else if (msgLower.includes("not found") || msgLower.includes("tidak ditemukan") || err?.response?.status === 404) {
+        title = "Matakuliah Tidak Ditemukan!";
+        description = "Data matakuliah tidak ditemukan. Mungkin sudah dihapus sebelumnya.";
+      } else if (msgLower.includes("network") || msgLower.includes("timeout") || msgLower.includes("fetch")) {
+        title = "Koneksi Bermasalah!";
+        description = "Tidak dapat terhubung ke server. Periksa koneksi internet kamu.";
+      } else if (err?.response?.status >= 500) {
+        title = "Terjadi Kesalahan Server!";
+        description = "Server sedang bermasalah. Silakan coba beberapa saat lagi.";
+      } else if (msg && msg !== "Terjadi kesalahan saat memperbarui matakuliah.") {
+        description = msg;
+      }
+
+      toast.error(title, {
+        description,
+        icon: errorIcon,
+        style: errorStyle,
+        descriptionClassName: "!text-white/90",
+      });
+    }
   };
-
-  const combinedError = localError ?? detailError ?? termError ?? saveError ?? null;
 
   if (!open) return null;
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(v) => {
-        if (!v) {
-          setLocalError(null);
-          onClose();
-        }
-      }}
-    >
+    <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Edit Matakuliah</DialogTitle>
-          <p className="text-sm text-muted-foreground">
-            Kode Matakuliah tidak bisa diubah
-          </p>
+          <p className="text-sm text-muted-foreground">Kode Matakuliah tidak bisa diubah</p>
         </DialogHeader>
-
-        {combinedError ? (
-          <div className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-            {combinedError}
-          </div>
-        ) : null}
 
         {!data ? (
           <div className="py-10 text-sm text-muted-foreground">Memuat data...</div>
         ) : (
           <>
             <div className="space-y-4 mt-4">
-              {/* kodeMatkul: disabled di UI tapi tetap dikirim via state */}
               <Input value={kodeMatkul || data.kodeMatkul} disabled />
 
               <Input
@@ -246,23 +315,16 @@ export default function EditMatakuliahModal({
 
               <Select value={idPeriode} onValueChange={setIdPeriode}>
                 <SelectTrigger className="w-full border border-black/20">
-                  <SelectValue
-                    placeholder={loadingTerms ? "Memuat periode..." : "Pilih Periode"}
-                  />
+                  <SelectValue placeholder={loadingTerms ? "Memuat periode..." : "Pilih Periode"} />
                 </SelectTrigger>
                 <SelectContent>
                   {termOptions.map((t) => (
-                    <SelectItem key={t.id} value={t.id}>
-                      {t.label}
-                    </SelectItem>
+                    <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
 
-              <Select
-                value={status}
-                onValueChange={(v) => setStatus(v as StatusMatakuliah)}
-              >
+              <Select value={status} onValueChange={(v) => setStatus(v as StatusMatakuliah)}>
                 <SelectTrigger className="w-full border border-black/20">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
@@ -278,11 +340,7 @@ export default function EditMatakuliahModal({
             </div>
 
             <Button className="w-full mt-6" onClick={submit} disabled={disabled}>
-              {saving
-                ? "Menyimpan..."
-                : loadingDetail
-                ? "Memuat detail..."
-                : "Simpan Perubahan"}
+              {saving ? "Menyimpan..." : loadingDetail ? "Memuat detail..." : "Simpan Perubahan"}
             </Button>
           </>
         )}

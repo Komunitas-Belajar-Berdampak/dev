@@ -25,7 +25,9 @@ function normalizeAcademicTerms(payload: any): TahunAkademikDanSemesterEntity[] 
 
 export const TahunAkademikDanSemesterService = {
   async getAll() {
-    const res = await api.get<any>("/academic-terms");
+    const res = await api.get<any>("/academic-terms", {
+      params: { limit: 1000, page: 1 },
+    });
     return normalizeAcademicTerms(res.data);
   },
 
