@@ -35,7 +35,9 @@ function safeString(v: any): string {
 
 export const MatakuliahService = {
   async getMatakuliah(): Promise<MatakuliahEntity[]> {
-    const res = await api.get<any>("/courses");
+    const res = await api.get<any>("/courses", {
+      params: { limit: 1000, page: 1 },
+    });
     return normalizeMatakuliah(res.data);
   },
 
@@ -62,17 +64,11 @@ export const MatakuliahService = {
 
   async updateMatakuliah(id: string, payload: UpdateMatakuliahPayload) {
     const apiPayload: any = {
-      ...(payload.kodeMatkul !== undefined
-        ? { kodeMatkul: safeString(payload.kodeMatkul) }
-        : {}),
-      ...(payload.namaMatkul !== undefined
-        ? { namaMatkul: safeString(payload.namaMatkul) }
-        : {}),
+      ...(payload.kodeMatkul !== undefined ? { kodeMatkul: safeString(payload.kodeMatkul) } : {}),
+      ...(payload.namaMatkul !== undefined ? { namaMatkul: safeString(payload.namaMatkul) } : {}),
       ...(payload.sks !== undefined ? { sks: Number(payload.sks) } : {}),
       ...(payload.status !== undefined ? { status: safeString(payload.status) } : {}),
-      ...(payload.idPeriode !== undefined
-        ? { idPeriode: safeString(payload.idPeriode) }
-        : {}),
+      ...(payload.idPeriode !== undefined ? { idPeriode: safeString(payload.idPeriode) } : {}),
       ...(payload.kelas !== undefined ? { kelas: safeString(payload.kelas) } : {}),
       ...(payload.idMahasiswa !== undefined && ensureStringArray(payload.idMahasiswa).length > 0
         ? { idMahasiswa: ensureStringArray(payload.idMahasiswa) }
