@@ -37,6 +37,11 @@ type Props = {
   onSubmit: (payload: AssignmentFormPayload) => void;
 };
 
+type FieldErrors = {
+  judul?: string;
+  endDate?: string;
+};
+
 export default function AssignmentModal({
   open,
   mode,
@@ -59,10 +64,12 @@ export default function AssignmentModal({
   const [endTime, setEndTime] = useState("10:30");
   const [status, setStatus] = useState<"HIDE" | "VISIBLE">("VISIBLE");
   const [statusTugas, setStatusTugas] = useState(false);
+  const [errors, setErrors] = useState<FieldErrors>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!open) return;
+    // Semua field diisi dari data existing — termasuk deskripsi
     setJudul(initial?.judul ?? "");
     setDeskripsi(initial?.deskripsi ?? "");
     setPathLampiran(initial?.lampiran ?? "");
@@ -71,6 +78,7 @@ export default function AssignmentModal({
     setEndTime(initial?.endTime ?? "10:30");
     setStatus(initial?.status ?? "VISIBLE");
     setStatusTugas(initial?.statusTugas ?? false);
+    setErrors({});
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, [open, initial]);
 
@@ -87,7 +95,16 @@ export default function AssignmentModal({
     setPathLampiran(generateLampiran(f.name));
   };
 
+  const validate = (): boolean => {
+    const newErrors: FieldErrors = {};
+    if (!judul.trim()) newErrors.judul = "Judul tugas wajib diisi.";
+    if (!endDate.trim()) newErrors.endDate = "Tanggal tenggat wajib diisi.";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = () => {
+    if (!validate()) return;
     const tenggat =
       endDate && endTime
         ? new Date(`${endDate}T${endTime}:00`).toISOString()
@@ -111,43 +128,68 @@ export default function AssignmentModal({
             <Input
               placeholder="Masukkan judul tugas"
               value={judul}
-              onChange={(e) => setJudul(e.target.value)}
-              className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+              onChange={(e) => {
+                setJudul(e.target.value);
+                if (e.target.value.trim()) setErrors((prev) => ({ ...prev, judul: undefined }));
+              }}
+              className={[
+                "border-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+                errors.judul ? "border-red-500 focus:border-red-500" : "border-black",
+              ].join(" ")}
             />
+            {errors.judul && (
+              <p className="flex items-center gap-1 text-xs text-red-500">
+                <Icon icon="mdi:alert-circle-outline" className="shrink-0" />
+                {errors.judul}
+              </p>
+            )}
           </div>
 
+          {/* File Lampiran */}
           <div className="space-y-2">
             <label className="text-sm font-bold text-blue-900">
               File Lampiran{" "}
               {mode === "add" && <span className="text-red-500">*</span>}
             </label>
-            {mode === "edit" && initial?.lampiran && (
-              <p className="text-xs text-gray-500">
-                File saat ini:{" "}
-                <span className="font-semibold">
-                  {initial.lampiran.split("/").pop()}
+
+            {/* Tampilkan file existing saat edit dan belum ganti file */}
+            {mode === "edit" && (initial?.lampiran || pathLampiran) && !fileName && (
+              <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+                <Icon icon="mdi:paperclip" className="text-blue-900 shrink-0" />
+                <span className="text-xs text-gray-600">
+                  File saat ini:{" "}
+                  <span className="font-semibold text-gray-800">
+                    {(initial?.lampiran ?? pathLampiran).split("/").pop()}
+                  </span>
                 </span>
-              </p>
+              </div>
             )}
+
             <Input
               ref={fileInputRef}
               type="file"
               onChange={handleFileChange}
               className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
             />
+
             {fileName && (
               <p className="text-xs text-gray-500">
                 Dipilih: <span className="font-medium">{fileName}</span>
               </p>
             )}
+
+            {mode === "edit" && (
+              <p className="text-xs text-gray-400">
+                Biarkan kosong jika tidak ingin mengganti file.
+              </p>
+            )}
           </div>
 
+          {/* Path Lampiran */}
           <div className="space-y-2">
             <label className="text-sm font-bold text-blue-900">
               Path Lampiran{" "}
-              <span className="text-xs font-normal text-gray-400">
-                (auto-generate)
-              </span>
+              <span className="text-xs font-normal text-gray-400">(auto-generate)</span>
             </label>
             <Input
               placeholder="Otomatis terisi setelah pilih file"
@@ -181,9 +223,21 @@ export default function AssignmentModal({
                 <Input
                   type="date"
                   value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                  onChange={(e) => {
+                    setEndDate(e.target.value);
+                    if (e.target.value.trim()) setErrors((prev) => ({ ...prev, endDate: undefined }));
+                  }}
+                  className={[
+                    "border-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+                    errors.endDate ? "border-red-500 focus:border-red-500" : "border-black",
+                  ].join(" ")}
                 />
+                {errors.endDate && (
+                  <p className="flex items-center gap-1 text-xs text-red-500">
+                    <Icon icon="mdi:alert-circle-outline" className="shrink-0" />
+                    {errors.endDate}
+                  </p>
+                )}
               </div>
               <div className="space-y-1">
                 <p className="text-xs font-semibold text-gray-700">Jam</p>

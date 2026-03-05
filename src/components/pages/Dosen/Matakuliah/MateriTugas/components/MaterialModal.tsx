@@ -34,6 +34,11 @@ type Props = {
   onSubmit: (payload: MaterialFormPayload) => void;
 };
 
+type FieldErrors = {
+  namaFile?: string;
+  pathFile?: string;
+};
+
 export default function MaterialModal({
   open,
   mode,
@@ -54,16 +59,19 @@ export default function MaterialModal({
   const [visibility, setVisibility] = useState<"HIDE" | "VISIBLE">("VISIBLE");
   const [deskripsi, setDeskripsi] = useState("");
   const [fileName, setFileName] = useState("");
+  const [errors, setErrors] = useState<FieldErrors>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!open) return;
+    // Semua field diisi dari data existing — termasuk deskripsi
     setNamaFile(initial?.namaFile ?? "");
     setTipe(initial?.tipe ?? "");
     setPathFile(initial?.pathFile ?? "");
     setVisibility(initial?.visibility ?? "VISIBLE");
     setDeskripsi(initial?.deskripsi ?? "");
     setFileName("");
+    setErrors({});
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, [open, initial]);
 
@@ -76,19 +84,31 @@ export default function MaterialModal({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
-
     const generated = generatePathFile(f.name);
-    console.log("[MaterialModal] kodeMatkul:", kodeMatkul, "pertemuan:", pertemuan, "generated:", generated);
-
     setFileName(f.name);
     setNamaFile(f.name);
     setTipe(f.type);
     setPathFile(generated);
+    setErrors((prev) => ({ ...prev, namaFile: undefined, pathFile: undefined }));
   };
 
   const handleNamaFileChange = (val: string) => {
     setNamaFile(val);
     setPathFile(generatePathFile(val));
+    if (val.trim()) setErrors((prev) => ({ ...prev, namaFile: undefined }));
+  };
+
+  const validate = (): boolean => {
+    const newErrors: FieldErrors = {};
+    if (!namaFile.trim()) newErrors.namaFile = "Nama file wajib diisi.";
+    if (!pathFile.trim()) newErrors.pathFile = "Path file wajib diisi. Pilih file terlebih dahulu.";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = () => {
+    if (!validate()) return;
+    onSubmit({ namaFile, tipe, pathFile, visibility, deskripsi });
   };
 
   return (
@@ -99,32 +119,49 @@ export default function MaterialModal({
         </DialogHeader>
 
         <div className="space-y-5">
+          {/* Upload File */}
           <div className="space-y-2">
             <label className="text-sm font-bold text-blue-900">
               Upload File{" "}
               {mode === "add" && <span className="text-red-500">*</span>}
             </label>
-            {mode === "edit" && initial?.namaFile && (
-              <p className="text-xs text-gray-500">
-                File saat ini:{" "}
-                <span className="font-semibold">{initial.namaFile}</span>
-              </p>
+
+            {/* Tampilkan file existing saat edit dan belum ganti file */}
+            {mode === "edit" && (initial?.namaFile || namaFile) && !fileName && (
+              <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+                <Icon icon="mdi:file-document-outline" className="text-blue-900 shrink-0" />
+                <span className="text-xs text-gray-600">
+                  File saat ini:{" "}
+                  <span className="font-semibold text-gray-800">
+                    {initial?.namaFile ?? namaFile}
+                  </span>
+                </span>
+              </div>
             )}
+
             <Input
               ref={fileInputRef}
               type="file"
               onChange={handleFileChange}
               className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
             />
+
             {fileName && (
               <p className="text-xs text-gray-500">
                 Dipilih:{" "}
                 <span className="font-medium">{fileName}</span>{" "}
-                <span className="text-gray-400">({tipe})</span>
+                {tipe && <span className="text-gray-400">({tipe})</span>}
+              </p>
+            )}
+
+            {mode === "edit" && (
+              <p className="text-xs text-gray-400">
+                Biarkan kosong jika tidak ingin mengganti file.
               </p>
             )}
           </div>
 
+          {/* Nama File */}
           <div className="space-y-2">
             <label className="text-sm font-bold text-blue-900">
               Nama File <span className="text-red-500">*</span>
@@ -133,10 +170,20 @@ export default function MaterialModal({
               placeholder="Otomatis terisi dari file yang dipilih"
               value={namaFile}
               onChange={(e) => handleNamaFileChange(e.target.value)}
-              className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+              className={[
+                "border-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+                errors.namaFile ? "border-red-500 focus:border-red-500" : "border-black",
+              ].join(" ")}
             />
+            {errors.namaFile && (
+              <p className="flex items-center gap-1 text-xs text-red-500">
+                <Icon icon="mdi:alert-circle-outline" className="shrink-0" />
+                {errors.namaFile}
+              </p>
+            )}
           </div>
 
+          {/* Tipe File */}
           <div className="space-y-2">
             <label className="text-sm font-bold text-blue-900">Tipe File</label>
             <Input
@@ -147,19 +194,30 @@ export default function MaterialModal({
             />
           </div>
 
+          {/* Path File */}
           <div className="space-y-2">
             <label className="text-sm font-bold text-blue-900">
               Path File{" "}
-              <span className="text-xs font-normal text-gray-400">
-                (auto-generate)
-              </span>
+              <span className="text-xs font-normal text-gray-400">(auto-generate)</span>
             </label>
             <Input
               placeholder="Otomatis terisi setelah pilih file"
               value={pathFile}
-              onChange={(e) => setPathFile(e.target.value)}
-              className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-gray-600"
+              onChange={(e) => {
+                setPathFile(e.target.value);
+                if (e.target.value.trim()) setErrors((prev) => ({ ...prev, pathFile: undefined }));
+              }}
+              className={[
+                "border-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-gray-600",
+                errors.pathFile ? "border-red-500 focus:border-red-500" : "border-black",
+              ].join(" ")}
             />
+            {errors.pathFile && (
+              <p className="flex items-center gap-1 text-xs text-red-500">
+                <Icon icon="mdi:alert-circle-outline" className="shrink-0" />
+                {errors.pathFile}
+              </p>
+            )}
           </div>
 
           {/* Visibility */}
@@ -207,9 +265,7 @@ export default function MaterialModal({
             </Button>
             <Button
               type="button"
-              onClick={() =>
-                onSubmit({ namaFile, tipe, pathFile, visibility, deskripsi })
-              }
+              onClick={handleSubmit}
               className="
                 inline-flex items-center gap-2
                 rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white

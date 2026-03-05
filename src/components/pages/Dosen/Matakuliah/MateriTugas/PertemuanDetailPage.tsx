@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Icon } from "@iconify/react";
+import { toast } from "sonner";
 import Title from "@/components/shared/Title";
 import { Button } from "@/components/ui/button";
 import { useMatakuliahDetail } from "../hooks/useMatakuliahDetail";
@@ -18,6 +19,43 @@ import MateriTugasItemRow from "./components/MateriTugasItemRow";
 import MaterialModal, { type MaterialFormPayload } from "./components/MaterialModal";
 import AssignmentModal, { type AssignmentFormPayload } from "./components/AssignmentModal";
 import ConfirmDeleteModal from "./components/ConfirmDeleteModal";
+
+const errorIcon = (
+  <Icon icon="lets-icons:check-fill" className="text-white text-lg shrink-0 mt-0.5 rotate-45" />
+);
+const errorStyle = { background: "#dc2626", color: "#ffffff", border: "none", alignItems: "flex-start" };
+const successIcon = (
+  <Icon icon="lets-icons:check-fill" className="text-white text-lg shrink-0 mt-0.5" />
+);
+const successStyle = { background: "#16a34a", color: "#ffffff", border: "none", alignItems: "flex-start" };
+
+function extractErrorMessage(err: any): string {
+  const data = err?.response?.data;
+  if (typeof data === "string" && data.length > 0) return data;
+  if (typeof data?.message === "string" && data.message.length > 0) return data.message;
+  if (typeof data?.error === "string" && data.error.length > 0) return data.error;
+  if (typeof err?.message === "string" && err.message.length > 0) return err.message;
+  return "";
+}
+
+function toastError(title: string, err?: any, fallback?: string) {
+  const msg = err ? extractErrorMessage(err) : "";
+  toast.error(title, {
+    description: msg || fallback || "Terjadi kesalahan pada server. Silakan coba lagi.",
+    icon: errorIcon,
+    style: errorStyle,
+    descriptionClassName: "!text-white/90",
+  });
+}
+
+function toastSuccess(title: string, description: string) {
+  toast.success(title, {
+    description,
+    icon: successIcon,
+    style: successStyle,
+    descriptionClassName: "!text-white/90",
+  });
+}
 
 export default function PertemuanDetailPage() {
   const { id, pertemuanId } = useParams<{ id: string; pertemuanId: string }>();
@@ -135,7 +173,7 @@ export default function PertemuanDetailPage() {
         tipe: it.tipe ?? "",
         pathFile: it.pathFile ?? "",
         visibility: it.visibility ?? "VISIBLE",
-        deskripsi: "",
+        deskripsi: it.deskripsi ?? "",
       });
       setOpenMaterialModal(true);
     } else {
@@ -146,7 +184,7 @@ export default function PertemuanDetailPage() {
       const endTime = tenggatDate ? tenggatDate.toTimeString().slice(0, 5) : "10:30";
       setAssignmentInitial({
         judul: it.judul ?? "",
-        deskripsi: "",
+        deskripsi: it.deskripsi ?? "",
         lampiran: it.lampiran ?? it.pathLampiran ?? "",
         endDate,
         endTime,
@@ -170,26 +208,35 @@ export default function PertemuanDetailPage() {
         onSuccess: () => {
           setOpenDelete(false);
           setDeleteTarget(null);
+          toastSuccess("Materi Berhasil Dihapus!", "Materi telah dihapus secara permanen.");
         },
-        onError: (err: any) =>
-          alert(err?.response?.data?.message ?? "Gagal menghapus materi"),
+        onError: (err: any) => toastError("Gagal Menghapus Materi!", err),
       });
     } else {
       deleteAssignment.mutate(deleteTarget.id ?? deleteTarget._id, {
         onSuccess: () => {
           setOpenDelete(false);
           setDeleteTarget(null);
+          toastSuccess("Tugas Berhasil Dihapus!", "Tugas telah dihapus secara permanen.");
         },
-        onError: (err: any) =>
-          alert(err?.response?.data?.message ?? "Gagal menghapus tugas"),
+        onError: (err: any) => toastError("Gagal Menghapus Tugas!", err),
       });
     }
   };
 
   const submitMaterial = (payload: MaterialFormPayload) => {
-    if (!id) return alert("ID course tidak ditemukan");
-    if (!pertemuanNumber) return alert("Pertemuan tidak ditemukan");
-    if (!payload.namaFile?.trim()) return alert("Nama file materi wajib diisi");
+    if (!id) {
+      toastError("ID Course Tidak Ditemukan!", undefined, "Silakan refresh halaman dan coba lagi.");
+      return;
+    }
+    if (!pertemuanNumber) {
+      toastError("Pertemuan Tidak Ditemukan!", undefined, "Silakan refresh halaman dan coba lagi.");
+      return;
+    }
+    if (!payload.namaFile?.trim()) {
+      toastError("Nama File Wajib Diisi!", undefined, "Silakan isi nama file sebelum melanjutkan.");
+      return;
+    }
 
     if (materialMode === "edit") {
       if (!editingMaterialId) return;
@@ -205,9 +252,11 @@ export default function PertemuanDetailPage() {
           },
         },
         {
-          onSuccess: () => setOpenMaterialModal(false),
-          onError: (err: any) =>
-            alert(err?.response?.data?.message ?? "Gagal mengupdate materi"),
+          onSuccess: () => {
+            setOpenMaterialModal(false);
+            toastSuccess("Materi Berhasil Diperbarui!", `"${payload.namaFile}" berhasil disimpan.`);
+          },
+          onError: (err: any) => toastError("Gagal Memperbarui Materi!", err),
         }
       );
       return;
@@ -226,21 +275,35 @@ export default function PertemuanDetailPage() {
         },
       },
       {
-        onSuccess: () => setOpenMaterialModal(false),
-        onError: (err: any) =>
-          alert(err?.response?.data?.message ?? "Gagal menambah materi"),
+        onSuccess: () => {
+          setOpenMaterialModal(false);
+          toastSuccess("Materi Berhasil Ditambahkan!", `"${payload.namaFile}" berhasil ditambahkan.`);
+        },
+        onError: (err: any) => toastError("Gagal Menambahkan Materi!", err),
       }
     );
   };
 
   const submitAssignment = (payload: AssignmentFormPayload) => {
-    if (!id) return alert("ID course tidak ditemukan");
-    if (!pertemuanNumber) return alert("Pertemuan tidak ditemukan");
-    if (!payload.judul?.trim()) return alert("Judul tugas wajib diisi");
+    if (!id) {
+      toastError("ID Course Tidak Ditemukan!", undefined, "Silakan refresh halaman dan coba lagi.");
+      return;
+    }
+    if (!pertemuanNumber) {
+      toastError("Pertemuan Tidak Ditemukan!", undefined, "Silakan refresh halaman dan coba lagi.");
+      return;
+    }
+    if (!payload.judul?.trim()) {
+      toastError("Judul Tugas Wajib Diisi!", undefined, "Silakan isi judul tugas sebelum melanjutkan.");
+      return;
+    }
+    if (!payload.tenggat) {
+      toastError("Tenggat Wajib Diisi!", undefined, "Silakan pilih tanggal dan jam tenggat pengumpulan.");
+      return;
+    }
 
     if (assignmentMode === "edit") {
       if (!editingAssignmentId) return;
-      if (!payload.tenggat) return alert("Tenggat wajib diisi");
       updateAssignment.mutate(
         {
           idAssignment: editingAssignmentId,
@@ -254,15 +317,15 @@ export default function PertemuanDetailPage() {
           },
         },
         {
-          onSuccess: () => setOpenAssignmentModal(false),
-          onError: (err: any) =>
-            alert(err?.response?.data?.message ?? "Gagal mengupdate tugas"),
+          onSuccess: () => {
+            setOpenAssignmentModal(false);
+            toastSuccess("Tugas Berhasil Diperbarui!", `"${payload.judul}" berhasil disimpan.`);
+          },
+          onError: (err: any) => toastError("Gagal Memperbarui Tugas!", err),
         }
       );
       return;
     }
-
-    if (!payload.tenggat) return alert("Tenggat wajib diisi");
 
     createAssignment.mutate(
       {
@@ -278,13 +341,14 @@ export default function PertemuanDetailPage() {
         },
       },
       {
-        onSuccess: () => setOpenAssignmentModal(false),
-        onError: (err: any) =>
-          alert(err?.response?.data?.message ?? "Gagal menambah tugas"),
+        onSuccess: () => {
+          setOpenAssignmentModal(false);
+          toastSuccess("Tugas Berhasil Ditambahkan!", `"${payload.judul}" berhasil ditambahkan.`);
+        },
+        onError: (err: any) => toastError("Gagal Menambahkan Tugas!", err),
       }
     );
   };
-
 
   return (
     <div className="space-y-6">
