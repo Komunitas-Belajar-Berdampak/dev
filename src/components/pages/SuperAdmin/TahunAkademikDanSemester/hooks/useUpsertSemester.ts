@@ -3,6 +3,16 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { TahunAkademikDanSemesterService } from "../services/tahun-akademik-dan-semester.service";
 import type { TahunAkademikDanSemesterEntity } from "../types/tahun-akademik-dan-semester";
 
+function extractErrorMessage(err: unknown): string {
+  const e = err as any;
+  const data = e?.response?.data;
+  if (typeof data === "string" && data.length > 0) return data;
+  if (typeof data?.message === "string" && data.message.length > 0) return data.message;
+  if (typeof data?.error === "string" && data.error.length > 0) return data.error;
+  if (typeof e?.message === "string" && e.message.length > 0) return e.message;
+  return "Gagal menambah semester";
+}
+
 export function useUpsertSemester() {
   const qc = useQueryClient();
 
@@ -35,11 +45,7 @@ export function useUpsertSemester() {
     () => ({
       upsertSemesters: m.mutateAsync,
       loading: m.isPending,
-      error: m.error
-        ? (m.error as any)?.response?.data?.message ??
-          (m.error as any)?.message ??
-          "Gagal menambah semester"
-        : null,
+      error: m.error ? extractErrorMessage(m.error) : null,
     }),
     [m.mutateAsync, m.isPending, m.error],
   );
