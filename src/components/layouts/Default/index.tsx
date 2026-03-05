@@ -3,6 +3,7 @@ import Header from '@/components/shared/Header';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { Outlet } from 'react-router-dom';
 import AuthBootstrap from '../Auth/AuthBoostrap';
+import { Toaster } from '@/components/ui/sonner';
 
 const DefaultLayout = () => {
   return (
@@ -30,6 +31,7 @@ const DefaultLayout = () => {
           </main>
         </div>
       </SidebarProvider>
+      <Toaster position="bottom-right" />
     </>
   );
 };
