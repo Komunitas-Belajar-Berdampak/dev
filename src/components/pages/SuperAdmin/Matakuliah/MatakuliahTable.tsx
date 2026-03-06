@@ -99,7 +99,6 @@ export default function MatakuliahTable() {
   const { options: termOptions } = useAcademicTermsOptions();
   const navigate = useNavigate();
 
-  // Buat lookup map: periode string → semesterType
   const periodeToSemesterType = useMemo(() => {
     const map = new Map<string, string>();
     termOptions.forEach((t) => {
@@ -135,6 +134,14 @@ export default function MatakuliahTable() {
 
   const selectedEntity: Matakuliah | null =
     selected ? entities.find((m) => m.id === selected.id) ?? null : null;
+
+  const isPeriodeAktif = useMemo(() => {
+    if (!selectedEntity) return false;
+    const term = termOptions.find(
+      (t) => t.label.trim() === selectedEntity.namaPeriode?.trim()
+    );
+    return term?.status?.toLowerCase() === "aktif";
+  }, [selectedEntity, termOptions]);
 
   if (loading) return <MatakuliahTableSkeleton />;
 
@@ -283,6 +290,7 @@ export default function MatakuliahTable() {
         }}
         id={selectedEntity?.id ?? null}
         namaMatkul={selectedEntity?.namaMatkul}
+        isPeriodeAktif={isPeriodeAktif}
         onSuccess={() => refetch()}
       />
 
