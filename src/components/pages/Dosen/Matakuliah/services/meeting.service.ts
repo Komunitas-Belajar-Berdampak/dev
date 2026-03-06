@@ -33,7 +33,9 @@ function mapToMeetingEntity(raw: any): MeetingEntity {
 
 export const MeetingService = {
   async getMeetingsByCourseId(courseId: string): Promise<MeetingEntity[]> {
-    const res = await api.get<any>(`/meetings/${courseId}`);
+    const res = await api.get<any>(`/meetings/${courseId}`, {
+      params: { limit: 16, page: 1 },
+    });
     const list = normalizeMeetings(res.data);
     return list.map(mapToMeetingEntity);
   },
@@ -43,6 +45,15 @@ export const MeetingService = {
     idCourse: string
   ): Promise<MeetingEntity> {
     const res = await api.get<any>(`/meetings/${pertemuan}/courses/${idCourse}`);
+    const raw = normalizeMeetingOne(res.data);
+    return mapToMeetingEntity(raw);
+  },
+
+  async updateMeeting(
+    idPertemuan: string,
+    payload: { judul: string }
+  ): Promise<MeetingEntity> {
+    const res = await api.put<any>(`/meetings/${idPertemuan}`, payload);
     const raw = normalizeMeetingOne(res.data);
     return mapToMeetingEntity(raw);
   },
