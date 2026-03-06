@@ -25,60 +25,25 @@ const errorIcon = (
 );
 const errorStyle = { background: "#dc2626", color: "#ffffff", border: "none", alignItems: "flex-start" };
 
-/** Ekstrak pesan error dari berbagai bentuk response backend */
 function extractErrorMessage(err: any): string {
-  // Coba ambil dari response body dulu (axios / fetch)
   const data = err?.response?.data;
-
   if (typeof data === "string" && data.length > 0) return data;
   if (typeof data?.message === "string" && data.message.length > 0) return data.message;
   if (typeof data?.error === "string" && data.error.length > 0) return data.error;
-
-  // Fallback ke message di Error object
   if (typeof err?.message === "string" && err.message.length > 0) return err.message;
-
   return "Terjadi kesalahan saat menambahkan program studi.";
-}
-
-/** Cek apakah error ini adalah duplicate key (MongoDB E11000 atau pesan backend custom) */
-function isDuplicateError(err: any, msg: string): boolean {
-  const status = err?.response?.status;
-  const msgLower = msg.toLowerCase();
-
-  // HTTP 409 Conflict → pasti duplicate
-  if (status === 409) return true;
-
-  // MongoDB raw error string
-  if (msgLower.includes("e11000")) return true;
-
-  // Kata kunci umum
-  if (
-    msgLower.includes("duplicate") ||
-    msgLower.includes("already") ||
-    msgLower.includes("sudah terdaftar") ||
-    msgLower.includes("sudah ada")
-  ) return true;
-
-  // Backend kadang kirim 500 dengan pesan generic untuk duplicate
-  // tapi kita bisa cek apakah ada field hint di response
-  const errData = err?.response?.data;
-  if (
-    errData?.keyPattern ||     // MongoDB duplicate key detail
-    errData?.keyValue ||
-    errData?.code === 11000
-  ) return true;
-
-  return false;
 }
 
 export default function AddProgramStudiModal({
   open,
   onClose,
   onSuccess,
+  existingKodes = [],
 }: {
   open: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  existingKodes?: string[];
 }) {
   const { createProgramStudi, loading } = useCreateProgramStudi();
   const { options: fakultasOptions, loading: loadingFakultas } = useFakultasOptions();
@@ -126,6 +91,14 @@ export default function AddProgramStudiModal({
       return;
     }
 
+    if (existingKodes.some((k) => k.toLowerCase() === kode.toLowerCase())) {
+      toast.error("Kode Program Studi Sudah Digunakan!", {
+        description: `Kode "${kode}" sudah terdaftar. Gunakan kode yang berbeda.`,
+        icon: errorIcon, style: errorStyle, descriptionClassName: "!text-white/90",
+      });
+      return;
+    }
+
     try {
       await createProgramStudi({ kodeProdi: kode, namaProdi: nama, idFakultas });
       onSuccess?.();
@@ -140,45 +113,24 @@ export default function AddProgramStudiModal({
     } catch (err: any) {
       const msg = extractErrorMessage(err);
       const msgLower = msg.toLowerCase();
+      const status = err?.response?.status;
 
       let title = "Gagal Menambahkan Program Studi!";
       let description = "Terjadi kesalahan pada server. Silakan coba lagi.";
 
-      if (isDuplicateError(err, msg)) {
-        // Tentukan field mana yang duplicate berdasarkan hint dari backend
-        const keyPattern = err?.response?.data?.keyPattern ?? {};
-        const isKodeDuplicate =
-          "kodeProdi" in keyPattern ||
-          msgLower.includes("kodep") ||
-          msgLower.includes("kode_prodi") ||
-          (msgLower.includes("kode") && !msgLower.includes("nama"));
-
-        const isNamaDuplicate =
-          "namaProdi" in keyPattern ||
-          msgLower.includes("namap") ||
-          msgLower.includes("nama_prodi") ||
-          msgLower.includes("nama");
-
-        if (isKodeDuplicate && !isNamaDuplicate) {
-          title = "Kode Program Studi Sudah Terdaftar!";
-          description = `Kode "${kode}" sudah digunakan. Gunakan kode yang berbeda.`;
-        } else if (isNamaDuplicate && !isKodeDuplicate) {
-          title = "Nama Program Studi Sudah Terdaftar!";
-          description = `Nama "${nama}" sudah terdaftar di sistem.`;
-        } else {
-          // Tidak bisa bedain, tampilkan keduanya
-          title = "Data Sudah Terdaftar!";
-          description = `Kode "${kode}" atau nama "${nama}" sudah terdaftar di sistem.`;
-        }
+      if (status === 400 && (msgLower.includes("kode") || msgLower.includes("sudah"))) {
+        title = "Kode Program Studi Sudah Digunakan!";
+        description = `Kode "${kode}" sudah terdaftar. Gunakan kode yang berbeda.`;
+      } else if (status === 404) {
+        title = "Fakultas Tidak Ditemukan!";
+        description = "Fakultas yang dipilih tidak ditemukan. Silakan pilih fakultas lain.";
       } else if (msgLower.includes("network") || msgLower.includes("timeout") || msgLower.includes("fetch")) {
         title = "Koneksi Bermasalah!";
         description = "Tidak dapat terhubung ke server. Periksa koneksi internet kamu.";
-      } else if (err?.response?.status >= 500) {
-        // 500 yang bukan duplicate → server error murni
+      } else if (status >= 500) {
         title = "Terjadi Kesalahan Server!";
         description = "Server sedang bermasalah. Silakan coba beberapa saat lagi.";
       } else if (msg && msg !== "Terjadi kesalahan saat menambahkan program studi.") {
-        // Pesan custom dari backend yang tidak masuk kategori di atas
         description = msg;
       }
 

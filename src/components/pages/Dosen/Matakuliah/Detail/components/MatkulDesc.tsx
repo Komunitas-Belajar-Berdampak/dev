@@ -1,3 +1,5 @@
+import { Icon } from "@iconify/react";
+
 const descStyle = `
   .matkul-desc p { margin-top: 0.75rem; margin-bottom: 0.75rem; }
   .matkul-desc p:first-child { margin-top: 0; }
@@ -70,9 +72,18 @@ export default function MatkulDesc({
             />
           </>
         ) : (
-          <p className="italic text-primary/60 text-center">
-            Belum ada deskripsi mata kuliah.
-          </p>
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <Icon
+              icon="mdi:text-box-outline"
+              className="text-7xl text-gray-200"
+            />
+            <p className="mt-6 text-lg font-bold text-blue-900">
+              Belum Ada Deskripsi
+            </p>
+            <p className="mt-2 text-sm text-gray-500 max-w-sm">
+              Deskripsi untuk mata kuliah ini belum ditambahkan.
+            </p>
+          </div>
         )}
       </div>
     </div>

@@ -394,8 +394,19 @@ export default function PertemuanDetailPage() {
           <div className="py-10 text-center text-sm text-red-600">Gagal memuat data.</div>
         )}
         {!loading && !error && items.length === 0 && (
-          <div className="py-14 text-center text-sm text-gray-500">
-            Belum ada {tab === "materi" ? "materi" : "tugas"} untuk pertemuan ini.
+          <div className="mt-6 flex flex-col items-center justify-center py-16 text-center">
+            <Icon
+              icon={tab === "materi" ? "mdi:file-document-outline" : "mdi:clipboard-text-outline"}
+              className="text-7xl text-gray-200"
+            />
+            <p className="mt-6 text-lg font-bold text-blue-900">
+              {tab === "materi" ? "Belum Ada Materi" : "Belum Ada Tugas"}
+            </p>
+            <p className="mt-2 text-sm text-gray-500 max-w-sm">
+              {tab === "materi"
+                ? "Tambahkan materi untuk pertemuan ini agar mahasiswa dapat mengaksesnya."
+                : "Belum ada tugas yang ditambahkan untuk pertemuan ini."}
+            </p>
           </div>
         )}
         {!loading &&

@@ -106,13 +106,25 @@ export default function EditMatakuliahModal({
   const { updateMatakuliah, loading: saving } = useUpdateMatakuliah();
   const { options: termOptions, loading: loadingTerms } = useAcademicTermsOptions();
 
-  const [loadingDetail, setLoadingDetail] = useState(false);
+  // Hanya tampilkan periode yang aktif
+  // Tapi kalau periode yang sedang dipilih tidak aktif, tetap tampilkan agar tidak hilang dari dropdown
+  const [idPeriode, setIdPeriode] = useState("");
 
+  const activeTermOptions = useMemo(() => {
+    const active = termOptions.filter((t) => t.status.toLowerCase() === "aktif");
+    // Kalau periode yang sedang dipakai matkul ini tidak aktif, tetap include agar tidak blank di dropdown
+    const currentPeriode = termOptions.find((t) => t.id === idPeriode);
+    if (currentPeriode && currentPeriode.status.toLowerCase() !== "aktif") {
+      return [...active, currentPeriode];
+    }
+    return active;
+  }, [termOptions, idPeriode]);
+
+  const [loadingDetail, setLoadingDetail] = useState(false);
   const [kodeMatkul, setKodeMatkul] = useState("");
   const [namaMatkul, setNamaMatkul] = useState("");
   const [sks, setSks] = useState("");
   const [kelas, setKelas] = useState("");
-  const [idPeriode, setIdPeriode] = useState("");
   const [status, setStatus] = useState<StatusMatakuliah>("aktif");
   const [idPengajarPayload, setIdPengajarPayload] = useState<string[]>([]);
   const [idMahasiswaPayload, setIdMahasiswaPayload] = useState<string[]>([]);
@@ -159,8 +171,7 @@ export default function EditMatakuliahModal({
           descriptionClassName: "!text-white/90",
         });
       } finally {
-        if (!alive) return;
-        setLoadingDetail(false);
+        if (alive) setLoadingDetail(false);
       }
     })();
 
@@ -318,9 +329,20 @@ export default function EditMatakuliahModal({
                   <SelectValue placeholder={loadingTerms ? "Memuat periode..." : "Pilih Periode"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {termOptions.map((t) => (
-                    <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
-                  ))}
+                  {activeTermOptions.length === 0 && !loadingTerms ? (
+                    <div className="py-4 text-center text-sm text-muted-foreground">
+                      Tidak ada periode aktif
+                    </div>
+                  ) : (
+                    activeTermOptions.map((t) => (
+                      <SelectItem key={t.id} value={t.id}>
+                        {t.label} - {t.semesterType}
+                        {t.status.toLowerCase() !== "aktif" && (
+                          <span className="ml-2 text-xs text-muted-foreground">(Tidak Aktif)</span>
+                        )}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
 

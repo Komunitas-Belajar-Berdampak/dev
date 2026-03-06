@@ -52,6 +52,12 @@ export default function AddMatakuliahModal({
   const { createMatakuliah, loading: saving } = useCreateMatakuliah();
   const { options: termOptions, loading: loadingTerms } = useAcademicTermsOptions();
 
+  // Hanya tampilkan periode yang aktif
+  const activeTermOptions = useMemo(
+    () => termOptions.filter((t) => t.status.toLowerCase() === "aktif"),
+    [termOptions],
+  );
+
   const [kodeMatkul, setKodeMatkul] = useState("");
   const [namaMatkul, setNamaMatkul] = useState("");
   const [sks, setSks] = useState("");
@@ -216,9 +222,17 @@ export default function AddMatakuliahModal({
               <SelectValue placeholder={loadingTerms ? "Memuat periode..." : "Pilih Periode"} />
             </SelectTrigger>
             <SelectContent>
-              {termOptions.map((t) => (
-                <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
-              ))}
+              {activeTermOptions.length === 0 && !loadingTerms ? (
+                <div className="py-4 text-center text-sm text-muted-foreground">
+                  Tidak ada periode aktif
+                </div>
+              ) : (
+                activeTermOptions.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>
+                    {t.label} - {t.semesterType}
+                  </SelectItem>
+                ))
+              )}
             </SelectContent>
           </Select>
 

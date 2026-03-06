@@ -29,14 +29,26 @@ interface Props {
   onClose: () => void;
   id: string | null;
   namaMatkul?: string;
+  isPeriodeAktif?: boolean;
   onSuccess?: () => void;
 }
 
-export default function DeleteMatakuliahModal({ open, onClose, id, namaMatkul, onSuccess }: Props) {
+export default function DeleteMatakuliahModal({ open, onClose, id, namaMatkul, isPeriodeAktif, onSuccess }: Props) {
   const { deleteMatakuliah, loading } = useDeleteMatakuliah();
 
   const confirm = async () => {
     if (!id) return;
+
+    if (isPeriodeAktif) {
+      toast.error("Matakuliah Tidak Dapat Dihapus!", {
+        description: "Matakuliah tidak dapat dihapus karena masih berada dalam periode aktif.",
+        icon: errorIcon,
+        style: errorStyle,
+        descriptionClassName: "!text-white/90",
+      });
+      onClose();
+      return;
+    }
 
     try {
       await deleteMatakuliah(id);
@@ -58,7 +70,10 @@ export default function DeleteMatakuliahModal({ open, onClose, id, namaMatkul, o
       let title = "Gagal Menghapus Matakuliah!";
       let description = "Terjadi kesalahan pada server. Silakan coba lagi.";
 
-      if (msgLower.includes("not found") || msgLower.includes("tidak ditemukan") || err?.response?.status === 404) {
+      if (msgLower.includes("periode") && msgLower.includes("aktif")) {
+        title = "Matakuliah Tidak Dapat Dihapus!";
+        description = "Matakuliah tidak dapat dihapus karena masih berada dalam periode aktif.";
+      } else if (msgLower.includes("tidak ditemukan") || err?.response?.status === 404) {
         title = "Matakuliah Tidak Ditemukan!";
         description = "Data matakuliah tidak ditemukan. Mungkin sudah dihapus sebelumnya.";
       } else if (msgLower.includes("network") || msgLower.includes("timeout") || msgLower.includes("fetch")) {
@@ -87,17 +102,30 @@ export default function DeleteMatakuliahModal({ open, onClose, id, namaMatkul, o
           <DialogTitle>Hapus Matakuliah</DialogTitle>
         </DialogHeader>
 
-        <p className="text-sm text-muted-foreground mt-2">
-          Yakin ingin menghapus{" "}
-          <span className="font-semibold">{namaMatkul ?? "matakuliah ini"}</span>?
-          Tindakan ini tidak dapat dibatalkan.
-        </p>
+        {isPeriodeAktif ? (
+          <div className="mt-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+            <p className="text-sm text-red-700 font-medium">Matakuliah Tidak Dapat Dihapus</p>
+            <p className="text-sm text-red-600 mt-1">
+              Matakuliah <span className="font-semibold">{namaMatkul}</span> tidak dapat dihapus karena masih berada dalam periode aktif.
+            </p>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground mt-2">
+            Yakin ingin menghapus{" "}
+            <span className="font-semibold">{namaMatkul ?? "matakuliah ini"}</span>?
+            Tindakan ini tidak dapat dibatalkan.
+          </p>
+        )}
 
         <div className="flex justify-end gap-3 mt-6">
-          <Button variant="outline" onClick={onClose} disabled={loading}>Batal</Button>
-          <Button variant="destructive" onClick={confirm} disabled={loading || !id}>
-            {loading ? "Menghapus..." : "Hapus"}
+          <Button variant="outline" onClick={onClose} disabled={loading}>
+            {isPeriodeAktif ? "Tutup" : "Batal"}
           </Button>
+          {!isPeriodeAktif && (
+            <Button variant="destructive" onClick={confirm} disabled={loading || !id}>
+              {loading ? "Menghapus..." : "Hapus"}
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>

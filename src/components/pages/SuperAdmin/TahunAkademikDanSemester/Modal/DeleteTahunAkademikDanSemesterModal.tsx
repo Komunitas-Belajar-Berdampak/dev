@@ -29,18 +29,30 @@ export default function DeleteTahunAkademikDanSemesterModal({
   onClose,
   id,
   periode,
+  isActive = false,
   onSuccess,
 }: {
   open: boolean;
   onClose: () => void;
   id: string | null;
   periode: string | null;
+  isActive?: boolean;
   onSuccess?: () => void;
 }) {
   const { deleteAcademicTerm, loading } = useDeleteTahunAkademikDanSemester();
 
   const confirm = async () => {
     if (!id) return;
+
+    if (isActive) {
+      toast.error("Tidak Dapat Dihapus!", {
+        description: `Periode "${periode}" masih aktif. Nonaktifkan terlebih dahulu sebelum menghapus.`,
+        icon: errorIcon,
+        style: errorStyle,
+        descriptionClassName: "!text-white/90",
+      });
+      return;
+    }
 
     try {
       await deleteAcademicTerm(id);
@@ -89,11 +101,20 @@ export default function DeleteTahunAkademikDanSemesterModal({
           <DialogTitle>Hapus Tahun Akademik & Semester</DialogTitle>
         </DialogHeader>
 
-        <p className="mt-4 text-sm text-muted-foreground">
+        {isActive && (
+          <div className="flex gap-3 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 mt-2">
+            <Icon icon="mdi:alert-circle" className="text-amber-500 text-lg shrink-0 mt-0.5" />
+            <p className="text-sm text-amber-800">
+              Periode ini masih berstatus <span className="font-semibold">Aktif</span>. Menghapusnya dapat berdampak pada data yang sedang berjalan.
+            </p>
+          </div>
+        )}
+
+        <p className="mt-2 text-sm text-muted-foreground">
           Yakin ingin menghapus data ini? Aksi tidak bisa dibatalkan.
         </p>
 
-        <p className="mt-2 text-xs text-muted-foreground">
+        <p className="mt-1 text-xs text-muted-foreground">
           Tahun Akademik: <span className="font-medium text-foreground">{periode ?? "-"}</span>
         </p>
 
@@ -101,7 +122,7 @@ export default function DeleteTahunAkademikDanSemesterModal({
           <Button variant="outline" onClick={onClose} disabled={loading}>
             Batal
           </Button>
-          <Button variant="destructive" onClick={confirm} disabled={loading || !id}>
+          <Button variant="destructive" onClick={confirm} disabled={loading || !id || isActive}>
             {loading ? "Menghapus..." : "Hapus"}
           </Button>
         </div>

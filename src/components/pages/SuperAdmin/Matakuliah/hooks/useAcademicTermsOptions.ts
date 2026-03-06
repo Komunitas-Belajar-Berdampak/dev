@@ -17,11 +17,14 @@ export function useAcademicTermsOptions() {
 
   const options = useMemo(
     () =>
-      terms.map((t: any) => ({
-        id: String(t.id ?? t._id ?? ""),
-        label: String(t.periode ?? "-"),
-        status: String(t.status ?? ""),
-      })).filter((x) => x.id && x.label !== "-"),
+      terms
+        .map((t: any) => ({
+          id: String(t.id ?? t._id ?? ""),
+          label: String(t.periode ?? "-"),
+          semesterType: String(t.semesterType ?? ""),
+          status: String(t.status ?? ""),
+        }))
+        .filter((x) => x.id && x.label !== "-"),
     [terms],
   );
 
