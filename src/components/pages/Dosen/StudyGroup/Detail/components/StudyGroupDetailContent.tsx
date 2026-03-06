@@ -3,7 +3,7 @@ import ContentHeader from '@/components/shared/ContentHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { ApiResponse } from '@/types/api';
 import type { StudyGroupDetail } from '@/types/sg';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 import DashboardKontribusiContent from './DashboardKontribusiContent';
@@ -20,8 +20,9 @@ const StudyGroupDetailContent = ({ idSg, namaSg }: StudyGroupDetailContentProps)
   const { data, isLoading, isError, error } = useQuery<ApiResponse<StudyGroupDetail>, Error, StudyGroupDetail>({
     queryKey: ['sg-detail', idSg],
     queryFn: () => getStudyGroupById(idSg),
-    placeholderData: keepPreviousData,
     select: (res) => res.data,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   useEffect(() => {

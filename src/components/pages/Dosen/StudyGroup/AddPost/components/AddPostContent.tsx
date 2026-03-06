@@ -12,9 +12,10 @@ import PostEditor from './PostEditor';
 
 type AddPostContentProps = {
   idTopik: string;
+  idSg: string;
 };
 
-const AddPostContent = ({ idTopik }: AddPostContentProps) => {
+const AddPostContent = ({ idTopik, idSg }: AddPostContentProps) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -24,7 +25,8 @@ const AddPostContent = ({ idTopik }: AddPostContentProps) => {
       toast.success('Discussion baru berhasil ditambahkan!', { toasterId: 'global' });
       form.reset();
 
-      await queryClient.invalidateQueries({ queryKey: ['threads-by-id', idTopik] });
+      await Promise.all([queryClient.invalidateQueries({ queryKey: ['threads-by-id', idTopik] }), queryClient.invalidateQueries({ queryKey: ['sg-detail', idSg] })]);
+
       navigate(-1);
     },
     onError: () => {
