@@ -161,8 +161,14 @@ export default function ProgramStudiTable() {
             <TableBody>
               {paginated.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-12">
-                    Data tidak ditemukan
+                  <TableCell colSpan={4}>
+                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                      <Icon icon="mdi:school-outline" className="text-7xl text-gray-200" />
+                      <p className="mt-6 text-lg font-bold text-blue-900">Belum Ada Program Studi</p>
+                      <p className="mt-2 text-sm text-gray-500 max-w-sm">
+                        Tambahkan program studi baru untuk mulai mengelola data akademik.
+                      </p>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (

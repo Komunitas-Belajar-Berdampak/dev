@@ -198,8 +198,14 @@ export default function MatakuliahTable() {
             <TableBody>
               {paginated.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-12">
-                    Data tidak ditemukan
+                  <TableCell colSpan={8}>
+                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                      <Icon icon="mdi:book-education-outline" className="text-7xl text-gray-200" />
+                      <p className="mt-6 text-lg font-bold text-blue-900">Belum Ada Matakuliah</p>
+                      <p className="mt-2 text-sm text-gray-500 max-w-sm">
+                        Tambahkan matakuliah baru untuk mulai mengelola data perkuliahan.
+                      </p>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (

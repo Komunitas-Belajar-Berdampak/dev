@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 import type { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,24 @@ import AddMahasiswaModal from "./Modal/AddMahasiswaModal";
 import DeleteMahasiswaModal from "./Modal/DeleteMahasiswaModal";
 import MahasiswaActionDropdown from "./MahasiswaActionDropdown";
 
+// ── Toast helpers ─────────────────────────────────────────────────────────────
+
+const errorIcon = (
+  <Icon icon="lets-icons:check-fill" className="text-white text-lg shrink-0 mt-0.5 rotate-45" />
+);
+const errorStyle = { background: "#dc2626", color: "#ffffff", border: "none", alignItems: "flex-start" };
+
+function toastMinimalError(type: "pengajar" | "mahasiswa") {
+  toast.error(`Tidak Dapat Menghapus ${type === "pengajar" ? "Pengajar" : "Mahasiswa"}!`, {
+    description: `Minimal harus ada 1 ${type === "pengajar" ? "pengajar" : "mahasiswa"} dalam matakuliah.`,
+    icon: errorIcon,
+    style: errorStyle,
+    descriptionClassName: "!text-white/90",
+  });
+}
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+
 type PengajarRow = {
   id: string;
   nrp: string;
@@ -51,7 +70,7 @@ type MahasiswaRow = {
   nama: string;
 };
 
-// ── Skeleton ─────────────────────────────────────────────────────────────────
+// ── Skeleton ──────────────────────────────────────────────────────────────────
 
 function TableSkeleton({ columns }: { columns: string[] }) {
   const rows = Array.from({ length: 10 });
@@ -173,8 +192,14 @@ function PengajarTab({
             <TableBody>
               {paginated.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-12">
-                    Data tidak ditemukan
+                  <TableCell colSpan={4}>
+                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                      <Icon icon="mdi:account-tie-outline" className="text-7xl text-gray-200" />
+                      <p className="mt-6 text-lg font-bold text-blue-900">Belum Ada Pengajar</p>
+                      <p className="mt-2 text-sm text-gray-500 max-w-sm">
+                        Tambahkan pengajar untuk matakuliah ini.
+                      </p>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -187,7 +212,14 @@ function PengajarTab({
                       <TableCell>{p.nama || "-"}</TableCell>
                       <TableCell className="text-right pr-4">
                         <PengajarActionDropdown
-                          onDelete={() => { setSelected(p); setOpenDelete(true); }}
+                          onDelete={() => {
+                            if (pengajar.length <= 1) {
+                              toastMinimalError("pengajar");
+                              return;
+                            }
+                            setSelected(p);
+                            setOpenDelete(true);
+                          }}
                         />
                       </TableCell>
                     </TableRow>
@@ -326,8 +358,14 @@ function MahasiswaTab({
             <TableBody>
               {paginated.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-12">
-                    Data tidak ditemukan
+                  <TableCell colSpan={4}>
+                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                      <Icon icon="mdi:account-school-outline" className="text-7xl text-gray-200" />
+                      <p className="mt-6 text-lg font-bold text-blue-900">Belum Ada Mahasiswa</p>
+                      <p className="mt-2 text-sm text-gray-500 max-w-sm">
+                        Tambahkan mahasiswa untuk matakuliah ini.
+                      </p>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -340,7 +378,14 @@ function MahasiswaTab({
                       <TableCell>{m.nama || "-"}</TableCell>
                       <TableCell className="text-right pr-4">
                         <MahasiswaActionDropdown
-                          onDelete={() => { setSelected(m); setOpenDelete(true); }}
+                          onDelete={() => {
+                            if (mahasiswa.length <= 1) {
+                              toastMinimalError("mahasiswa");
+                              return;
+                            }
+                            setSelected(m);
+                            setOpenDelete(true);
+                          }}
                         />
                       </TableCell>
                     </TableRow>
@@ -471,7 +516,6 @@ export default function MatakuliahDetailPage() {
     );
   }
 
-  // TabsList yang sama dipakai oleh kedua tab via prop tabsNode
   const tabsList = (
     <TabsList variant="line" className="mt-4">
       <TabsTrigger value="pengajar">
