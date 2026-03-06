@@ -87,6 +87,8 @@ export const MatakuliahService = {
     return res.data?.data ?? res.data;
   },
 
+  // ── Pengajar ──────────────────────────────────────────────────────────────
+
   async addPengajarToCourse(id: string, dosenIds: string[]) {
     const res = await api.post(`/courses/${id}/pengajar`, {
       idPengajar: dosenIds,
@@ -98,4 +100,5 @@ export const MatakuliahService = {
     const res = await api.delete(`/courses/${id}/pengajar/${dosenId}`);
     return res.data?.data ?? res.data;
   },
+
 };

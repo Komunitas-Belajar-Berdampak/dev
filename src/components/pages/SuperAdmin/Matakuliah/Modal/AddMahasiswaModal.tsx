@@ -4,11 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@iconify/react";
 import { toast } from "sonner";
 
-import { useDosenOptions } from "../hooks/useDosenOptions";
+import { useMahasiswaOptions } from "../hooks/useMahasiswaOptions";
 
-export type PengajarEntity = {
+export type MahasiswaEntity = {
   id: string;
-  nrp: string;
+  nim: string;
   nama: string;
 };
 
@@ -19,7 +19,7 @@ const errorIcon = (
 );
 const errorStyle = { background: "#dc2626", color: "#ffffff", border: "none", alignItems: "flex-start" };
 
-export default function AddPengajarModal({
+export default function AddMahasiswaModal({
   open,
   onClose,
   onSubmit,
@@ -30,9 +30,9 @@ export default function AddPengajarModal({
   onSubmit: (payload: { id: string }) => Promise<void> | void;
   existingIds?: string[];
 }) {
-  const { options: allOptions, loading } = useDosenOptions();
+  const { options: allOptions, loading } = useMahasiswaOptions();
 
-  // Filter out dosen yang sudah terdaftar sebagai pengajar di matkul
+  // Filter out mahasiswa yang sudah terdaftar di matkul
   const options = useMemo(
     () => allOptions.filter((o) => !existingIds.includes(o.id)),
     [allOptions, existingIds],
@@ -102,8 +102,8 @@ export default function AddPengajarModal({
       setSelectedLabel("");
       onClose();
 
-      toast.success("Pengajar Berhasil Ditambahkan!", {
-        description: `${selectedLabel} berhasil ditambahkan sebagai pengajar.`,
+      toast.success("Mahasiswa Berhasil Ditambahkan!", {
+        description: `${selectedLabel} berhasil ditambahkan ke matakuliah ini.`,
         icon: <Icon icon="lets-icons:check-fill" className="text-white text-lg shrink-0 mt-0.5" />,
         style: { background: "#16a34a", color: "#ffffff", border: "none", alignItems: "flex-start" },
         descriptionClassName: "!text-white/90",
@@ -115,22 +115,22 @@ export default function AddPengajarModal({
         data?.message ??
         data?.error ??
         err?.message ??
-        "Terjadi kesalahan saat menambahkan pengajar.";
+        "Terjadi kesalahan saat menambahkan mahasiswa.";
       const msgLower = msg.toLowerCase();
 
-      let title = "Gagal Menambahkan Pengajar!";
+      let title = "Gagal Menambahkan Mahasiswa!";
       let description = "Terjadi kesalahan pada server. Silakan coba lagi.";
 
       if (msgLower.includes("already") || msgLower.includes("sudah") || msgLower.includes("duplicate") || err?.response?.status === 409) {
-        title = "Pengajar Sudah Terdaftar!";
-        description = `${selectedLabel} sudah menjadi pengajar di matakuliah ini.`;
+        title = "Mahasiswa Sudah Terdaftar!";
+        description = `${selectedLabel} sudah terdaftar di matakuliah ini.`;
       } else if (msgLower.includes("network") || msgLower.includes("timeout") || msgLower.includes("fetch")) {
         title = "Koneksi Bermasalah!";
         description = "Tidak dapat terhubung ke server. Periksa koneksi internet kamu.";
       } else if (err?.response?.status >= 500) {
         title = "Terjadi Kesalahan Server!";
         description = "Server sedang bermasalah. Silakan coba beberapa saat lagi.";
-      } else if (msg && msg !== "Terjadi kesalahan saat menambahkan pengajar.") {
+      } else if (msg && msg !== "Terjadi kesalahan saat menambahkan mahasiswa.") {
         description = msg;
       }
 
@@ -157,7 +157,7 @@ export default function AddPengajarModal({
     <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); }}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Tambah Pengajar</DialogTitle>
+          <DialogTitle>Tambah Mahasiswa</DialogTitle>
         </DialogHeader>
 
         <div className="mt-4 relative" ref={containerRef}>
@@ -167,7 +167,7 @@ export default function AddPengajarModal({
             className="w-full flex items-center justify-between px-3 h-10 rounded-md border border-black bg-background text-sm transition-colors hover:border-black/40 focus:outline-none focus:border-black/40"
           >
             <span className={selectedLabel ? "text-foreground truncate" : "text-muted-foreground"}>
-              {selectedLabel || "Pilih Dosen"}
+              {selectedLabel || "Pilih Mahasiswa"}
             </span>
             <Icon
               icon="mdi:chevron-down"
@@ -183,7 +183,7 @@ export default function AddPengajarModal({
                   ref={searchRef}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Cari dosen..."
+                  placeholder="Cari mahasiswa..."
                   className="flex-1 text-sm bg-transparent outline-none placeholder:text-muted-foreground text-blue-800"
                 />
                 {search && (
@@ -201,11 +201,11 @@ export default function AddPengajarModal({
                 {loading ? (
                   <div className="flex items-center justify-center py-6 text-sm text-muted-foreground gap-2">
                     <Icon icon="mdi:loading" className="animate-spin" />
-                    Memuat dosen...
+                    Memuat mahasiswa...
                   </div>
                 ) : visible.length === 0 ? (
                   <div className="py-6 text-center text-sm text-muted-foreground">
-                    {search ? `Tidak ada hasil untuk "${search}"` : "Tidak ada dosen tersedia"}
+                    {search ? `Tidak ada hasil untuk "${search}"` : "Tidak ada mahasiswa tersedia"}
                   </div>
                 ) : (
                   <>
@@ -239,7 +239,7 @@ export default function AddPengajarModal({
 
               {!loading && filtered.length > 0 && (
                 <div className="px-3 py-1.5 border-t border-black/10 text-xs text-muted-foreground">
-                  {visible.length} dari {filtered.length} dosen
+                  {visible.length} dari {filtered.length} mahasiswa
                 </div>
               )}
             </div>
@@ -251,7 +251,7 @@ export default function AddPengajarModal({
           onClick={submit}
           disabled={!selectedId || loading || submitting}
         >
-          {submitting ? "Menyimpan..." : "Tambah Pengajar"}
+          {submitting ? "Menyimpan..." : "Tambah Mahasiswa"}
         </Button>
       </DialogContent>
     </Dialog>
