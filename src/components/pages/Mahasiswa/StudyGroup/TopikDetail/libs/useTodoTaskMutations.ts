@@ -3,11 +3,12 @@ import type { TaskSchemaType } from '@/schemas/task';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-export function useTodoTaskMutations(threadId: string, opts?: { onAddSuccess?: () => void; onUpdateSuccess?: () => void }) {
+export function useTodoTaskMutations(threadId: string, studygroupId: string, opts?: { onAddSuccess?: () => void; onUpdateSuccess?: () => void }) {
   const queryClient = useQueryClient();
 
   const invalidateTasks = async () => {
     await queryClient.invalidateQueries({ queryKey: ['tasks', threadId] });
+    await queryClient.invalidateQueries({ queryKey: ['study-group-member-by-id', studygroupId] });
   };
 
   const addMutation = useMutation({

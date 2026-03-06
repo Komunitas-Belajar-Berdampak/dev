@@ -111,6 +111,7 @@ const TopikDetailContent = ({ idTopik, namaTopik, idSg }: TopikDetailContentProp
   return (
     <>
       <TopikPembahasanDetailHeader namaTopik={namaTopik} tab={tab} statusToDoList={statusToDoList} totalDiscussions={filteredThreads.length} />
+
       <TopikPembahasanDetailTabs
         tab={tab}
         changeTab={handleTabChange}
@@ -122,6 +123,7 @@ const TopikDetailContent = ({ idTopik, namaTopik, idSg }: TopikDetailContentProp
         members={membersData ?? []}
         threadId={idTopik}
         threadDetailQuery={threadDetailQuery}
+        studyGroupId={idSg}
       />
     </>
   );
