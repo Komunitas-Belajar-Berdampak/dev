@@ -25,7 +25,11 @@ const AddPostContent = ({ idTopik, idSg }: AddPostContentProps) => {
       toast.success('Discussion baru berhasil ditambahkan!', { toasterId: 'global' });
       form.reset();
 
-      await Promise.all([queryClient.invalidateQueries({ queryKey: ['threads-by-id', idTopik] }), queryClient.invalidateQueries({ queryKey: ['sg-detail', idSg] })]);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['threads-by-id', idTopik] }),
+        queryClient.invalidateQueries({ queryKey: ['sg-detail', idSg] }),
+        queryClient.invalidateQueries({ queryKey: ['study-group-member-by-id', idSg] }),
+      ]);
 
       navigate(-1);
     },
