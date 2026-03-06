@@ -53,7 +53,9 @@ const DialogAddThread = ({ open, onOpenChange, idSg, idCourse }: DialogAddThread
     mutationFn: (values: ThreadSchemaType) => createThreadByStudyGroup(idSg, { judul: values.judul, idAssignment: values.idAssignment }),
     onSuccess: async (res) => {
       toast.success(res.message || 'Berhasil menambahkan topik.', { toasterId: 'global' });
-      await queryClient.invalidateQueries({ queryKey: ['threads-by-sg', idSg] });
+
+      await Promise.all([queryClient.invalidateQueries({ queryKey: ['threads-by-sg', idSg] }), queryClient.invalidateQueries({ queryKey: ['study-group-member-by-id', idSg] })]);
+
       form.reset({ judul: '', idAssignment: '' });
       onOpenChange(false);
     },
