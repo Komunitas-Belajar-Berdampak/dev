@@ -22,18 +22,16 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { toTahunAkademikDanSemesterTableRow } from "./utils/mappers";
 
 import TahunAkademikDanSemesterActionDropdown from "../TahunAkademikDanSemester/TahunAkademikDanSemesterActionDropdown";
-
 import AddTahunAkademikDanSemesterModal from "./Modal/AddTahunAkademikDanSemesterModal";
 import DeleteTahunAkademikDanSemesterModal from "./Modal/DeleteTahunAkademikDanSemesterModal";
-
 import { useTahunAkademikDanSemester } from "./hooks/useTahunAkademikDanSemester";
 import type {
   TahunAkademikDanSemesterEntity,
   TahunAkademikDanSemesterTableRow,
 } from "./types/tahun-akademik-dan-semester";
-import { toTahunAkademikDanSemesterTableRow } from "./utils/mappers";
 
 function TahunAkademikDanSemesterTableSkeleton() {
   const rows = Array.from({ length: 10 });
@@ -111,10 +109,14 @@ export default function TahunAkademikDanSemesterTable() {
 
   const [openAdd, setOpenAdd] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
-
   const [selectedRow, setSelectedRow] = useState<TahunAkademikDanSemesterTableRow | null>(null);
 
   const selectedId = selectedRow?.id ?? null;
+
+  const handleDeleteClick = (item: TahunAkademikDanSemesterTableRow) => {
+    setSelectedRow(item);
+    setOpenDelete(true);
+  };
 
   if (loading) return <TahunAkademikDanSemesterTableSkeleton />;
 
@@ -158,7 +160,7 @@ export default function TahunAkademikDanSemesterTable() {
           Add Periode
         </Button>
       </div>
-      
+
       <div className="relative -mx-4 sm:mx-0">
         <div className="overflow-x-auto max-w-[calc(100vw-2rem)] sm:max-w-full">
           <Table className="min-w-[900px] text-blue-800">
@@ -203,10 +205,7 @@ export default function TahunAkademikDanSemesterTable() {
                     <TableCell className="text-center">
                       <div onClick={(e) => e.stopPropagation()}>
                         <TahunAkademikDanSemesterActionDropdown
-                          onDelete={() => {
-                            setSelectedRow(item);
-                            setOpenDelete(true);
-                          }}
+                          onDelete={() => handleDeleteClick(item)}
                         />
                       </div>
                     </TableCell>
@@ -233,6 +232,7 @@ export default function TahunAkademikDanSemesterTable() {
         }}
         id={selectedId}
         periode={selectedRow?.periode ?? null}
+        isActive={selectedRow?.status === "Aktif"}
         onSuccess={() => refetch()}
       />
 
@@ -270,4 +270,3 @@ export default function TahunAkademikDanSemesterTable() {
     </div>
   );
 }
-      
