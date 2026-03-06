@@ -146,7 +146,7 @@ const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
                   <Field data-invalid={fieldState.invalid} className='mt-4' orientation={'horizontal'}>
                     <Checkbox id={field.name} name={field.name} checked={field.value} onCheckedChange={field.onChange} />
                     <FieldLabel htmlFor={field.name} className='text-gray-500'>
-                      Permintaan Bergabung (Mahasiswa request join untuk bergabung ke study group)
+                      Matikan Fitur Permintaan Bergabung
                     </FieldLabel>
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} className='text-xs' />}
                   </Field>

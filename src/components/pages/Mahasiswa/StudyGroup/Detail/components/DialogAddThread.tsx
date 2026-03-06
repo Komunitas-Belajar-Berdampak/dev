@@ -50,7 +50,7 @@ const DialogAddThread = ({ open, onOpenChange, idSg, idCourse }: DialogAddThread
   }, [assignmentsError?.message, isAssignmentsError]);
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (values: ThreadSchemaType) => createThreadByStudyGroup(idSg, { judul: values.judul, assignmentId: values.idAssignment }),
+    mutationFn: (values: ThreadSchemaType) => createThreadByStudyGroup(idSg, { judul: values.judul, idAssignment: values.idAssignment }),
     onSuccess: async (res) => {
       toast.success(res.message || 'Berhasil menambahkan topik.', { toasterId: 'global' });
       await queryClient.invalidateQueries({ queryKey: ['threads-by-sg', idSg] });
