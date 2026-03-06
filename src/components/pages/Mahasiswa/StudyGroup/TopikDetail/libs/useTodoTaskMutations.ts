@@ -7,8 +7,7 @@ export function useTodoTaskMutations(threadId: string, studygroupId: string, opt
   const queryClient = useQueryClient();
 
   const invalidateTasks = async () => {
-    await queryClient.invalidateQueries({ queryKey: ['tasks', threadId] });
-    await queryClient.invalidateQueries({ queryKey: ['study-group-member-by-id', studygroupId] });
+    await Promise.all([queryClient.invalidateQueries({ queryKey: ['tasks', threadId] }), queryClient.invalidateQueries({ queryKey: ['study-group-member-by-id', studygroupId] })]);
   };
 
   const addMutation = useMutation({
