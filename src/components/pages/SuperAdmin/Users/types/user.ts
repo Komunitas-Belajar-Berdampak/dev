@@ -56,4 +56,10 @@ export type UpdateUserPayload = {
   fotoProfil?: string;
 };
 
-
+export interface PatchUserPayload {
+  passwordLama?: string;
+  passwordBaru?: string;
+  fotoProfil?: string;
+  alamat?: string;
+  nama?: string;
+}
