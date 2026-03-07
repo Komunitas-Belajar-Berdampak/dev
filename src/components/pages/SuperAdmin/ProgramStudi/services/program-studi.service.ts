@@ -22,7 +22,9 @@ function normalizeProgramStudi(payload: any): ProgramStudiEntity[] {
 
 export const ProgramStudiService = {
   async getProgramStudi() {
-    const res = await api.get<any>("/majors");
+    const res = await api.get<any>("/majors", {
+      params: { limit: 1000, page: 1 },
+    });
     return normalizeProgramStudi(res.data);
   },
 

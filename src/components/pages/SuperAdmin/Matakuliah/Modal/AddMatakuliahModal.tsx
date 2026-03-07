@@ -1,13 +1,44 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import { Icon } from "@iconify/react";
 
 import type { StatusMatakuliah } from "../types/matakuliah";
 import { useCreateMatakuliah } from "../hooks/useCreateMatakuliah";
 import { useAcademicTermsOptions } from "../hooks/useAcademicTermsOptions";
+
+const errorIcon = (
+  <Icon icon="lets-icons:check-fill" className="text-white text-lg shrink-0 mt-0.5 rotate-45" />
+);
+const errorStyle = { background: "#dc2626", color: "#ffffff", border: "none", alignItems: "flex-start" };
+
+function extractErrorMessage(err: any): string {
+  const data = err?.response?.data;
+  if (typeof data === "string" && data.length > 0) return data;
+  if (typeof data?.message === "string" && data.message.length > 0) return data.message;
+  if (typeof data?.error === "string" && data.error.length > 0) return data.error;
+  if (typeof err?.message === "string" && err.message.length > 0) return err.message;
+  return "Terjadi kesalahan saat menambahkan matakuliah.";
+}
+
+function isDuplicateError(err: any, msg: string): boolean {
+  const status = err?.response?.status;
+  const msgLower = msg.toLowerCase();
+  if (status === 409) return true;
+  if (msgLower.includes("e11000")) return true;
+  if (
+    msgLower.includes("duplicate") ||
+    msgLower.includes("already") ||
+    msgLower.includes("sudah terdaftar") ||
+    msgLower.includes("sudah ada")
+  ) return true;
+  const errData = err?.response?.data;
+  if (errData?.keyPattern || errData?.keyValue || errData?.code === 11000) return true;
+  return false;
+}
 
 export default function AddMatakuliahModal({
   open,
@@ -18,8 +49,14 @@ export default function AddMatakuliahModal({
   onClose: () => void;
   onSuccess?: () => void;
 }) {
-  const { createMatakuliah, loading: saving, error: saveError } = useCreateMatakuliah();
-  const { options: termOptions, loading: loadingTerms, error: termError } = useAcademicTermsOptions();
+  const { createMatakuliah, loading: saving } = useCreateMatakuliah();
+  const { options: termOptions, loading: loadingTerms } = useAcademicTermsOptions();
+
+  // Hanya tampilkan periode yang aktif
+  const activeTermOptions = useMemo(
+    () => termOptions.filter((t) => t.status.toLowerCase() === "aktif"),
+    [termOptions],
+  );
 
   const [kodeMatkul, setKodeMatkul] = useState("");
   const [namaMatkul, setNamaMatkul] = useState("");
@@ -27,11 +64,20 @@ export default function AddMatakuliahModal({
   const [kelas, setKelas] = useState("");
   const [idPeriode, setIdPeriode] = useState("");
   const [status, setStatus] = useState<StatusMatakuliah>("aktif");
-  const [deskripsi, setDeskripsi] = useState("");
-  const [localError, setLocalError] = useState<string | null>(null);
 
-  const disabled = useMemo(() => {
-    return (
+  useEffect(() => {
+    if (!open) {
+      setKodeMatkul("");
+      setNamaMatkul("");
+      setSks("");
+      setKelas("");
+      setIdPeriode("");
+      setStatus("aktif");
+    }
+  }, [open]);
+
+  const disabled = useMemo(
+    () =>
       saving ||
       loadingTerms ||
       !kodeMatkul.trim() ||
@@ -40,70 +86,118 @@ export default function AddMatakuliahModal({
       !sks.trim() ||
       Number(sks) <= 0 ||
       !idPeriode ||
-      !status
-    );
-  }, [saving, loadingTerms, kodeMatkul, namaMatkul, kelas, sks, idPeriode, status]);
+      !status,
+    [saving, loadingTerms, kodeMatkul, namaMatkul, kelas, sks, idPeriode, status],
+  );
 
   const submit = async () => {
-    setLocalError(null);
+    const kode = kodeMatkul.trim();
+    const nama = namaMatkul.trim();
+    const kel = kelas.trim();
 
-    if (!kodeMatkul.trim()) return setLocalError("Kode matakuliah wajib diisi.");
-    if (!namaMatkul.trim()) return setLocalError("Nama matakuliah wajib diisi.");
-    if (!kelas.trim()) return setLocalError("Kelas wajib diisi.");
-    if (!sks.trim()) return setLocalError("SKS wajib diisi.");
-    if (Number(sks) <= 0) return setLocalError("SKS harus lebih dari 0.");
-    if (!idPeriode) return setLocalError("Periode wajib dipilih.");
+    if (!kode) {
+      toast.error("Kode Matakuliah Wajib Diisi!", {
+        description: "Silakan isi kode matakuliah sebelum melanjutkan.",
+        icon: errorIcon, style: errorStyle, descriptionClassName: "!text-white/90",
+      });
+      return;
+    }
+    if (!nama) {
+      toast.error("Nama Matakuliah Wajib Diisi!", {
+        description: "Silakan isi nama matakuliah sebelum melanjutkan.",
+        icon: errorIcon, style: errorStyle, descriptionClassName: "!text-white/90",
+      });
+      return;
+    }
+    if (!kel) {
+      toast.error("Kelas Wajib Diisi!", {
+        description: "Silakan isi kelas sebelum melanjutkan.",
+        icon: errorIcon, style: errorStyle, descriptionClassName: "!text-white/90",
+      });
+      return;
+    }
+    if (!sks.trim() || Number(sks) <= 0) {
+      toast.error("SKS Tidak Valid!", {
+        description: "SKS harus berupa angka lebih dari 0.",
+        icon: errorIcon, style: errorStyle, descriptionClassName: "!text-white/90",
+      });
+      return;
+    }
+    if (!idPeriode) {
+      toast.error("Periode Wajib Dipilih!", {
+        description: "Silakan pilih periode untuk matakuliah ini.",
+        icon: errorIcon, style: errorStyle, descriptionClassName: "!text-white/90",
+      });
+      return;
+    }
 
     try {
       await createMatakuliah({
-        kodeMatkul: kodeMatkul.trim(),
-        namaMatkul: namaMatkul.trim(),
+        kodeMatkul: kode,
+        namaMatkul: nama,
         sks: Number(sks),
-        kelas: kelas.trim(),
+        kelas: kel,
         status,
         idPeriode,
+        idPengajar: [],
         idMahasiswa: [],
-        pengajar: [],
-        deskripsi: deskripsi.trim() ? deskripsi.trim() : undefined,
       });
-
-      setKodeMatkul("");
-      setNamaMatkul("");
-      setSks("");
-      setKelas("");
-      setIdPeriode("");
-      setStatus("aktif");
-      setDeskripsi("");
-
       onSuccess?.();
       onClose();
-    } catch {
-      // handled by hook
+
+      toast.success("Matakuliah Berhasil Ditambahkan!", {
+        description: `Matakuliah ${nama} dengan kode ${kode} berhasil disimpan.`,
+        icon: <Icon icon="lets-icons:check-fill" className="text-white text-lg shrink-0 mt-0.5" />,
+        style: { background: "#16a34a", color: "#ffffff", border: "none", alignItems: "flex-start" },
+        descriptionClassName: "!text-white/90",
+      });
+    } catch (err: any) {
+      const msg = extractErrorMessage(err);
+      const msgLower = msg.toLowerCase();
+
+      let title = "Gagal Menambahkan Matakuliah!";
+      let description = "Terjadi kesalahan pada server. Silakan coba lagi.";
+
+      if (isDuplicateError(err, msg)) {
+        const keyPattern = err?.response?.data?.keyPattern ?? {};
+        const isKodeDuplicate = "kodeMatkul" in keyPattern || msgLower.includes("kode");
+        const isNamaDuplicate = "namaMatkul" in keyPattern || msgLower.includes("nama");
+
+        if (isKodeDuplicate && !isNamaDuplicate) {
+          title = "Kode Matakuliah Sudah Terdaftar!";
+          description = `Kode "${kode}" sudah digunakan. Gunakan kode yang berbeda.`;
+        } else if (isNamaDuplicate && !isKodeDuplicate) {
+          title = "Nama Matakuliah Sudah Terdaftar!";
+          description = `Nama "${nama}" sudah terdaftar di sistem.`;
+        } else {
+          title = "Data Sudah Terdaftar!";
+          description = `Kode "${kode}" atau nama "${nama}" sudah terdaftar di sistem.`;
+        }
+      } else if (msgLower.includes("network") || msgLower.includes("timeout") || msgLower.includes("fetch")) {
+        title = "Koneksi Bermasalah!";
+        description = "Tidak dapat terhubung ke server. Periksa koneksi internet kamu.";
+      } else if (err?.response?.status >= 500) {
+        title = "Terjadi Kesalahan Server!";
+        description = "Server sedang bermasalah. Silakan coba beberapa saat lagi.";
+      } else if (msg && msg !== "Terjadi kesalahan saat menambahkan matakuliah.") {
+        description = msg;
+      }
+
+      toast.error(title, {
+        description,
+        icon: errorIcon,
+        style: errorStyle,
+        descriptionClassName: "!text-white/90",
+      });
     }
   };
 
-  const combinedError = localError ?? termError ?? saveError ?? null;
-
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(v) => {
-        if (!v) {
-          setLocalError(null);
-          onClose();
-        }
-      }}
-    >
+    <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Add Matakuliah</DialogTitle>
         </DialogHeader>
-
-        {combinedError ? (
-          <div className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-            {combinedError}
-          </div>
-        ) : null}
 
         <div className="space-y-4 mt-4">
           <Input placeholder="Kode Matakuliah" value={kodeMatkul} onChange={(e) => setKodeMatkul(e.target.value)} />
@@ -128,11 +222,17 @@ export default function AddMatakuliahModal({
               <SelectValue placeholder={loadingTerms ? "Memuat periode..." : "Pilih Periode"} />
             </SelectTrigger>
             <SelectContent>
-              {termOptions.map((t) => (
-                <SelectItem key={t.id} value={t.id}>
-                  {t.label}
-                </SelectItem>
-              ))}
+              {activeTermOptions.length === 0 && !loadingTerms ? (
+                <div className="py-4 text-center text-sm text-muted-foreground">
+                  Tidak ada periode aktif
+                </div>
+              ) : (
+                activeTermOptions.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>
+                    {t.label} - {t.semesterType}
+                  </SelectItem>
+                ))
+              )}
             </SelectContent>
           </Select>
 
@@ -146,7 +246,9 @@ export default function AddMatakuliahModal({
             </SelectContent>
           </Select>
 
-          <Textarea placeholder="Deskripsi (opsional)" value={deskripsi} onChange={(e) => setDeskripsi(e.target.value)} />
+          <div className="text-xs text-muted-foreground">
+            Pengajar dapat ditambahkan di halaman detail matakuliah.
+          </div>
         </div>
 
         <Button className="w-full mt-6" onClick={submit} disabled={disabled}>

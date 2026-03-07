@@ -8,7 +8,7 @@ const getThreadsByStudyGroup = async (studyGroupId: string, page: number = 1, li
   return res.data;
 };
 
-const createThreadByStudyGroup = async (studyGroupId: string, payload: { judul: string; assignmentId: string }): Promise<ApiResponse<null>> => {
+const createThreadByStudyGroup = async (studyGroupId: string, payload: { judul: string; idAssignment: string }): Promise<ApiResponse<null>> => {
   const res = await api.post<ApiResponse<null>>(`/threads/sg/${studyGroupId}`, payload);
 
   return res.data;

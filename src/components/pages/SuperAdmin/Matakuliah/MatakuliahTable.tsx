@@ -28,6 +28,7 @@ import EditMatakuliahModal from "./Modal/EditMatakuliahModal";
 import DeleteMatakuliahModal from "./Modal/DeleteMatakuliahModal";
 
 import { useMatakuliah } from "./hooks/useMatakuliah";
+import { useAcademicTermsOptions } from "./hooks/useAcademicTermsOptions";
 import type { Matakuliah } from "./types/matakuliah";
 import { toMatakuliahTableRow, type MatakuliahTableRow } from "./utils/mappers";
 import { useNavigate } from "react-router-dom";
@@ -60,38 +61,16 @@ function MatakuliahTableSkeleton() {
                 <TableHead className="font-bold text-blue-900 text-center">Aksi</TableHead>
               </TableRow>
             </TableHeader>
-
             <TableBody>
               {rows.map((_, i) => (
                 <TableRow key={i} className="h-14 border-b border-black/5">
-                  <TableCell>
-                    <Skeleton className="h-4 w-20" />
-                  </TableCell>
-
-                  <TableCell className="font-medium">
-                    <Skeleton className="h-4 w-64" />
-                  </TableCell>
-
-                  <TableCell>
-                    <Skeleton className="h-4 w-10" />
-                  </TableCell>
-
-                  <TableCell>
-                    <Skeleton className="h-4 w-10" />
-                  </TableCell>
-
-                  <TableCell>
-                    <Skeleton className="h-4 w-56" />
-                  </TableCell>
-
-                  <TableCell>
-                    <Skeleton className="h-4 w-40" />
-                  </TableCell>
-
-                  <TableCell>
-                    <Skeleton className="h-6 w-20 rounded-full" />
-                  </TableCell>
-
+                  <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-64" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-10" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-10" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-56" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-40" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
                   <TableCell className="text-center">
                     <div className="flex justify-center">
                       <Skeleton className="h-9 w-9 rounded-md" />
@@ -115,10 +94,20 @@ function MatakuliahTableSkeleton() {
   );
 }
 
-
 export default function MatakuliahTable() {
   const { matakuliah: entities, loading, error, refetch } = useMatakuliah();
+  const { options: termOptions } = useAcademicTermsOptions();
   const navigate = useNavigate();
+
+  const periodeToSemesterType = useMemo(() => {
+    const map = new Map<string, string>();
+    termOptions.forEach((t) => {
+      if (t.label && t.semesterType) {
+        map.set(t.label.trim(), t.semesterType);
+      }
+    });
+    return map;
+  }, [termOptions]);
 
   const rows: MatakuliahTableRow[] = useMemo(
     () => entities.map((m: Matakuliah) => toMatakuliahTableRow(m)),
@@ -145,6 +134,14 @@ export default function MatakuliahTable() {
 
   const selectedEntity: Matakuliah | null =
     selected ? entities.find((m) => m.id === selected.id) ?? null : null;
+
+  const isPeriodeAktif = useMemo(() => {
+    if (!selectedEntity) return false;
+    const term = termOptions.find(
+      (t) => t.label.trim() === selectedEntity.namaPeriode?.trim()
+    );
+    return term?.status?.toLowerCase() === "aktif";
+  }, [selectedEntity, termOptions]);
 
   if (loading) return <MatakuliahTableSkeleton />;
 
@@ -175,10 +172,7 @@ export default function MatakuliahTable() {
             }}
             className="w-full sm:w-72 border border-black/20 text-blue-800"
           />
-          <Button
-            size="icon"
-            className="border-2 border-black shadow-[3px_3px_0_0_#000]"
-          >
+          <Button size="icon" className="border-2 border-black shadow-[3px_3px_0_0_#000]">
             <Icon icon="mdi:magnify" />
           </Button>
         </div>
@@ -211,47 +205,60 @@ export default function MatakuliahTable() {
             <TableBody>
               {paginated.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-12">
-                    Data tidak ditemukan
+                  <TableCell colSpan={8}>
+                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                      <Icon icon="mdi:book-education-outline" className="text-7xl text-gray-200" />
+                      <p className="mt-6 text-lg font-bold text-blue-900">Belum Ada Matakuliah</p>
+                      <p className="mt-2 text-sm text-gray-500 max-w-sm">
+                        Tambahkan matakuliah baru untuk mulai mengelola data perkuliahan.
+                      </p>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (
-                paginated.map((item) => (
+                paginated.map((item) => {
+                  const semesterType = periodeToSemesterType.get(item.namaPeriode.trim());
+                  const periodeLabel = semesterType
+                    ? `${item.namaPeriode} - ${semesterType}`
+                    : item.namaPeriode;
+
+                  return (
                     <TableRow
                       key={item.id}
                       className="h-14 border-b border-black/5 cursor-pointer hover:bg-black/5"
                       onClick={() => navigate(`/admin/courses/${item.id}`)}
                     >
-                    <TableCell>{item.kodeMatkul}</TableCell>
-                    <TableCell className="font-medium">{item.namaMatkul}</TableCell>
-                    <TableCell>{item.sks}</TableCell>
-                    <TableCell>{item.kelas}</TableCell>
-                    <TableCell>{item.namaPeriode}</TableCell>
-                    <TableCell>{item.namaPengajar}</TableCell>
-                    <TableCell>
-                      {item.status === "Aktif" ? (
-                        <Badge variant="success">Aktif</Badge>
-                      ) : (
-                        <Badge variant="secondary">Tidak Aktif</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell
-                      className="text-center"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <MataKuliahActionDropdown
-                        onEdit={() => {
-                          setSelected(item);
-                          setOpenEdit(true);
-                        }}
-                        onDelete={() => {
-                          setSelected(item);
-                          setOpenDelete(true);
-                        }}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))
+                      <TableCell>{item.kodeMatkul}</TableCell>
+                      <TableCell className="font-medium">{item.namaMatkul}</TableCell>
+                      <TableCell>{item.sks}</TableCell>
+                      <TableCell>{item.kelas}</TableCell>
+                      <TableCell>{periodeLabel}</TableCell>
+                      <TableCell>{item.namaPengajar}</TableCell>
+                      <TableCell>
+                        {item.status === "Aktif" ? (
+                          <Badge variant="success">Aktif</Badge>
+                        ) : (
+                          <Badge variant="secondary">Tidak Aktif</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell
+                        className="text-center"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <MataKuliahActionDropdown
+                          onEdit={() => {
+                            setSelected(item);
+                            setOpenEdit(true);
+                          }}
+                          onDelete={() => {
+                            setSelected(item);
+                            setOpenDelete(true);
+                          }}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>
@@ -283,9 +290,9 @@ export default function MatakuliahTable() {
         }}
         id={selectedEntity?.id ?? null}
         namaMatkul={selectedEntity?.namaMatkul}
+        isPeriodeAktif={isPeriodeAktif}
         onSuccess={() => refetch()}
       />
-
 
       {totalPages > 1 && (
         <div className="mt-10 flex justify-center sm:justify-end">

@@ -27,6 +27,8 @@ const DetailContent = ({ idSg, namaSg, idCourse }: DetailContentProps) => {
     queryKey: ['sg-detail', idSg],
     queryFn: () => getStudyGroupById(idSg),
     select: (res) => res.data,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   useEffect(() => {

@@ -1,17 +1,21 @@
 import { api } from "@/lib/axios";
-import type { Material, BEStatus } from "../types";
+import type { Material } from "../types";
 
 function normalizeMaterialOne(payload: any): Material {
   return (payload?.data ?? payload) as Material;
 }
 
+export type BEVisibility = "HIDE" | "VISIBLE";
+
 export type CreateMaterialPayload = {
-  file: File;
-  namaFile?: string;
-  status?: BEStatus;
-  deskripsi?: any;
+  namaFile: string;
   tipe?: string;
+  pathFile?: string;
+  visibility?: BEVisibility;
+  deskripsi?: string;
 };
+
+export type UpdateMaterialPayload = Partial<CreateMaterialPayload>;
 
 export const MaterialService = {
   async getMaterialsByCourse(idCourse: string): Promise<Material[]> {
@@ -30,29 +34,43 @@ export const MaterialService = {
     pertemuan: number,
     payload: CreateMaterialPayload
   ): Promise<Material> {
-    const form = new FormData();
+    const body: Record<string, any> = {
+      namaFile: payload.namaFile,
+      tipe: payload.tipe ?? "",
+      pathFile: payload.pathFile ?? "",
+      visibility: payload.visibility ?? "VISIBLE",
+    };
 
-    form.append("file", payload.file);
-
-    if (payload.namaFile) form.append("namaFile", payload.namaFile);
-    if (payload.status) form.append("status", payload.status);
-    if (payload.tipe) form.append("tipe", payload.tipe);
-
-    if (payload.deskripsi !== undefined) {
-      form.append(
-        "deskripsi",
-        typeof payload.deskripsi === "string"
-          ? payload.deskripsi
-          : JSON.stringify(payload.deskripsi)
-      );
+    if (payload.deskripsi && payload.deskripsi.trim() !== "") {
+      body.deskripsi = { text: payload.deskripsi };
     }
 
     const res = await api.post<any>(
       `/materials/${idCourse}/meetings/${pertemuan}`,
-      form,
-      { headers: { "Content-Type": "multipart/form-data" } }
+      body
     );
 
     return normalizeMaterialOne(res.data);
+  },
+
+  async updateMaterial(
+    idMaterial: string,
+    payload: UpdateMaterialPayload
+  ): Promise<void> {
+    const body: Record<string, any> = {};
+
+    if (payload.namaFile !== undefined) body.namaFile = payload.namaFile;
+    if (payload.tipe !== undefined) body.tipe = payload.tipe;
+    if (payload.pathFile !== undefined) body.pathFile = payload.pathFile;
+    if (payload.visibility !== undefined) body.visibility = payload.visibility;
+    if (payload.deskripsi !== undefined && payload.deskripsi.trim() !== "") {
+      body.deskripsi = { text: payload.deskripsi };
+    }
+
+    await api.put(`/materials/${idMaterial}`, body);
+  },
+
+  async deleteMaterial(idMaterial: string): Promise<void> {
+    await api.delete(`/materials/${idMaterial}`);
   },
 };

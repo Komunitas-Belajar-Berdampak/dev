@@ -9,6 +9,25 @@ type UseCoursesState = {
   refetch: () => Promise<void>;
 };
 
+export function parseDeskripsi(raw: unknown): string | null {
+  if (!raw) return null;
+
+  if (typeof raw === "string") {
+    const trimmed = raw.trim();
+    return trimmed || null;
+  }
+
+  if (typeof raw === "object") {
+    const content = (raw as Record<string, unknown>)?.content;
+    if (typeof content === "string") {
+      const stripped = content.replace(/<[^>]*>/g, "").trim();
+      return stripped || null;
+    }
+  }
+
+  return null;
+}
+
 function mapToDosenCourse(raw: any): DosenCourse {
   const pengajar =
     Array.isArray(raw?.pengajar)
@@ -27,7 +46,7 @@ function mapToDosenCourse(raw: any): DosenCourse {
     sks: Number(raw.sks),
     status: raw.status,
     periode: raw.periode,
-    deskripsi: raw.deskripsi ?? "",
+    deskripsi: parseDeskripsi(raw.deskripsi),
     pengajar,
     kelas: raw.kelas,
   };

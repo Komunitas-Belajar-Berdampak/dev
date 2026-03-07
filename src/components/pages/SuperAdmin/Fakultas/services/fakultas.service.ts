@@ -10,7 +10,9 @@ function normalizeFakultas(payload: any): FakultasEntity[] {
 
 export const FakultasService = {
   async getFakultas() {
-    const res = await api.get("/faculties");
+    const res = await api.get("/faculties", {
+      params: { limit: 1000, page: 1 },
+    });
     return normalizeFakultas(res.data);
   },
 

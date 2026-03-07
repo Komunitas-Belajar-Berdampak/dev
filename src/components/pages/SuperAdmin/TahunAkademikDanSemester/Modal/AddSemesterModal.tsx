@@ -7,14 +7,28 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import { Icon } from "@iconify/react";
 
 import type { TahunAkademikDanSemesterEntity } from "../types/tahun-akademik-dan-semester";
 import { useUpsertSemester } from "../hooks/useUpsertSemester";
 
+const errorIcon = (
+  <Icon icon="lets-icons:check-fill" className="text-white text-lg shrink-0 mt-0.5 rotate-45" />
+);
+const errorStyle = { background: "#dc2626", color: "#ffffff", border: "none", alignItems: "flex-start" };
+
+function extractErrorMessage(err: any): string {
+  const data = err?.response?.data;
+  if (typeof data === "string" && data.length > 0) return data;
+  if (typeof data?.message === "string" && data.message.length > 0) return data.message;
+  if (typeof data?.error === "string" && data.error.length > 0) return data.error;
+  if (typeof err?.message === "string" && err.message.length > 0) return err.message;
+  return "Terjadi kesalahan saat menambahkan semester.";
+}
+
 function normalizeSemesters(list: number[]) {
-  const uniq = Array.from(
-    new Set(list.filter((n) => Number.isFinite(n) && n > 0)),
-  );
+  const uniq = Array.from(new Set(list.filter((n) => Number.isFinite(n) && n > 0)));
   uniq.sort((a, b) => a - b);
   return uniq;
 }
@@ -30,10 +44,9 @@ export default function AddSemesterModal({
   term: TahunAkademikDanSemesterEntity;
   onSuccess?: () => void;
 }) {
-  const { upsertSemesters, loading, error } = useUpsertSemester();
+  const { upsertSemesters, loading } = useUpsertSemester();
 
   const [value, setValue] = useState("");
-  const [localError, setLocalError] = useState<string | null>(null);
 
   const semesterNumber = useMemo(() => Number(value), [value]);
   const existing = useMemo(() => normalizeSemesters(term.semesters ?? []), [term.semesters]);
@@ -46,13 +59,27 @@ export default function AddSemesterModal({
   }, [value, semesterNumber, existing]);
 
   const submit = async () => {
-    setLocalError(null);
-
-    if (!value.trim()) return setLocalError("Semester wajib diisi.");
-    if (!Number.isFinite(semesterNumber) || semesterNumber <= 0)
-      return setLocalError("Semester harus angka > 0.");
-    if (existing.includes(semesterNumber))
-      return setLocalError("Semester tersebut sudah ada.");
+    if (!value.trim()) {
+      toast.error("Semester Wajib Diisi!", {
+        description: "Silakan isi nomor semester sebelum melanjutkan.",
+        icon: errorIcon, style: errorStyle, descriptionClassName: "!text-white/90",
+      });
+      return;
+    }
+    if (!Number.isFinite(semesterNumber) || semesterNumber <= 0) {
+      toast.error("Nomor Semester Tidak Valid!", {
+        description: "Semester harus berupa angka lebih dari 0.",
+        icon: errorIcon, style: errorStyle, descriptionClassName: "!text-white/90",
+      });
+      return;
+    }
+    if (existing.includes(semesterNumber)) {
+      toast.error("Semester Sudah Ada!", {
+        description: `Semester ${semesterNumber} sudah terdaftar dalam periode ini.`,
+        icon: errorIcon, style: errorStyle, descriptionClassName: "!text-white/90",
+      });
+      return;
+    }
 
     const next = normalizeSemesters([...existing, semesterNumber]);
 
@@ -61,19 +88,44 @@ export default function AddSemesterModal({
       setValue("");
       onSuccess?.();
       onClose();
-    } catch {
-      // error ditampilkan dari hook
+
+      toast.success("Semester Berhasil Ditambahkan!", {
+        description: `Semester ${semesterNumber} berhasil ditambahkan ke periode ini.`,
+        icon: <Icon icon="lets-icons:check-fill" className="text-white text-lg shrink-0 mt-0.5" />,
+        style: { background: "#16a34a", color: "#ffffff", border: "none", alignItems: "flex-start" },
+        descriptionClassName: "!text-white/90",
+      });
+    } catch (err: any) {
+      const msg = extractErrorMessage(err);
+      const msgLower = msg.toLowerCase();
+
+      let title = "Gagal Menambahkan Semester!";
+      let description = "Terjadi kesalahan pada server. Silakan coba lagi.";
+
+      if (msgLower.includes("network") || msgLower.includes("timeout") || msgLower.includes("fetch")) {
+        title = "Koneksi Bermasalah!";
+        description = "Tidak dapat terhubung ke server. Periksa koneksi internet kamu.";
+      } else if (err?.response?.status >= 500) {
+        title = "Terjadi Kesalahan Server!";
+        description = "Server sedang bermasalah. Silakan coba beberapa saat lagi.";
+      } else if (msg && msg !== "Terjadi kesalahan saat menambahkan semester.") {
+        description = msg;
+      }
+
+      toast.error(title, {
+        description,
+        icon: errorIcon,
+        style: errorStyle,
+        descriptionClassName: "!text-white/90",
+      });
     }
   };
-
-  const combinedError = localError ?? error ?? null;
 
   return (
     <Dialog
       open={open}
       onOpenChange={(v) => {
         if (!v) {
-          setLocalError(null);
           setValue("");
           onClose();
         }
@@ -83,12 +135,6 @@ export default function AddSemesterModal({
         <DialogHeader>
           <DialogTitle>Tambah Semester</DialogTitle>
         </DialogHeader>
-
-        {combinedError ? (
-          <div className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-            {combinedError}
-          </div>
-        ) : null}
 
         <div className="space-y-3 mt-4">
           <Input

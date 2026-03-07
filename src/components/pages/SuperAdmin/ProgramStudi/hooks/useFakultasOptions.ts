@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-
 import { FakultasService } from "../../Fakultas/services/fakultas.service";
 
 type FakultasLike = {
@@ -13,21 +12,12 @@ type FakultasLike = {
 
 async function fetchFakultas(): Promise<FakultasLike[]> {
   const svc: any = FakultasService;
-
-  const candidates = [
-    "getFakultas",
-    "getFaculties",
-    "getFakultasList",
-    "listFakultas",
-    "fetchFakultas",
-  ];
+  const candidates = ["getFakultas", "getFaculties", "getFakultasList", "listFakultas", "fetchFakultas"];
 
   for (const name of candidates) {
     const fn = svc?.[name];
     if (typeof fn === "function") {
       const res = await fn.call(svc);
-
-      // normalisasi response (biar aman)
       if (Array.isArray(res)) return res;
       if (Array.isArray(res?.data)) return res.data;
       if (Array.isArray(res?.data?.data)) return res.data.data;
@@ -37,9 +27,7 @@ async function fetchFakultas(): Promise<FakultasLike[]> {
   }
 
   throw new Error(
-    `FakultasService tidak punya method fetch yang dikenal. Tambahkan salah satu: ${candidates.join(
-      ", ",
-    )}`,
+    `FakultasService tidak punya method fetch yang dikenal. Tambahkan salah satu: ${candidates.join(", ")}`,
   );
 }
 
