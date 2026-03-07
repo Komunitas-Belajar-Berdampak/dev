@@ -19,6 +19,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
+  PaginationEllipsis,
 } from "@/components/ui/pagination";
 
 import ProgramStudiActionDropdown from "../ProgramStudi/ProgramStudiActionDropdown";
@@ -47,31 +48,18 @@ function ProgramStudiTableSkeleton() {
           <Table className="min-w-[850px] text-blue-800">
             <TableHeader>
               <TableRow className="border-b border-black/10">
-                <TableHead className="font-bold text-blue-900">
-                  Kode Program Studi
-                </TableHead>
-                <TableHead className="font-bold text-blue-900">
-                  Nama Program Studi
-                </TableHead>
+                <TableHead className="font-bold text-blue-900">Kode Program Studi</TableHead>
+                <TableHead className="font-bold text-blue-900">Nama Program Studi</TableHead>
                 <TableHead className="font-bold text-blue-900">Fakultas</TableHead>
-                <TableHead className="font-bold text-blue-900 text-center">
-                  Aksi
-                </TableHead>
+                <TableHead className="font-bold text-blue-900 text-center">Aksi</TableHead>
               </TableRow>
             </TableHeader>
-
             <TableBody>
               {rows.map((_, i) => (
                 <TableRow key={i} className="border-b border-black/5 h-14">
-                  <TableCell>
-                    <Skeleton className="h-4 w-20" />
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    <Skeleton className="h-4 w-60" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-44" />
-                  </TableCell>
+                  <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-60" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-44" /></TableCell>
                   <TableCell className="text-center">
                     <div className="flex justify-center">
                       <Skeleton className="h-9 w-9 rounded-md" />
@@ -83,22 +71,12 @@ function ProgramStudiTableSkeleton() {
           </Table>
         </div>
       </div>
-
-      <div className="mt-10 flex justify-center sm:justify-end">
-        <div className="flex gap-2">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-9 w-9" />
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
 
 export default function ProgramStudiTable() {
-  const { programStudi: programStudiEntitiesRaw, loading, error, refetch } =
-    useProgramStudi();
-
+  const { programStudi: programStudiEntitiesRaw, loading, error, refetch } = useProgramStudi();
   const programStudiEntities: ProgramStudiEntity[] = programStudiEntitiesRaw ?? [];
 
   const rows: ProgramStudiTableRow[] = useMemo(
@@ -128,10 +106,7 @@ export default function ProgramStudiTable() {
 
   const selectedEntity: ProgramStudiEntity | null = useMemo(() => {
     if (!selected) return null;
-    return (
-      programStudiEntities.find((p: any) => (p._id ?? p.id) === selected.id) ??
-      null
-    );
+    return programStudiEntities.find((p: any) => (p._id ?? p.id) === selected.id) ?? null;
   }, [selected, programStudiEntities]);
 
   if (loading) return <ProgramStudiTableSkeleton />;
@@ -140,10 +115,7 @@ export default function ProgramStudiTable() {
     return (
       <div className="bg-white w-full p-6">
         <div className="mb-4 text-red-600">{error}</div>
-        <Button
-          onClick={() => refetch()}
-          className="border-2 border-black shadow-[3px_3px_0_0_#000]"
-        >
+        <Button onClick={() => refetch()} className="border-2 border-black shadow-[3px_3px_0_0_#000]">
           Coba lagi
         </Button>
       </div>
@@ -157,16 +129,10 @@ export default function ProgramStudiTable() {
           <Input
             placeholder="Search..."
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             className="w-full sm:w-64 border border-black/20 text-blue-800"
           />
-          <Button
-            size="icon"
-            className="border-2 border-black shadow-[3px_3px_0_0_#000]"
-          >
+          <Button size="icon" className="border-2 border-black shadow-[3px_3px_0_0_#000]">
             <Icon icon="mdi:magnify" />
           </Button>
         </div>
@@ -185,24 +151,24 @@ export default function ProgramStudiTable() {
           <Table className="min-w-[850px] text-blue-800">
             <TableHeader>
               <TableRow className="border-b border-black/10">
-                <TableHead className="font-bold text-blue-900">
-                  Kode Program Studi
-                </TableHead>
-                <TableHead className="font-bold text-blue-900">
-                  Nama Program Studi
-                </TableHead>
+                <TableHead className="font-bold text-blue-900">Kode Program Studi</TableHead>
+                <TableHead className="font-bold text-blue-900">Nama Program Studi</TableHead>
                 <TableHead className="font-bold text-blue-900">Fakultas</TableHead>
-                <TableHead className="font-bold text-blue-900 text-center">
-                  Aksi
-                </TableHead>
+                <TableHead className="font-bold text-blue-900 text-center">Aksi</TableHead>
               </TableRow>
             </TableHeader>
 
             <TableBody>
               {paginated.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-12">
-                    Data tidak ditemukan
+                  <TableCell colSpan={4}>
+                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                      <Icon icon="mdi:school-outline" className="text-7xl text-gray-200" />
+                      <p className="mt-6 text-lg font-bold text-blue-900">Belum Ada Program Studi</p>
+                      <p className="mt-2 text-sm text-gray-500 max-w-sm">
+                        Tambahkan program studi baru untuk mulai mengelola data akademik.
+                      </p>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -213,10 +179,7 @@ export default function ProgramStudiTable() {
                     <TableCell>{item.namaFakultas}</TableCell>
                     <TableCell className="text-center">
                       <ProgramStudiActionDropdown
-                        onEdit={() => {
-                          setSelected(item);
-                          setOpenEdit(true);
-                        }}
+                        onEdit={() => { setSelected(item); setOpenEdit(true); }}
                       />
                     </TableCell>
                   </TableRow>
@@ -230,44 +193,62 @@ export default function ProgramStudiTable() {
       <AddProgramStudiModal
         open={openAdd}
         onClose={() => setOpenAdd(false)}
-        onSuccess={() => refetch()}
+        onSuccess={() => {
+          setPage(1);
+          setOpenAdd(false);
+        }}
       />
 
       <EditProgramStudiModal
         key={selectedEntity?.id ?? selected?.id ?? "no-prodi"}
         open={openEdit}
-        onClose={() => {
-          setOpenEdit(false);
-          setSelected(null);
-        }}
+        onClose={() => { setOpenEdit(false); setSelected(null); }}
         data={selectedEntity}
-        onSuccess={() => refetch()}
+        onSuccess={() => { setOpenEdit(false); setSelected(null); }}
       />
 
       {totalPages > 1 && (
         <div className="mt-10 flex justify-center sm:justify-end">
-          <Pagination>
+          <Pagination className="justify-end">
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
                   onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                  aria-disabled={page === 1}
+                  className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                 />
               </PaginationItem>
 
-              {Array.from({ length: totalPages }).map((_, i) => (
-                <PaginationItem key={i}>
-                  <PaginationLink
-                    isActive={page === i + 1}
-                    onClick={() => setPage(i + 1)}
-                  >
-                    {i + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+                .reduce<(number | "ellipsis")[]>((acc, p, idx, arr) => {
+                  if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push("ellipsis");
+                  acc.push(p);
+                  return acc;
+                }, [])
+                .map((p, idx) =>
+                  p === "ellipsis" ? (
+                    <PaginationItem key={`ellipsis-${idx}`}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  ) : (
+                    <PaginationItem key={p}>
+                      <PaginationLink
+                        isActive={page === p}
+                        onClick={() => setPage(p)}
+                        className="cursor-pointer"
+                      >
+                        {p}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )
+                )}
 
               <PaginationItem>
                 <PaginationNext
                   onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+                  aria-disabled={page === totalPages}
+                  className={page === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
                 />
               </PaginationItem>
             </PaginationContent>

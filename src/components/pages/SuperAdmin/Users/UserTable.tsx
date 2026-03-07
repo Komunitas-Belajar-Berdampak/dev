@@ -18,13 +18,21 @@ import UserActionDropdown from "./UserActionDropdown";
 import AddUserModal from "./Modal/AddUserModal";
 import EditUserModal from "./Modal/EditUserModal";
 
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationPrevious,
+  PaginationNext,
+  PaginationEllipsis,
+  PaginationLink,
+} from "@/components/ui/pagination";
 import { useUsers } from "./hooks/useUsers";
 import type { UserEntity, UserTableRow } from "./types/user";
 
-// ✅ mapping aman: support id atau _id
 function mapUserToTable(user: UserEntity): UserTableRow {
   return {
-    id: (user as any).id ?? (user as any)._id, // <-- aman buat id / _id
+    id: (user as any).id ?? (user as any)._id,
     nrp: user.nrp,
     nama: user.nama,
     angkatan: user.angkatan ?? "-",
@@ -192,8 +200,14 @@ export default function UserTable() {
             <TableBody>
               {paginatedUsers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-12">
-                    Data tidak ditemukan
+                  <TableCell colSpan={7}>
+                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                      <Icon icon="mdi:account-group-outline" className="text-7xl text-gray-200" />
+                      <p className="mt-6 text-lg font-bold text-blue-900">Belum Ada User</p>
+                      <p className="mt-2 text-sm text-gray-500 max-w-sm">
+                        Tambahkan user baru untuk mulai mengelola data pengguna sistem.
+                      </p>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -233,7 +247,10 @@ export default function UserTable() {
       <AddUserModal
         open={openAdd}
         onClose={() => setOpenAdd(false)}
-        onSuccess={() => refetch()}
+        onSuccess={() => {
+          setPage(1);
+          setOpenAdd(false);
+        }}
       />
 
       <EditUserModal
@@ -243,27 +260,58 @@ export default function UserTable() {
           setOpenEdit(false);
           setSelectedUserId(null);
         }}
-        onSuccess={() => refetch()}
+        onSuccess={() => {
+          setOpenEdit(false);
+          setSelectedUserId(null);
+        }}
       />
 
       {totalPages > 1 && (
-        <div className="mt-10 flex justify-center sm:justify-end">
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setPage((p) => Math.max(p - 1, 1))}
-              disabled={page === 1}
-            >
-              Prev
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-              disabled={page === totalPages}
-            >
-              Next
-            </Button>
-          </div>
+        <div className="mt-10 flex justify-center sm:justify-center">
+          <Pagination className="justify-center">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                  aria-disabled={page === 1}
+                  className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+                .reduce<(number | "ellipsis")[]>((acc, p, idx, arr) => {
+                  if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push("ellipsis");
+                  acc.push(p);
+                  return acc;
+                }, [])
+                .map((p, idx) =>
+                  p === "ellipsis" ? (
+                    <PaginationItem key={`ellipsis-${idx}`}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  ) : (
+                    <PaginationItem key={p}>
+                      <PaginationLink
+                        isActive={page === p}
+                        onClick={() => setPage(p)}
+                        className="cursor-pointer"
+                      >
+                        {p}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )
+                )}
+
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+                  aria-disabled={page === totalPages}
+                  className={page === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       )}
     </div>

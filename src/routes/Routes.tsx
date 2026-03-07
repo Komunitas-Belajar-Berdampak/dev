@@ -44,6 +44,11 @@ import PrivateFileLayout from "@/components/pages/Mahasiswa/PrivateFile";
 import PrivateFilePage from "@/components/pages/Mahasiswa/PrivateFile/components/PrivateFilePage";
 import CreatePrivateFilePage from "@/components/pages/Mahasiswa/PrivateFile/create";
 import EditPrivateFilePage from "@/components/pages/Mahasiswa/PrivateFile/edit";
+import DeskripsiPage from "@/components/pages/Dosen/Matakuliah/Deskripsi/DeskripsiPage";
+import DashboardPage from "@/components/pages/Dosen/Matakuliah/Dashboard/DashboardPage";
+import AllPertemuanDashboard from "@/components/pages/Dosen/Matakuliah/Dashboard/AllPertemuanDashboard";
+import PerPertemuanDashboard from "@/components/pages/Dosen/Matakuliah/Dashboard/PerPertemuanDashboard";
+import PertemuanDashboardDetail from "@/components/pages/Dosen/Matakuliah/Dashboard/PertemuanDashboardDetail";
 
 const routes: RouteObject[] = [
   {
@@ -137,8 +142,24 @@ const routes: RouteObject[] = [
                 element: <PertemuanDetail />,
               },
               {
+                path: ":id/pertemuan/:assignmentId/submissions",
+                element: <ViewSubmissionPage />,
+              },
+              {
+                path: ":id/pertemuan/:assignmentId/submissions/all",
+                element: <ViewAllSubmissionPage />,
+              },
+              {
+                path: ":id/pertemuan/:assignmentId/submissions/all/edit",
+                element: <EditNilaiPage />,
+              },
+              {
                 path: ":id/mahasiswa",
                 element: <MahasiswaList />,
+              },
+              {
+                path: ":id/deskripsi",
+                element: <DeskripsiPage />,
               },
               {
                 path: ":id/materi-tugas",

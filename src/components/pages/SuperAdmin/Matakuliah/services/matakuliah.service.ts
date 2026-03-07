@@ -16,15 +16,15 @@ export type CreateMatakuliahPayload = {
   sks: number;
   status: string;
   idPeriode: string;
+  idPengajar?: string[];
   idMahasiswa?: string[];
-  pengajar?: { id: string; nama: string }[];
   kelas: string;
   deskripsi?: string;
 };
 
 export type UpdateMatakuliahPayload = Partial<CreateMatakuliahPayload>;
 
-function ensureMahasiswaArray(v: any): string[] {
+function ensureStringArray(v: any): string[] {
   if (Array.isArray(v)) return v.filter(Boolean).map(String);
   return [];
 }
@@ -35,7 +35,9 @@ function safeString(v: any): string {
 
 export const MatakuliahService = {
   async getMatakuliah(): Promise<MatakuliahEntity[]> {
-    const res = await api.get<any>("/courses");
+    const res = await api.get<any>("/courses", {
+      params: { limit: 1000, page: 1 },
+    });
     return normalizeMatakuliah(res.data);
   },
 
@@ -51,12 +53,9 @@ export const MatakuliahService = {
       sks: Number(payload.sks),
       status: safeString(payload.status),
       idPeriode: safeString(payload.idPeriode),
-      idMahasiswa: ensureMahasiswaArray(payload.idMahasiswa),
-      pengajar: Array.isArray(payload.pengajar) ? payload.pengajar : [],
+      idPengajar: ensureStringArray(payload.idPengajar),
+      idMahasiswa: ensureStringArray(payload.idMahasiswa),
       kelas: safeString(payload.kelas),
-      ...(payload.deskripsi !== undefined
-        ? { deskripsi: safeString(payload.deskripsi) || null }
-        : {}),
     };
 
     const res = await api.post<any>("/courses", apiPayload);
@@ -65,24 +64,17 @@ export const MatakuliahService = {
 
   async updateMatakuliah(id: string, payload: UpdateMatakuliahPayload) {
     const apiPayload: any = {
-      ...(payload.kodeMatkul !== undefined
-        ? { kodeMatkul: safeString(payload.kodeMatkul) }
-        : {}),
-      ...(payload.namaMatkul !== undefined
-        ? { namaMatkul: safeString(payload.namaMatkul) }
-        : {}),
+      ...(payload.kodeMatkul !== undefined ? { kodeMatkul: safeString(payload.kodeMatkul) } : {}),
+      ...(payload.namaMatkul !== undefined ? { namaMatkul: safeString(payload.namaMatkul) } : {}),
       ...(payload.sks !== undefined ? { sks: Number(payload.sks) } : {}),
       ...(payload.status !== undefined ? { status: safeString(payload.status) } : {}),
       ...(payload.idPeriode !== undefined ? { idPeriode: safeString(payload.idPeriode) } : {}),
       ...(payload.kelas !== undefined ? { kelas: safeString(payload.kelas) } : {}),
-      ...(payload.idMahasiswa !== undefined
-        ? { idMahasiswa: ensureMahasiswaArray(payload.idMahasiswa) }
+      ...(payload.idMahasiswa !== undefined && ensureStringArray(payload.idMahasiswa).length > 0
+        ? { idMahasiswa: ensureStringArray(payload.idMahasiswa) }
         : {}),
-      ...(payload.pengajar !== undefined
-        ? { pengajar: Array.isArray(payload.pengajar) ? payload.pengajar : [] }
-        : {}),
-      ...(payload.deskripsi !== undefined
-        ? { deskripsi: safeString(payload.deskripsi) || null }
+      ...(payload.idPengajar !== undefined && ensureStringArray(payload.idPengajar).length > 0
+        ? { idPengajar: ensureStringArray(payload.idPengajar) }
         : {}),
     };
 
@@ -95,19 +87,18 @@ export const MatakuliahService = {
     return res.data?.data ?? res.data;
   },
 
+  // ── Pengajar ──────────────────────────────────────────────────────────────
+
   async addPengajarToCourse(id: string, dosenIds: string[]) {
     const res = await api.post(`/courses/${id}/pengajar`, {
       idPengajar: dosenIds,
     });
-
     return res.data?.data ?? res.data;
   },
 
   async deletePengajarFromCourse(id: string, dosenId: string) {
-    const res = await api.delete(
-      `/courses/${id}/pengajar/${dosenId}`,
-    );
-
+    const res = await api.delete(`/courses/${id}/pengajar/${dosenId}`);
     return res.data?.data ?? res.data;
   },
+
 };

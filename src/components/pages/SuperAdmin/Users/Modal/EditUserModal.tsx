@@ -16,6 +16,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { toast } from "sonner";
+import { Icon } from "@iconify/react";
 import { useUserById } from "../hooks/useUserById";
 import { useUpdateUser } from "../hooks/useUpdateUser";
 import { useRoles } from "../hooks/useRoles";
@@ -27,7 +29,7 @@ type UserStatusBE = "aktif" | "tidak aktif";
 type Props = {
   open: boolean;
   onClose: () => void;
-  userId: string | null; // ✅ id
+  userId: string | null;
   onSuccess?: () => void;
 };
 
@@ -54,8 +56,13 @@ function pickName(v: any): string {
   return String(v.nama ?? v.name ?? v.role ?? "");
 }
 
+const errorIcon = (
+  <Icon icon="lets-icons:check-fill" className="text-white text-lg shrink-0 mt-0.5 rotate-45" />
+);
+const errorStyle = { background: "#dc2626", color: "#ffffff", border: "none", alignItems: "flex-start" };
+
 export default function EditUserModal({ open, onClose, userId, onSuccess }: Props) {
-  const { updateUser, loading: saving, error: updateError } = useUpdateUser();
+  const { updateUser, loading: saving } = useUpdateUser();
 
   const rolesQ = useRoles();
   const prodiQ = useProgramStudi();
@@ -65,8 +72,6 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
 
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [preview, setPreview] = useState<string>("");
-
-  const [localError, setLocalError] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     nrp: "",
@@ -81,24 +86,24 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
     fotoProfil: "",
   });
 
-  // 1) Isi form dari user detail (ambil idRole/idProdi dengan robust)
+  // 1) Isi form dari user detail
   useEffect(() => {
     if (!open) return;
-    setLocalError(null);
     if (!user) return;
 
     const resolvedRoleId =
       pickId(user.idRole) ||
       pickId(user.roleId) ||
       pickId(user.role?.idRole) ||
-      pickId(user.role); // kalau user.role ternyata id
+      pickId(user.role);
 
     const resolvedProdiId =
       pickId(user.idProdi) ||
       pickId(user.prodiId) ||
       pickId(user.prodi?.idProdi) ||
-      pickId(user.prodi); // kalau user.prodi ternyata id
+      pickId(user.prodi);
 
+    // pakai foto dari data user kalau ada
     setPreview(user.fotoProfil ?? "");
     setForm({
       nrp: user.nrp ?? "",
@@ -114,53 +119,40 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
     });
   }, [open, user?.id]);
 
-  // 2) Kalau idRole masih kosong, resolve pakai NAMA role -> cari di roles list
+  // 2) Resolve idRole dari nama kalau masih kosong
   useEffect(() => {
-    if (!open || !user) return;
-    if (form.idRole) return;
-
+    if (!open || !user || form.idRole) return;
     const roles = (rolesQ.roles ?? []) as any[];
     if (!roles.length) return;
-
-    // ambil nama role dari berbagai kemungkinan
     const roleName =
       norm(pickName(user.role)) ||
-      norm(pickName(user.idRole)) || // kalau idRole object punya nama
+      norm(pickName(user.idRole)) ||
       norm(pickName(user.roleName)) ||
       norm(pickName(user.namaRole));
-
     if (!roleName) return;
-
     const match = roles.find((r) => norm(pickName(r)) === roleName);
     const id = match ? pickId(match) : "";
     if (id) setForm((p) => ({ ...p, idRole: id }));
   }, [open, user?.id, rolesQ.roles, form.idRole]);
 
-  // 3) Prodi juga robust (kalau idProdi kosong -> resolve dari nama)
+  // 3) Resolve idProdi dari nama kalau masih kosong
   useEffect(() => {
-    if (!open || !user) return;
-    if (form.idProdi) return;
-
+    if (!open || !user || form.idProdi) return;
     const list = (prodiQ.programStudi ?? []) as any[];
     if (!list.length) return;
-
     const prodiName =
       norm(pickName(user.prodi)) ||
       norm(pickName(user.idProdi)) ||
       norm(pickName(user.prodiName)) ||
       norm(pickName(user.namaProdi));
-
     if (!prodiName) return;
-
     const match = list.find((p) => norm(pickName(p.namaProdi ?? p.namaProgramStudi ?? p.nama)) === prodiName);
     const id = match ? pickId(match) : "";
     if (id) setForm((p) => ({ ...p, idProdi: id }));
   }, [open, user?.id, prodiQ.programStudi, form.idProdi]);
 
   const disabled = useMemo(() => {
-    if (!userId) return true;
-    if (saving || userQ.isLoading) return true;
-
+    if (!userId || saving || userQ.isLoading) return true;
     return (
       !form.nrp.trim() ||
       !form.nama.trim() ||
@@ -183,9 +175,20 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
   const submit = async () => {
     if (!userId) return;
 
-    setLocalError(null);
-    if (!form.idRole) return setLocalError("Role wajib dipilih.");
-    if (!form.idProdi) return setLocalError("Program Studi wajib dipilih.");
+    if (!form.idRole) {
+      toast.error("Role Wajib Dipilih!", {
+        description: "Silakan pilih role untuk user ini.",
+        icon: errorIcon, style: errorStyle, descriptionClassName: "!text-white/90",
+      });
+      return;
+    }
+    if (!form.idProdi) {
+      toast.error("Program Studi Wajib Dipilih!", {
+        description: "Silakan pilih program studi untuk user ini.",
+        icon: errorIcon, style: errorStyle, descriptionClassName: "!text-white/90",
+      });
+      return;
+    }
 
     const payload: any = {
       nrp: form.nrp,
@@ -204,12 +207,51 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
       await updateUser({ id: userId, payload });
       onSuccess?.();
       onClose();
-    } catch {}
+
+      toast.success("User Berhasil Diperbarui!", {
+        description: `Data user ${form.nama} berhasil disimpan.`,
+        icon: <Icon icon="lets-icons:check-fill" className="text-white text-lg shrink-0 mt-0.5" />,
+        style: { background: "#16a34a", color: "#ffffff", border: "none", alignItems: "flex-start" },
+        descriptionClassName: "!text-white/90",
+      });
+    } catch (err: any) {
+      const msg: string =
+        err?.response?.data?.message ??
+        err?.message ??
+        "Terjadi kesalahan saat memperbarui user.";
+
+      const msgLower = msg.toLowerCase();
+      let title = "Gagal Memperbarui User!";
+      let description = msg;
+
+      if (msgLower.includes("nrp") || (msgLower.includes("duplicate") && msgLower.includes("nrp"))) {
+        title = "NRP Sudah Terdaftar!";
+        description = `NRP ${form.nrp} sudah digunakan oleh user lain.`;
+      } else if (msgLower.includes("email")) {
+        title = "Email Sudah Terdaftar!";
+        description = `Email ${form.email} sudah digunakan oleh user lain.`;
+      } else if (msgLower.includes("duplicate") || msgLower.includes("already") || msgLower.includes("sudah")) {
+        title = "Data Sudah Terdaftar!";
+        description = "Beberapa data yang dimasukkan sudah terdaftar di sistem.";
+      } else if (msgLower.includes("validation") || msgLower.includes("invalid")) {
+        title = "Data Tidak Valid!";
+        description = msg;
+      } else if (msgLower.includes("network") || msgLower.includes("timeout") || msgLower.includes("econnrefused")) {
+        title = "Koneksi Bermasalah!";
+        description = "Tidak dapat terhubung ke server. Periksa koneksi internet kamu.";
+      }
+
+      toast.error(title, {
+        description,
+        icon: errorIcon,
+        style: errorStyle,
+        descriptionClassName: "!text-white/90",
+      });
+    }
   };
 
-  const combinedError =
-    localError ??
-    updateError ??
+  // banner hanya untuk error load data (roles/prodi/user), bukan error submit
+  const loadError =
     rolesQ.error ??
     prodiQ.error ??
     (userQ.error
@@ -225,14 +267,12 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>Edit User</DialogTitle>
-          <p className="text-sm text-muted-foreground">
-            Silahkan ubah data User!
-          </p>
+          <p className="text-sm text-muted-foreground">Silahkan ubah data User!</p>
         </DialogHeader>
 
-        {combinedError ? (
+        {loadError ? (
           <div className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-            {combinedError}
+            {loadError}
           </div>
         ) : null}
 
@@ -244,11 +284,10 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
           <>
             <div className="flex flex-col items-center gap-3 mt-2">
               <img
-                src={preview || "https://i.pravatar.cc/120"}
+                src={preview || `https://ui-avatars.com/api/?name=${encodeURIComponent(form.nama)}&background=e5e7eb&color=111827`}
                 alt="profile"
                 className="w-24 h-24 rounded-full object-cover bg-gray-200"
               />
-
               <input
                 ref={fileRef}
                 type="file"
@@ -256,7 +295,6 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
                 className="hidden"
                 onChange={(e) => onFileChange(e.target.files?.[0] ?? null)}
               />
-
               <Button variant="outline" size="sm" type="button" onClick={pickFile}>
                 Upload Foto Profil
               </Button>
@@ -264,7 +302,11 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
               <Field label="NRP">
-                <Input value={form.nrp} onChange={(e) => setForm((p) => ({ ...p, nrp: e.target.value }))} />
+                <Input
+                  value={form.nrp}
+                  readOnly
+                  className="bg-muted cursor-not-allowed opacity-70"
+                />
               </Field>
 
               <Field label="Nama">
@@ -293,11 +335,7 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
                       const id = pickId(p);
                       const label = String(p.namaProdi ?? p.namaProgramStudi ?? p.nama ?? "-");
                       if (!id) return null;
-                      return (
-                        <SelectItem key={id} value={id}>
-                          {label}
-                        </SelectItem>
-                      );
+                      return <SelectItem key={id} value={id}>{label}</SelectItem>;
                     })}
                   </SelectContent>
                 </Select>
@@ -313,11 +351,7 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
                       const id = pickId(r);
                       const label = String(r.nama ?? r.name ?? "-");
                       if (!id) return null;
-                      return (
-                        <SelectItem key={id} value={id}>
-                          {label}
-                        </SelectItem>
-                      );
+                      return <SelectItem key={id} value={id}>{label}</SelectItem>;
                     })}
                   </SelectContent>
                 </Select>
@@ -328,9 +362,7 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
                   value={form.jenisKelamin}
                   onValueChange={(v) => setForm((p) => ({ ...p, jenisKelamin: v as JenisKelamin }))}
                 >
-                  <SelectTrigger className="w-full h-10">
-                    <SelectValue />
-                  </SelectTrigger>
+                  <SelectTrigger className="w-full h-10"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="pria">Pria</SelectItem>
                     <SelectItem value="wanita">Wanita</SelectItem>
@@ -340,9 +372,7 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
 
               <Field label="Status">
                 <Select value={form.status} onValueChange={(v) => setForm((p) => ({ ...p, status: v as UserStatusBE }))}>
-                  <SelectTrigger className="w-full h-10">
-                    <SelectValue />
-                  </SelectTrigger>
+                  <SelectTrigger className="w-full h-10"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="aktif">Aktif</SelectItem>
                     <SelectItem value="tidak aktif">Tidak Aktif</SelectItem>

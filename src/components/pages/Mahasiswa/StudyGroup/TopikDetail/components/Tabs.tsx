@@ -20,6 +20,7 @@ type TabsProp = {
   discussionDateFilter: FilterWithInputRangeValue<'all'>;
   onDiscussionDateFilterChange: (value: FilterWithInputRangeValue<'all'>) => void;
   threadId: string;
+  studyGroupId: string;
   members: AnggotaStudyGroup[];
   tasksQuery: {
     data: Task[];
@@ -35,7 +36,7 @@ type TabsProp = {
   };
 };
 
-const TopikPembahasanDetailTabs = ({ tab, changeTab, filters, onFiltersChange, discussionDateFilter, onDiscussionDateFilterChange, threadId, members, tasksQuery, threadDetailQuery }: TabsProp) => {
+const TopikPembahasanDetailTabs = ({ tab, changeTab, filters, studyGroupId, onFiltersChange, discussionDateFilter, onDiscussionDateFilterChange, threadId, members, tasksQuery, threadDetailQuery }: TabsProp) => {
   const memberOptions = members.map((m) => ({ id: m.id, nama: m.nama }));
 
   return (
@@ -71,7 +72,7 @@ const TopikPembahasanDetailTabs = ({ tab, changeTab, filters, onFiltersChange, d
       </div>
 
       <TabsContent value='todolist'>
-        <ToDoListContent threadId={threadId} members={members} tasksQuery={tasksQuery} filters={filters} />
+        <ToDoListContent threadId={threadId} members={members} tasksQuery={tasksQuery} filters={filters} studyGroupId={studyGroupId} />
       </TabsContent>
       <TabsContent value='discussion'>
         <DiscussionContent threadDetailQuery={threadDetailQuery} />

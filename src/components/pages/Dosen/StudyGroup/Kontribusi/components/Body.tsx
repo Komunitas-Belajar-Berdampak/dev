@@ -61,7 +61,9 @@ const KontribusiBody = ({ data }: KontribusiBodyProps) => {
             <div key={`${a.thread}-${a.timestamp}-${idx}`} className='flex flex-row justify-between items-center'>
               <div className='flex flex-row justify-center items-center gap-2'>
                 <ChevronRight size={12} className='text-primary' />
-                <span className='text-primary font-medium text-sm'>{a.aktivitas}</span>
+                <span className='text-primary font-medium text-sm'>
+                  {a.aktivitas} {a.kontribusi === 0 ? '' : `(${a.kontribusi} points) `}
+                </span>
               </div>
               <span className='text-accent text-xs'>{formatDateTime(a.timestamp)}</span>
             </div>
