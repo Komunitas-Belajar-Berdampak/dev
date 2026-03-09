@@ -4,6 +4,7 @@ import ReactApexChart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
 import Title from "@/components/shared/Title";
 import { useMatakuliahDetail } from "../hooks/useMatakuliahDetail";
+import { useCourseDashboard } from "../hooks/useCourseDashboard";
 
 function getPrimaryColor() {
   return (
@@ -13,104 +14,80 @@ function getPrimaryColor() {
   );
 }
 
-const mahasiswa = [
-  "Nathaniel V",
-  "Dheandra H",
-  "Elmosius S",
-  "Joshua S",
-  "Benaya A",
-  "Cherno S",
-  "Jessica A",
-];
+function ChartSkeleton({ height = 300 }: { height?: number }) {
+  return (
+    <div
+      className="rounded-2xl border border-gray-200 bg-white p-6 animate-pulse"
+      style={{ height: height + 64 }}
+    >
+      <div className="h-4 w-48 bg-gray-200 rounded mx-auto mb-4" />
+      <div className="bg-gray-100 rounded-xl w-full h-full" />
+    </div>
+  );
+}
 
-const dummyProgressTugas = [
-  { nama: "Nathaniel Valentino R", selesai: 4, total: 16 },
-  { nama: "Dheandra Halwa G", selesai: 7, total: 16 },
-  { nama: "Elmosius Suli", selesai: 9, total: 16 },
-  { nama: "Joshua Subianto", selesai: 4, total: 16 },
-  { nama: "Benaya Andrias", selesai: 9, total: 16 },
-  { nama: "Cherno Salwa", selesai: 11, total: 16 },
-  { nama: "Jessica Alvina L", selesai: 7, total: 16 },
-];
+export default function AllPertemuanDashboard() {
+  const { id } = useParams<{ id: string }>();
+  const { data: course } = useMatakuliahDetail(id);
+  const { data, isLoading, error } = useCourseDashboard(id);
 
-const dummyKontribusiMingguan = [
-  { minggu: 1, submitted: 8, total: 9 },
-  { minggu: 2, submitted: 9, total: 10 },
-  { minggu: 3, submitted: 9, total: 11 },
-  { minggu: 4, submitted: 10, total: 12 },
-  { minggu: 5, submitted: 10, total: 15 },
-  { minggu: 6, submitted: 9, total: 15 },
-  { minggu: 7, submitted: 11, total: 14 },
-  { minggu: 8, submitted: 11, total: 13 },
-  { minggu: 9, submitted: 10, total: 13 },
-  { minggu: 10, submitted: 11, total: 12 },
-  { minggu: 11, submitted: 10, total: 12 },
-  { minggu: 12, submitted: 11, total: 14 },
-  { minggu: 13, submitted: 13, total: 15 },
-  { minggu: 14, submitted: 19, total: 20 },
-  { minggu: 15, submitted: 16, total: 18 },
-  { minggu: 16, submitted: 15, total: 18 },
-];
-
-const dummyHeatmap = [
-  { name: "Nathaniel V", data: [1,0,1,1,0,1,0,1,1,0,0,1,1,0,1,0] },
-  { name: "Dheandra H",  data: [1,1,0,1,1,0,1,0,1,1,0,1,0,1,1,0] },
-  { name: "Elmosius S",  data: [1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1] },
-  { name: "Joshua S",    data: [0,1,1,0,0,1,1,0,1,0,1,1,0,1,0,1] },
-  { name: "Benaya A",    data: [1,1,0,1,1,1,0,1,1,1,0,1,1,0,1,1] },
-  { name: "Cherno S",    data: [1,1,1,1,0,1,1,1,1,1,1,0,1,1,1,1] },
-  { name: "Jessica A",   data: [1,0,1,1,1,0,1,1,0,1,1,1,0,1,1,0] },
-];
-
-const dummyRadar = [
-  { name: "Nathaniel V", data: [50,0,100,100,0,100,0,100,100,0,0,100,100,0,100,0] },
-  { name: "Cherno S",    data: [100,100,100,100,0,100,100,100,100,100,100,0,100,100,100,100] },
-  { name: "Joshua S",    data: [0,100,100,0,0,100,100,0,100,0,100,100,0,100,0,100] },
-];
-
-const dummyDonut = { selesai: 72, terlambat: 18, belum: 38 };
-
-const dummyScatter = [
-  { x: 1,  y: 0.2, nama: "Nathaniel V" },
-  { x: 2,  y: 1.5, nama: "Dheandra H" },
-  { x: 3,  y: 0.1, nama: "Elmosius S" },
-  { x: 4,  y: 3.2, nama: "Joshua S" },
-  { x: 5,  y: 0.5, nama: "Benaya A" },
-  { x: 6,  y: 0.0, nama: "Cherno S" },
-  { x: 7,  y: 2.1, nama: "Jessica A" },
-  { x: 8,  y: 1.0, nama: "Nathaniel V" },
-  { x: 9,  y: 4.5, nama: "Joshua S" },
-  { x: 10, y: 0.3, nama: "Elmosius S" },
-  { x: 11, y: 1.8, nama: "Dheandra H" },
-  { x: 12, y: 0.0, nama: "Cherno S" },
-  { x: 13, y: 2.9, nama: "Benaya A" },
-  { x: 14, y: 0.7, nama: "Jessica A" },
-  { x: 15, y: 5.0, nama: "Joshua S" },
-  { x: 16, y: 1.2, nama: "Nathaniel V" },
-];
-
-function ProgressTugasChart() {
   const primary = getPrimaryColor();
-  const series = [
-    { name: "Selesai", data: dummyProgressTugas.map((d) => d.selesai) },
-    { name: "Belum", data: dummyProgressTugas.map((d) => d.total - d.selesai) },
+
+  const breadcrumbItems = useMemo(
+    () => [
+      { label: "Courses", href: "/dosen" },
+      {
+        label: course ? `${course.kodeMatkul} ${course.namaMatkul}` : "Detail",
+        href: `/dosen/courses/${id}`,
+      },
+      { label: "View Dashboard", href: `/dosen/courses/${id}/dashboard` },
+      { label: "Dashboard Kontribusi Seluruh Pertemuan" },
+    ],
+    [course, id]
+  );
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Title title="Dashboard Progress Seluruh Pertemuan" items={breadcrumbItems} />
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <ChartSkeleton height={320} />
+          <ChartSkeleton height={320} />
+        </div>
+        <ChartSkeleton height={300} />
+        <ChartSkeleton height={300} />
+        <ChartSkeleton height={280} />
+        <ChartSkeleton height={300} />
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="space-y-6">
+        <Title title="Dashboard Progress Seluruh Pertemuan" items={breadcrumbItems} />
+        <p className="text-sm text-red-600">{error ? String(error) : "Data tidak tersedia"}</p>
+      </div>
+    );
+  }
+
+  const mahasiswaNames = data.progressTugas.map((d) => d.nama);
+
+  const progressTugasSeries = [
+    { name: "Selesai", data: data.progressTugas.map((d) => d.selesai) },
+    { name: "Belum", data: data.progressTugas.map((d) => d.total - d.selesai) },
   ];
-  const options: ApexOptions = {
+
+  const progressTugasOptions: ApexOptions = {
     chart: { type: "bar", stacked: true, toolbar: { show: false } },
     plotOptions: {
-      bar: {
-        horizontal: true,
-        barHeight: "30%",
-        borderRadius: 4,
-        borderRadiusApplication: "end",
-        borderRadiusWhenStacked: "last",
-      },
+      bar: { horizontal: true, barHeight: "30%", borderRadius: 4, borderRadiusApplication: "end", borderRadiusWhenStacked: "last" },
     },
     colors: [primary, "#e2e8f0"],
     dataLabels: { enabled: false },
     xaxis: {
-      categories: dummyProgressTugas.map((d) => d.nama),
-      max: 16,
+      categories: data.progressTugas.map((d) => d.nama),
+      max: data.progressTugas[0]?.total ?? 16,
       tickAmount: 2,
       labels: { style: { colors: "#6b7280", fontSize: "11px" }, formatter: (val) => String(val) },
       axisBorder: { show: false },
@@ -122,39 +99,27 @@ function ProgressTugasChart() {
     tooltip: {
       y: {
         formatter: (_val, { seriesIndex, dataPointIndex }) => {
-          const item = dummyProgressTugas[dataPointIndex];
+          const item = data.progressTugas[dataPointIndex];
           if (seriesIndex === 0) return `${item.selesai}/${item.total}`;
           return `${item.total - item.selesai} belum`;
         },
       },
     },
   };
-  return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6">
-      <p className="mb-2 text-center text-sm font-semibold text-primary">Progress Tugas Mahasiswa</p>
-      <ReactApexChart type="bar" series={series} options={options} height={300} />
-    </div>
-  );
-}
 
-function KontribusiMingguanChart() {
-  const primary = getPrimaryColor();
-  const primaryLight = primary + "60";
-  const series = [
-    { name: "Total", data: dummyKontribusiMingguan.map((d) => d.total) },
-    { name: "Submitted", data: dummyKontribusiMingguan.map((d) => d.submitted) },
+  const kontribusiSeries = [
+    { name: "Total", data: data.kontribusiMingguan.map((d) => d.total) },
+    { name: "Submitted", data: data.kontribusiMingguan.map((d) => d.submitted) },
   ];
-  const options: ApexOptions = {
+
+  const kontribusiOptions: ApexOptions = {
     chart: { type: "area", toolbar: { show: false }, zoom: { enabled: false } },
-    colors: [primaryLight, primary],
+    colors: [primary + "60", primary],
     stroke: { curve: "smooth", width: 2 },
-    fill: {
-      type: "gradient",
-      gradient: { shadeIntensity: 1, opacityFrom: 0.6, opacityTo: 0.05, stops: [0, 95] },
-    },
+    fill: { type: "gradient", gradient: { shadeIntensity: 1, opacityFrom: 0.6, opacityTo: 0.05, stops: [0, 95] } },
     dataLabels: { enabled: false },
     xaxis: {
-      categories: dummyKontribusiMingguan.map((d) => String(d.minggu)),
+      categories: data.kontribusiMingguan.map((d) => String(d.minggu)),
       title: { text: "Minggu", style: { color: primary, fontSize: "11px", fontWeight: "600" } },
       labels: { style: { colors: "#6b7280", fontSize: "11px" } },
       axisBorder: { show: false },
@@ -168,22 +133,13 @@ function KontribusiMingguanChart() {
     legend: { position: "top", horizontalAlign: "right", labels: { colors: "#4b5563" } },
     tooltip: { shared: true, intersect: false },
   };
-  return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6">
-      <p className="mb-2 text-center text-sm font-semibold text-primary">Kontribusi Tugas Mahasiswa Mingguan</p>
-      <ReactApexChart type="area" series={series} options={options} height={300} />
-    </div>
-  );
-}
 
-function HeatmapKeaktifanChart() {
-  const primary = getPrimaryColor();
-  const options: ApexOptions = {
+  const heatmapOptions: ApexOptions = {
     chart: { type: "heatmap", toolbar: { show: false } },
     colors: [primary],
     dataLabels: { enabled: false },
     xaxis: {
-      categories: dummyKontribusiMingguan.map((d) => `P${d.minggu}`),
+      categories: data.kontribusiMingguan.map((d) => `P${d.minggu}`),
       labels: { style: { colors: "#6b7280", fontSize: "10px" } },
       axisBorder: { show: false },
       axisTicks: { show: false },
@@ -204,42 +160,8 @@ function HeatmapKeaktifanChart() {
     tooltip: { y: { formatter: (val) => (val === 1 ? "Selesai" : "Belum") } },
     legend: { show: false },
   };
-  return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6">
-      <p className="mb-2 text-center text-sm font-semibold text-primary">Heatmap Keaktifan Mahasiswa</p>
-      <ReactApexChart type="heatmap" series={dummyHeatmap} options={options} height={280} />
-    </div>
-  );
-}
 
-function RadarChart() {
-  const primary = getPrimaryColor();
-  const options: ApexOptions = {
-    chart: { type: "radar", toolbar: { show: false } },
-    colors: [primary, primary + "99", primary + "55"],
-    xaxis: {
-      categories: dummyKontribusiMingguan.map((d) => `P${d.minggu}`),
-      labels: { style: { colors: "#6b7280", fontSize: "10px" } },
-    },
-    yaxis: { show: false },
-    stroke: { width: 2 },
-    fill: { opacity: 0.15 },
-    markers: { size: 3 },
-    legend: { position: "top", labels: { colors: "#4b5563" } },
-    grid: { borderColor: "#f1f5f9" },
-    tooltip: { y: { formatter: (val) => `${val}%` } },
-  };
-  return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6">
-      <p className="mb-2 text-center text-sm font-semibold text-primary">Radar Keaktifan Per Mahasiswa</p>
-      <ReactApexChart type="radar" series={dummyRadar} options={options} height={320} />
-    </div>
-  );
-}
-
-function DonutRingkasanChart() {
-  const primary = getPrimaryColor();
-  const options: ApexOptions = {
+  const donutOptions: ApexOptions = {
     chart: { type: "donut", toolbar: { show: false } },
     colors: [primary, primary + "88", "#e2e8f0"],
     labels: ["Selesai Tepat Waktu", "Selesai Terlambat", "Belum"],
@@ -256,8 +178,7 @@ function DonutRingkasanChart() {
               label: "Total Tugas",
               color: "#4b5563",
               fontSize: "12px",
-              formatter: () =>
-                String(dummyDonut.selesai + dummyDonut.terlambat + dummyDonut.belum),
+              formatter: () => String(data.donut.selesai + data.donut.terlambat + data.donut.belum),
             },
           },
         },
@@ -265,38 +186,23 @@ function DonutRingkasanChart() {
     },
     tooltip: { y: { formatter: (val) => `${val} tugas` } },
   };
-  return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6">
-      <p className="mb-2 text-center text-sm font-semibold text-primary">Ringkasan Status Tugas Semester</p>
-      <ReactApexChart
-        type="donut"
-        series={[dummyDonut.selesai, dummyDonut.terlambat, dummyDonut.belum]}
-        options={options}
-        height={320}
-      />
-    </div>
-  );
-}
 
-function ScatterKeterlambatanChart() {
-  const primary = getPrimaryColor();
-  const series = mahasiswa.map((nama) => ({
+  const scatterSeries = mahasiswaNames.map((nama) => ({
     name: nama,
-    data: dummyScatter
-      .filter((d) => d.nama === nama)
-      .map((d) => ({ x: d.x, y: d.y })),
+    data: data.scatter.filter((d) => d.nama === nama).map((d) => ({ x: d.x, y: d.y })),
   }));
-  const options: ApexOptions = {
+
+  const scatterOptions: ApexOptions = {
     chart: { type: "scatter", toolbar: { show: false }, zoom: { enabled: false } },
-    colors: mahasiswa.map((_, i) =>
+    colors: mahasiswaNames.map((_, i) =>
       primary + Math.floor(255 * (1 - i * 0.12)).toString(16).padStart(2, "0")
     ),
     xaxis: {
       title: { text: "Pertemuan ke-", style: { color: primary, fontSize: "11px", fontWeight: "600" } },
       labels: { style: { colors: "#6b7280", fontSize: "11px" }, formatter: (val) => `P${val}` },
-      tickAmount: 16,
+      tickAmount: data.totalPertemuan,
       min: 0,
-      max: 17,
+      max: data.totalPertemuan + 1,
       axisBorder: { show: false },
       axisTicks: { show: false },
     },
@@ -313,30 +219,27 @@ function ScatterKeterlambatanChart() {
       y: { formatter: (val) => `${val} hari terlambat` },
     },
   };
-  return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6">
-      <p className="mb-2 text-center text-sm font-semibold text-primary">Scatter Plot Keterlambatan Submit</p>
-      <ReactApexChart type="scatter" series={series} options={options} height={300} />
-    </div>
-  );
-}
 
-export default function AllPertemuanDashboard() {
-  const { id } = useParams<{ id: string }>();
-  const { data: course } = useMatakuliahDetail(id);
+  const radarSeries = data.progressTugas.slice(0, 3).map((m) => ({
+    name: m.nama,
+    data: data.heatmap.find((h) => h.nama === m.nama)?.data.map((v) => v * 100) ?? [],
+  }));
 
-  const breadcrumbItems = useMemo(
-    () => [
-      { label: "Courses", href: "/dosen" },
-      {
-        label: course ? `${course.kodeMatkul} ${course.namaMatkul}` : "Detail",
-        href: `/dosen/courses/${id}`,
-      },
-      { label: "View Dashboard", href: `/dosen/courses/${id}/dashboard` },
-      { label: "Dashboard Kontribusi Seluruh Pertemuan" },
-    ],
-    [course, id]
-  );
+  const radarOptions: ApexOptions = {
+    chart: { type: "radar", toolbar: { show: false } },
+    colors: [primary, primary + "99", primary + "55"],
+    xaxis: {
+      categories: data.kontribusiMingguan.map((d) => `P${d.minggu}`),
+      labels: { style: { colors: "#6b7280", fontSize: "10px" } },
+    },
+    yaxis: { show: false },
+    stroke: { width: 2 },
+    fill: { opacity: 0.15 },
+    markers: { size: 3 },
+    legend: { position: "top", labels: { colors: "#4b5563" } },
+    grid: { borderColor: "#f1f5f9" },
+    tooltip: { y: { formatter: (val) => `${val}%` } },
+  };
 
   return (
     <div className="space-y-6">
@@ -345,13 +248,35 @@ export default function AllPertemuanDashboard() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <DonutRingkasanChart />
-        <RadarChart />
+        <div className="rounded-2xl border border-gray-200 bg-white p-6">
+          <p className="mb-2 text-center text-sm font-semibold text-primary">Ringkasan Status Tugas Semester</p>
+          <ReactApexChart type="donut" series={[data.donut.selesai, data.donut.terlambat, data.donut.belum]} options={donutOptions} height={320} />
+        </div>
+        <div className="rounded-2xl border border-gray-200 bg-white p-6">
+          <p className="mb-2 text-center text-sm font-semibold text-primary">Radar Keaktifan Per Mahasiswa</p>
+          <ReactApexChart type="radar" series={radarSeries} options={radarOptions} height={320} />
+        </div>
       </div>
-      <ProgressTugasChart />
-      <KontribusiMingguanChart />
-      <HeatmapKeaktifanChart />
-      <ScatterKeterlambatanChart />
+
+      <div className="rounded-2xl border border-gray-200 bg-white p-6">
+        <p className="mb-2 text-center text-sm font-semibold text-primary">Progress Tugas Mahasiswa</p>
+        <ReactApexChart type="bar" series={progressTugasSeries} options={progressTugasOptions} height={300} />
+      </div>
+
+      <div className="rounded-2xl border border-gray-200 bg-white p-6">
+        <p className="mb-2 text-center text-sm font-semibold text-primary">Kontribusi Tugas Mahasiswa Mingguan</p>
+        <ReactApexChart type="area" series={kontribusiSeries} options={kontribusiOptions} height={300} />
+      </div>
+
+      <div className="rounded-2xl border border-gray-200 bg-white p-6">
+        <p className="mb-2 text-center text-sm font-semibold text-primary">Heatmap Keaktifan Mahasiswa</p>
+        <ReactApexChart type="heatmap" series={data.heatmap} options={heatmapOptions} height={280} />
+      </div>
+
+      <div className="rounded-2xl border border-gray-200 bg-white p-6">
+        <p className="mb-2 text-center text-sm font-semibold text-primary">Scatter Plot Keterlambatan Submit</p>
+        <ReactApexChart type="scatter" series={scatterSeries} options={scatterOptions} height={300} />
+      </div>
     </div>
   );
 }
