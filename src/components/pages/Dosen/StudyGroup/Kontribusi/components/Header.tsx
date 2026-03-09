@@ -16,7 +16,7 @@ const KontribusiHeader = ({ namaAnggota, data, totalKontribusi }: KontribusiHead
       <h1 className='text-primary font-bold text-lg '>{namaAnggota}</h1>
 
       {data.length === 0 ? (
-        <p className='text-accent text-xs'> Belum ada point pada thread apapun </p>
+        <p className='text-accent text-sm'> Belum ada point pada thread apapun </p>
       ) : (
         data.map((e) => (
           <div className='flex flex-row gap-6 items-center mt-4 w-full px-4 ' key={e.thread}>
