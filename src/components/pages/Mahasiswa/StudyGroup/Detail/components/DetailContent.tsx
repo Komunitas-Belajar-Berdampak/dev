@@ -67,8 +67,8 @@ const DetailContent = ({ idSg, namaSg, idCourse }: DetailContentProps) => {
       <div className='flex justify-end w-full mb-2'>
         <Dialog open={openDialog} onOpenChange={setOpenDialog}>
           <DialogTrigger asChild>
-            <Button variant={'ghost'} className='shadow-none  border border-accent px-3'>
-              <Settings className='size-5 text-muted-foreground cursor-pointer' />
+            <Button size={'icon-lg'} variant={'ghost'} className='group shadow-none border border-accent'>
+              <Settings className='size-5 text-muted-foreground transition-colors group-hover:text-primary' />
             </Button>
           </DialogTrigger>
           <DialogContent>
