@@ -75,27 +75,27 @@ function normalizeCourses(payload: any): DosenCourse[] {
   return [];
 }
 
-function getStoredUser(): { id: string; nrp: string; nama?: string } | null {
+function getStoredUser(): { id: string; nrp: string; nama?: string; isDefaultPassword?: boolean } | null {
   const CANDIDATE_KEYS = ["user", "auth_user", "currentUser", "me", "profile"];
   for (const key of CANDIDATE_KEYS) {
     try {
       const raw = localStorage.getItem(key);
       if (!raw) continue;
       const parsed = JSON.parse(raw);
-      // support { data: { id, nrp } } atau langsung { id, nrp }
       const obj = parsed?.data ?? parsed;
       const id  = String(obj?.id ?? obj?._id ?? "");
       const nrp = String(obj?.nrp ?? "");
-      if (id && nrp) return { id, nrp, nama: obj?.nama };
+      if (id && nrp) return {
+        id,
+        nrp,
+        nama: obj?.nama,
+        isDefaultPassword: obj?.isDefaultPassword ?? true,
+      };
     } catch {
       continue;
     }
   }
   return null;
-}
-
-function isPasswordStillDefault(userId: string): boolean {
-  return !localStorage.getItem(`pw_changed_${userId}`);
 }
 
 export default function DosenCourses() {
@@ -112,7 +112,7 @@ export default function DosenCourses() {
 
   const [showChangePw, setShowChangePw] = useState(() => {
     if (!storedUser) return false;
-    return isPasswordStillDefault(storedUser.id);
+    return storedUser.isDefaultPassword === true;
   });
 
   const { data: matakuliahRaw, isLoading, error, refetch } = useCourses();
@@ -160,16 +160,11 @@ export default function DosenCourses() {
   }
 
   const handlePasswordChanged = () => {
-    // Simpan flag supaya modal tidak muncul lagi
-    if (storedUser) {
-      localStorage.setItem(`pw_changed_${storedUser.id}`, "1");
-    }
     setShowChangePw(false);
   };
 
   return (
     <>
-      {/* ── First-login: ganti password modal ── */}
       {storedUser && (
         <ChangePasswordModal
           open={showChangePw}
