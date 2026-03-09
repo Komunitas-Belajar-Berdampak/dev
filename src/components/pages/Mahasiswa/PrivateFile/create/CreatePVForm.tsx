@@ -12,13 +12,11 @@ import useCreatePV from "../hooks/useCreatePV";
 
 const CreatePVForm = () => {
   const { mutate, isPending } = useCreatePV();
-  const form = useForm<CreatePrivateFileType>({
+  const form = useForm<CreatePrivateFileType, any, CreatePrivateFileType>({
     resolver: zodResolver(createPrivateFileSchema),
     defaultValues: {
-      filePath: "",
-      fileSize: "",
+      file: undefined,
       status: "PRIVATE",
-      tipe: "",
     },
   });
 
@@ -35,13 +33,10 @@ const CreatePVForm = () => {
       <section className="flex flex-col gap-6">
         <Controller
           control={form.control}
-          name="filePath"
-          render={({ field, fieldState }) => (
+          name="file"
+          render={({ fieldState }) => (
             <Field>
-              <FieldLabel
-                htmlFor={field.name}
-                className="text-xl text-primary font-semibold"
-              >
+              <FieldLabel className="text-xl text-primary font-semibold">
                 File <span className="text-red-600">*</span>
               </FieldLabel>
               <FileDropzone
@@ -50,15 +45,13 @@ const CreatePVForm = () => {
                   "application/pdf": [".pdf"],
                   "image/*": [".png", ".jpg", ".jpeg"],
                 }}
-                onFileSelect={({ filePath, fileSize, tipe }) => {
-                  form.setValue("filePath", filePath, { shouldValidate: true });
-                  form.setValue("fileSize", fileSize);
-                  form.setValue("tipe", tipe);
+                onFileSelect={(file) => {
+                  form.setValue("file", file, { shouldValidate: true });
                 }}
                 onFileRemove={() => {
-                  form.setValue("filePath", "", { shouldValidate: true });
-                  form.setValue("fileSize", "");
-                  form.setValue("tipe", "");
+                  form.setValue("file", undefined as any, {
+                    shouldValidate: true,
+                  });
                 }}
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}

@@ -6,15 +6,8 @@ import { useDropzone, type Accept } from "react-dropzone";
 import { Icon } from "@iconify/react";
 import { cn } from "@/lib/cn";
 
-interface FileInfo {
-  filePath: string;
-  fileSize: string;
-  tipe: string;
-  fileName: string;
-}
-
 interface FileDropzoneProps {
-  onFileSelect?: (file: FileInfo) => void;
+  onFileSelect?: (file: File) => void;
   onFileRemove?: () => void;
   accept?: Accept;
   maxSize?: number;
@@ -24,16 +17,8 @@ interface FileDropzoneProps {
     name: string;
     size: string;
     tipe: string;
+    path?: string;
   } | null;
-}
-
-async function fileToDataUrl(file: File) {
-  return await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
 }
 
 function formatFileSize(bytes: number): string {
@@ -55,32 +40,33 @@ const FileDropzone = ({
     name: string;
     size: string;
     tipe: string;
+    path?: string;
   } | null>(initialFile ?? null);
 
   const onDrop = useCallback(
-    async (acceptedFiles: File[]) => {
+    (acceptedFiles: File[]) => {
       const file = acceptedFiles[0];
       if (!file) return;
 
-      const dataUrl = await fileToDataUrl(file);
+      const path = URL.createObjectURL(file);
 
       setPreview({
         name: file.name,
         size: formatFileSize(file.size),
         tipe: file.type,
+        path,
       });
 
-      onFileSelect?.({
-        filePath: dataUrl,
-        fileSize: formatFileSize(file.size),
-        tipe: file.type,
-        fileName: file.name,
-      });
+      onFileSelect?.(file);
     },
     [onFileSelect],
   );
 
   const removeFile = () => {
+    // Revoke object URL to free memory if it was a local file
+    if (preview?.path && !initialFile?.path) {
+      URL.revokeObjectURL(preview.path);
+    }
     setPreview(null);
     onFileRemove?.();
   };
@@ -93,6 +79,9 @@ const FileDropzone = ({
       multiple: false,
       disabled,
     });
+
+  const isImage = preview?.tipe?.startsWith("image/");
+  const isPdf = preview?.tipe === "application/pdf";
 
   return (
     <div className={className}>
@@ -124,32 +113,60 @@ const FileDropzone = ({
           </p>
         </div>
       ) : (
-        <div className="flex items-center justify-between rounded-lg border p-4">
-          <div className="flex items-center gap-3">
-            <Icon
-              icon="tabler:file-filled"
-              className="text-primary"
-              width={32}
-              height={32}
-            />
-            <div>
-              <p className="max-w-[200px] truncate text-sm font-medium">
-                {preview.name}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {preview.size} • {preview.tipe}
-              </p>
+        // ── Preview ──
+        <div className="flex flex-col gap-2">
+          {/* Image preview */}
+          {preview.path && isImage && (
+            <div className="relative w-full h-48 rounded-lg overflow-hidden border">
+              <img
+                src={preview.path}
+                alt={preview.name}
+                className="w-full h-full object-contain"
+              />
             </div>
-          </div>
-          {!initialFile && (
-            <button
-              type="button"
-              onClick={removeFile}
-              className="rounded-full p-1 hover:bg-muted"
-            >
-              <Icon icon="tabler:x" width={16} height={16} />
-            </button>
           )}
+
+          {/* PDF preview */}
+          {preview.path && isPdf && (
+            <div className="w-full h-48 rounded-lg overflow-hidden border">
+              <iframe
+                src={preview.path}
+                className="w-full h-full"
+                title={preview.name}
+              />
+            </div>
+          )}
+
+          {/* File info row */}
+          <div className="flex items-center justify-between rounded-lg border p-4">
+            <div className="flex items-center gap-3">
+              <Icon
+                icon={isImage ? "tabler:photo" : "tabler:file-filled"}
+                className="text-primary"
+                width={32}
+                height={32}
+              />
+              <div>
+                <p className="max-w-[200px] truncate text-sm font-medium">
+                  {preview.name}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {preview.size} • {preview.tipe}
+                </p>
+              </div>
+            </div>
+
+            {/* Only show remove button if not a read-only initial file */}
+            {!disabled && !initialFile && (
+              <button
+                type="button"
+                onClick={removeFile}
+                className="rounded-full p-1 hover:bg-muted"
+              >
+                <Icon icon="tabler:x" width={16} height={16} />
+              </button>
+            )}
+          </div>
         </div>
       )}
 

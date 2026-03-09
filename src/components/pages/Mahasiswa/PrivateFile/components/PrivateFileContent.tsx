@@ -21,6 +21,7 @@ import { getFileName } from "../helpers";
 import NoData from "@/components/shared/NoData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDebounce } from "@/hooks/use-debounce";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
 const PrivateFileContent = () => {
   const [page, setPage] = useState(1);
@@ -32,10 +33,11 @@ const PrivateFileContent = () => {
     size: string;
   } | null>(null);
   const [selectedId, setSelectedId] = useState<string>("");
+  const [isDeleted, setIsDeleted] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const debouncedSearch = useDebounce(searchValue, 1000);
   const { data, isPending } = useQuery({
-    queryKey: ["private-file", page, searchValue],
+    queryKey: ["private-file", page],
     queryFn: () => getPrivateFiles({ page }),
   });
   const { mutate: remove, isPending: isDeletePending } = useDeletePV();
@@ -56,6 +58,11 @@ const PrivateFileContent = () => {
         total: files?.length,
       }
     : data?.pagination;
+
+  const handleDelete = () => {
+    remove(selectedId);
+    setIsDeleted(false);
+  };
 
   console.log({ data });
   return (
@@ -148,7 +155,8 @@ const PrivateFileContent = () => {
                       )}
                       onClick={() => {
                         setSelectedId(item.id);
-                        remove(item.id);
+                        setIsDeleted(true);
+                        // remove(item.id);
                       }}
                     />
                   </TableCell>
@@ -163,6 +171,13 @@ const PrivateFileContent = () => {
           open={preview !== null}
           onOpenChange={() => setPreview(null)}
           file={preview}
+        />
+      )}
+      {isDeleted && selectedId && (
+        <DeleteConfirmationModal
+          isOpen={isDeleted}
+          onOpenChange={() => setIsDeleted(false)}
+          onDelete={handleDelete}
         />
       )}
       {files && files?.length > 0 && (
