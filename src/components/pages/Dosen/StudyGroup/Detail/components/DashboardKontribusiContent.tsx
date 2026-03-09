@@ -36,7 +36,7 @@ const DashboardKontribusiContent = ({ totalKontribusi = 0, anggota = [] }: Dashb
 
               <div className='flex flex-row gap-4 items-center w-1/3'>
                 <div className='w-full h-[0.4rem] bg-accent overflow-hidden rounded-xl'>
-                  <div className={`bg-primary h-full rounded-full`} style={{ width: `${(member.totalKontribusi / totalKontribusi) * 100}%` }} />
+                  <div className={`bg-primary h-full rounded-full`} style={{ width: ` ${totalKontribusi !== 0 ? (member.totalKontribusi / totalKontribusi) * 100 : 0}%` }} />
                 </div>
                 <span className='text-primary font-bold text-sm'>{member.totalKontribusi}</span>
               </div>
