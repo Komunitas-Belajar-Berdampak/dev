@@ -76,26 +76,22 @@ function normalizeCourses(payload: any): DosenCourse[] {
 }
 
 function getStoredUser(): { id: string; nrp: string; nama?: string; isDefaultPassword?: boolean } | null {
-  const CANDIDATE_KEYS = ["user", "auth_user", "currentUser", "me", "profile"];
-  for (const key of CANDIDATE_KEYS) {
-    try {
-      const raw = localStorage.getItem(key);
-      if (!raw) continue;
-      const parsed = JSON.parse(raw);
-      const obj = parsed?.data ?? parsed;
-      const id  = String(obj?.id ?? obj?._id ?? "");
-      const nrp = String(obj?.nrp ?? "");
-      if (id && nrp) return {
-        id,
-        nrp,
-        nama: obj?.nama,
-        isDefaultPassword: obj?.isDefaultPassword ?? true,
-      };
-    } catch {
-      continue;
-    }
+  try {
+    const raw = localStorage.getItem('auth_user');
+    if (!raw) return null;
+    const obj = JSON.parse(raw);
+    const id = String(obj?.id ?? '');
+    const nrp = String(obj?.nrp ?? '');
+    if (!id || !nrp) return null;
+    return {
+      id,
+      nrp,
+      nama: obj?.nama,
+      isDefaultPassword: obj?.isDefaultPassword ?? true,
+    };
+  } catch {
+    return null;
   }
-  return null;
 }
 
 export default function DosenCourses() {
