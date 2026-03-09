@@ -5,6 +5,7 @@ export type AuthUser = {
   nrp: string;
   nama: string;
   namaRole: Role;
+  isDefaultPassword: boolean;
 };
 
 export type LoginResponse = {

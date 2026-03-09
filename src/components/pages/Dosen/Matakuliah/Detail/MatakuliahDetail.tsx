@@ -4,10 +4,10 @@ import { Icon } from "@iconify/react";
 
 import Title from "@/components/shared/Title";
 import MatkulDesc from "./components/MatkulDesc";
-import PertemuanList from "../Pertemuan/PertemuanList";
 
 import { useMatakuliahDetail } from "../hooks/useMatakuliahDetail";
 import { useMeetingsByCourse } from "../hooks/useMeetingsByCourse";
+import PertemuanList from "../Pertemuan/PertemuanList";
 
 function SkeletonBlock({ className = "" }: { className?: string }) {
   return (
@@ -141,7 +141,7 @@ export default function MatakuliahDetail() {
               View Materi & Tugas
             </button>
             <button
-              onClick={() => navigate(`/dosen/courses/${id}/edit-deskripsi`)}
+              onClick={() => navigate(`/dosen/courses/${id}/deskripsi`)}
               className="w-full px-4 py-3 text-left hover:bg-gray-50"
             >
               Edit Deskripsi
@@ -188,7 +188,7 @@ export default function MatakuliahDetail() {
         )}
 
         {!meetingsLoading && !meetingsError && (
-          <PertemuanList pertemuan={meetings} />
+          <PertemuanList pertemuan={meetings} onRefetch={refetchMeetings} />
         )}
       </div>
     </div>

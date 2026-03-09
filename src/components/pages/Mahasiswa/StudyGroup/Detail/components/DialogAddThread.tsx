@@ -50,15 +50,17 @@ const DialogAddThread = ({ open, onOpenChange, idSg, idCourse }: DialogAddThread
   }, [assignmentsError?.message, isAssignmentsError]);
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (values: ThreadSchemaType) => createThreadByStudyGroup(idSg, { judul: values.judul, assignmentId: values.idAssignment }),
+    mutationFn: (values: ThreadSchemaType) => createThreadByStudyGroup(idSg, { judul: values.judul, idAssignment: values.idAssignment }),
     onSuccess: async (res) => {
       toast.success(res.message || 'Berhasil menambahkan topik.', { toasterId: 'global' });
-      await queryClient.invalidateQueries({ queryKey: ['threads-by-sg', idSg] });
+
+      await Promise.all([queryClient.invalidateQueries({ queryKey: ['threads-by-sg', idSg] }), queryClient.invalidateQueries({ queryKey: ['study-group-member-by-id', idSg] })]);
+
       form.reset({ judul: '', idAssignment: '' });
       onOpenChange(false);
     },
-    onError: (err: Error) => {
-      toast.error(err.message || 'Gagal menambahkan topik.', { toasterId: 'global' });
+    onError: () => {
+      toast.error('Topik sudah pernah digunakan sebelumnya', { toasterId: 'global' });
     },
   });
 

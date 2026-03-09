@@ -15,11 +15,11 @@ export function useCreateFakultas() {
       FakultasService.createFakultas({
         kodeFakultas: payload.kodeFakultas,
         namaFakultas: payload.namaFakultas,
-        // optional: biar konsisten ke tipe entity
         prodi: [],
       }),
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["fakultas"] });
+      await qc.refetchQueries({ queryKey: ["fakultas"] });
     },
   });
 

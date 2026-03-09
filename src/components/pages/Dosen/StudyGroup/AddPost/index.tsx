@@ -16,7 +16,7 @@ const AddPost = () => {
   return (
     <>
       <Title title='New Discussion' items={breadcrumbItems} />
-      <AddPostContent idTopik={`${idTopik}`} />
+      <AddPostContent idTopik={`${idTopik}`} idSg={`${idSg}`} />
     </>
   );
 };

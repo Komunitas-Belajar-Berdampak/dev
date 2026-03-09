@@ -1,5 +1,5 @@
 import { api } from "@/lib/axios";
-import type { CreateUserPayload, UpdateUserPayload, UserEntity } from "../types/user";
+import type { CreateUserPayload, UpdateUserPayload, UserEntity, PatchUserPayload} from "../types/user";
 
 function normalizeUsers(payload: any): UserEntity[] {
   if (Array.isArray(payload)) return payload;
@@ -12,7 +12,9 @@ function normalizeUsers(payload: any): UserEntity[] {
 
 export const UsersService = {
   async getUsers() {
-    const res = await api.get<any>("/users");
+    const res = await api.get<any>("/users", {
+      params: { limit: 1000, page: 1 },
+    });
     return normalizeUsers(res.data);
   },
 
@@ -35,4 +37,10 @@ export const UsersService = {
     const res = await api.delete<any>(`/users/${id}`);
     return res.data?.data ?? res.data;
   },
+
+  async patchMe(payload: PatchUserPayload) {
+    const res = await api.patch<any>("/users", payload);
+    return res.data?.data ?? res.data;
+  },
+
 };

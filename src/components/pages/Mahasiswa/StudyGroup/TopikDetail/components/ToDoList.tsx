@@ -20,6 +20,7 @@ type ToDoListContentProps = {
   threadId: string;
   members: AnggotaStudyGroup[];
   filters: TaskFilterValue;
+  studyGroupId: string;
   tasksQuery: {
     data: Task[];
     isLoading: boolean;
@@ -28,7 +29,7 @@ type ToDoListContentProps = {
   };
 };
 
-const ToDoListContent = ({ threadId, members, filters, tasksQuery }: ToDoListContentProps) => {
+const ToDoListContent = ({ threadId, members, filters, tasksQuery, studyGroupId }: ToDoListContentProps) => {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -74,7 +75,7 @@ const ToDoListContent = ({ threadId, members, filters, tasksQuery }: ToDoListCon
     });
   }, [tasksQuery.data, filters.memberId, filters.status]);
 
-  const { addMutation, updateMutation, deleteMutation, isPending } = useTodoTaskMutations(threadId, {
+  const { addMutation, updateMutation, deleteMutation, isPending } = useTodoTaskMutations(threadId, studyGroupId, {
     onAddSuccess: () => {
       addForm.reset({ task: '', idMahasiswa: [], status: 'DO' });
       setIsAdding(false);

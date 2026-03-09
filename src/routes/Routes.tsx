@@ -28,6 +28,9 @@ import ProgramStudiPage from "@/components/pages/SuperAdmin/ProgramStudi/Program
 import SuperAdmin from "@/components/pages/SuperAdmin/SuperAdmin";
 import TahunAkademikDanSemesterPage from "@/components/pages/SuperAdmin/TahunAkademikDanSemester/TahunAkademikDanSemesterPage";
 import PertemuanDetail from "@/components/pages/Dosen/Matakuliah/Pertemuan/PertemuanDetail";
+import ViewSubmissionPage from "@/components/pages/Dosen/Matakuliah/Submission/ViewSubmissionPage";
+import ViewAllSubmissionPage from "@/components/pages/Dosen/Matakuliah/Submission/ViewAllSubmissionPage";
+import EditNilaiPage from "@/components/pages/Dosen/Matakuliah/Submission/EditNilaiPage";
 import MahasiswaList from "@/components/pages/Dosen/Matakuliah/Mahasiswa/MahasiswaList";
 import MateriTugasPage from "@/components/pages/Dosen/Matakuliah/MateriTugas/MateriTugasPage";
 import UserPage from "@/components/pages/SuperAdmin/Users/UserPage";
@@ -42,6 +45,12 @@ import MatakuliahDetailPage from "@/components/pages/SuperAdmin/Matakuliah/Matak
 import MatakuliahTable from "@/components/pages/SuperAdmin/Matakuliah/MatakuliahTable";
 import ProfilePage from "@/components/pages/Profile";
 import EditProfilePage from "@/components/pages/Profile/Edit";
+import DeskripsiPage from "@/components/pages/Dosen/Matakuliah/Deskripsi/DeskripsiPage";
+import DashboardPage from "@/components/pages/Dosen/Matakuliah/Dashboard/DashboardPage";
+import AllPertemuanDashboard from "@/components/pages/Dosen/Matakuliah/Dashboard/AllPertemuanDashboard";
+import PerPertemuanDashboard from "@/components/pages/Dosen/Matakuliah/Dashboard/PerPertemuanDashboard";
+import PertemuanDashboardDetail from "@/components/pages/Dosen/Matakuliah/Dashboard/PertemuanDashboardDetail";
+import ViewNilaiMahasiswaPage from "@/components/pages/Dosen/Matakuliah/Mahasiswa/ViewNilaiMahasiswaPage";
 
 const routes: RouteObject[] = [
   {
@@ -154,8 +163,28 @@ const routes: RouteObject[] = [
                 element: <PertemuanDetail />,
               },
               {
+                path: ":id/pertemuan/:assignmentId/submissions",
+                element: <ViewSubmissionPage />,
+              },
+              {
+                path: ":id/pertemuan/:assignmentId/submissions/all",
+                element: <ViewAllSubmissionPage />,
+              },
+              {
+                path: ":id/pertemuan/:assignmentId/submissions/all/edit",
+                element: <EditNilaiPage />,
+              },
+              {
                 path: ":id/mahasiswa",
                 element: <MahasiswaList />,
+              },
+              {
+                path: ":id/mahasiswa/:idMahasiswa/nilai",
+                element: <ViewNilaiMahasiswaPage />,
+              },
+              {
+                path: ":id/deskripsi",
+                element: <DeskripsiPage />,
               },
               {
                 path: ":id/materi-tugas",

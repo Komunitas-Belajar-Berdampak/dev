@@ -1,15 +1,20 @@
-import { getStudyGroupById } from '@/api/study-group';
+import { getStudyGroupById, quickEditStudyGroupById } from '@/api/study-group';
 import DashboardKontribusiContent from '@/components/pages/Dosen/StudyGroup/Detail/components/DashboardKontribusiContent';
 import StudyGroupDetailContentSkeleton from '@/components/pages/Dosen/StudyGroup/Detail/components/StudyGroupDetailContentSkeleton';
 import ContentHeader from '@/components/shared/ContentHeader';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type { StudyGroupQuickEditSchemaType } from '@/schemas/sg';
 import type { ApiResponse } from '@/types/api';
 import type { StudyGroupDetail } from '@/types/sg';
 import { Icon } from '@iconify/react';
-import { useQuery } from '@tanstack/react-query';
+import { DialogTrigger } from '@radix-ui/react-dialog';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Settings } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import DialogEditSg from '../../List/components/DialogEditSg';
 import DialogAddThread from './DialogAddThread';
 import TopikPembahasanContent from './TopikPembahasan';
 
@@ -22,12 +27,32 @@ type DetailContentProps = {
 const DetailContent = ({ idSg, namaSg, idCourse }: DetailContentProps) => {
   const [tab, setTab] = useState<'members' | 'topik-pembahasan'>('members');
   const [isAddThreadOpen, setIsAddThreadOpen] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data, isLoading, isError, error } = useQuery<ApiResponse<StudyGroupDetail>, Error, StudyGroupDetail>({
     queryKey: ['sg-detail', idSg],
     queryFn: () => getStudyGroupById(idSg),
     select: (res) => res.data,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
+
+  const { mutate: saveEdit, isPending: isSavingEdit } = useMutation({
+    mutationFn: async (values: StudyGroupQuickEditSchemaType) => quickEditStudyGroupById(idSg, values),
+    onSuccess: async (res) => {
+      toast.success(res.message || 'Study group berhasil diedit.', { toasterId: 'global' });
+      setOpenDialog(!openDialog);
+      queryClient.invalidateQueries({ queryKey: ['sg-detail', idSg] });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Gagal mengedit study group.', { toasterId: 'global' });
+    },
+  });
+
+  const handleSave = (values: StudyGroupQuickEditSchemaType) => {
+    saveEdit(values);
+  };
 
   useEffect(() => {
     if (!isError) return;
@@ -38,6 +63,20 @@ const DetailContent = ({ idSg, namaSg, idCourse }: DetailContentProps) => {
 
   return (
     <>
+      {/* Setting Button */}
+      <div className='flex justify-end w-full mb-2'>
+        <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+          <DialogTrigger asChild>
+            <Button size={'icon-lg'} variant={'ghost'} className='group shadow-none border border-accent'>
+              <Settings className='size-5 text-muted-foreground transition-colors group-hover:text-primary' />
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogEditSg defaultValues={{ nama: data?.nama, deskripsi: data?.deskripsi }} isPending={isSavingEdit} onSave={handleSave} />
+          </DialogContent>
+        </Dialog>
+      </div>
+
       <ContentHeader title={namaSg}>
         <p className='text-primary tracking-wide'>{data?.deskripsi || 'Deskripsi study group belum tersedia.'}</p>
       </ContentHeader>
