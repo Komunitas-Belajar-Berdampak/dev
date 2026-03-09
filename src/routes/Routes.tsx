@@ -48,6 +48,7 @@ import DashboardPage from '@/components/pages/Dosen/Matakuliah/Dashboard/Dashboa
 import AllPertemuanDashboard from '@/components/pages/Dosen/Matakuliah/Dashboard/AllPertemuanDashboard';
 import PerPertemuanDashboard from '@/components/pages/Dosen/Matakuliah/Dashboard/PerPertemuanDashboard';
 import PertemuanDashboardDetail from '@/components/pages/Dosen/Matakuliah/Dashboard/PertemuanDashboardDetail';
+import ViewNilaiMahasiswaPage from '@/components/pages/Dosen/Matakuliah/Mahasiswa/ViewNilaiMahasiswaPage';
 
 const routes: RouteObject[] = [
   {
@@ -155,6 +156,10 @@ const routes: RouteObject[] = [
               {
                 path: ":id/mahasiswa",
                 element: <MahasiswaList />,
+              },
+              {
+                path: ":id/mahasiswa/:idMahasiswa/nilai",
+                element: <ViewNilaiMahasiswaPage />,
               },
               {
                 path: ":id/deskripsi",
