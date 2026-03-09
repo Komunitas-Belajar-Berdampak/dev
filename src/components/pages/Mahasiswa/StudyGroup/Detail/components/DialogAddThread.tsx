@@ -59,8 +59,8 @@ const DialogAddThread = ({ open, onOpenChange, idSg, idCourse }: DialogAddThread
       form.reset({ judul: '', idAssignment: '' });
       onOpenChange(false);
     },
-    onError: (err: Error) => {
-      toast.error(err.message || 'Gagal menambahkan topik.', { toasterId: 'global' });
+    onError: () => {
+      toast.error('Topik sudah pernah digunakan sebelumnya', { toasterId: 'global' });
     },
   });
 
