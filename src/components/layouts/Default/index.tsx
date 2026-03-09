@@ -1,14 +1,19 @@
+import ChangePasswordModal from '@/components/pages/Dosen/components/ChangePasswordModal';
 import AppSidebar from '@/components/shared/AppSidebar';
 import Header from '@/components/shared/Header';
 import { SidebarProvider } from '@/components/ui/sidebar';
+import { Toaster } from '@/components/ui/sonner';
+import { useDefaultPasswordPrompt } from '@/hooks/use-default-password-prompt';
 import { Outlet } from 'react-router-dom';
 import AuthBootstrap from '../Auth/AuthBoostrap';
-import { Toaster } from '@/components/ui/sonner';
 
 const DefaultLayout = () => {
+  const { user, showChangePassword, handlePasswordChanged } = useDefaultPasswordPrompt();
+
   return (
     <>
       <AuthBootstrap />
+      {user && <ChangePasswordModal open={showChangePassword} nrp={user.nrp} userName={user.nama} onSuccess={handlePasswordChanged} />}
       <SidebarProvider>
         <div className='flex min-h-screen w-full'>
           {/* SIDEBAR */}
@@ -31,7 +36,7 @@ const DefaultLayout = () => {
           </main>
         </div>
       </SidebarProvider>
-      <Toaster position="bottom-right" />
+      <Toaster position='bottom-right' />
     </>
   );
 };
