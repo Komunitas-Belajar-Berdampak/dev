@@ -1,3 +1,5 @@
+import AvatarUpload from "@/components/shared/AvatarUpload";
+import PasswordInput from "@/components/shared/PasswordInput";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -13,14 +15,10 @@ import { updateProfileSchema, type updateProfile } from "@/schemas/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Icon } from "@iconify/react";
 import { Controller, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import useEditProfile from "../hooks/useEditProfile";
 import { useFetchProfile } from "../hooks/useFetchProfile";
 import ProfileCard from "./ProfileCard";
-import { useNavigate } from "react-router-dom";
-import PasswordInput from "@/components/shared/PasswordInput";
-import useEditProfile from "../hooks/useEditProfile";
-import AvatarUpload from "@/components/shared/AvatarUpload";
-import { useQuery } from "@tanstack/react-query";
-import { getLearningApproach } from "@/api/approach";
 
 const genders = [
   {
@@ -44,14 +42,31 @@ const status = [
   },
 ];
 
+const learningStyle = [
+  {
+    value: "visual",
+    label: "Visual",
+  },
+  {
+    value: "auditory",
+    label: "Auditory",
+  },
+  {
+    value: "reading/writing",
+    label: "Reading/Writing",
+  },
+  {
+    value: "kinesthetic",
+    label: "Kinesthetic",
+  },
+];
+
 const ProfileContent = ({ isEditing }: { isEditing: boolean }) => {
   const navigate = useNavigate();
   const { data, isPending } = useFetchProfile();
-  // const { data: approach } = useQuery({
-  //   queryKey: ["approach"],
-  //   queryFn: () => getLearningApproach(data?.id as string),
-  // });
-  const { mutate, isPending: isSubmitting } = useEditProfile();
+  const { mutate, isPending: isSubmitting } = useEditProfile(
+    data?.id as string,
+  );
 
   console.log(data);
   // console.log("gaya apa bos", approach);
@@ -64,6 +79,7 @@ const ProfileContent = ({ isEditing }: { isEditing: boolean }) => {
       fotoProfil: data?.fotoProfil,
       passwordLama: "",
       passwordBaru: "",
+      gayaBelajar: data?.gayaBelajar as (string | undefined)[] | undefined,
     },
     values: {
       nama: data?.nama as string,
@@ -71,11 +87,15 @@ const ProfileContent = ({ isEditing }: { isEditing: boolean }) => {
       fotoProfil: data?.fotoProfil as string,
       passwordLama: "",
       passwordBaru: "",
+      gayaBelajar: data?.gayaBelajar as string[] | undefined,
     },
   });
 
-  function onSubmit(data: updateProfile) {
-    mutate(data);
+  function onSubmit(formData: updateProfile) {
+    mutate({
+      payload: formData,
+      gayaBelajarExists: !!data?.gayaBelajar?.length,
+    });
   }
 
   if (isPending) {
@@ -222,6 +242,43 @@ const ProfileContent = ({ isEditing }: { isEditing: boolean }) => {
                     </SelectContent>
                   </Select>
                 </Field>
+                <Controller
+                  name="gayaBelajar"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Field>
+                      <FieldLabel>Learning Style</FieldLabel>
+                      <div className="flex items-center gap-2">
+                        {learningStyle.map((item) => (
+                          <label
+                            key={item.value}
+                            className="flex items-center gap-2 cursor-pointer"
+                          >
+                            <input
+                              type="checkbox"
+                              className="accent-primary"
+                              disabled={!isEditing || isSubmitting}
+                              checked={
+                                field.value?.includes(item.value) ?? false
+                              }
+                              onChange={(e) => {
+                                const current = field.value ?? [];
+                                if (e.target.checked) {
+                                  field.onChange([...current, item.value]);
+                                } else {
+                                  field.onChange(
+                                    current.filter((v) => v !== item.value),
+                                  );
+                                }
+                              }}
+                            />
+                            {item.label}
+                          </label>
+                        ))}
+                      </div>
+                    </Field>
+                  )}
+                />
               </div>
             </FieldSet>
             <FieldSet className="flex flex-col gap-4">

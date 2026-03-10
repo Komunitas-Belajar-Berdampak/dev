@@ -23,6 +23,10 @@ export const updateProfileSchema = z
           .min(8, "Password minimal terdiri dari 8 karakter")
           .optional(),
       ),
+    gayaBelajar: z
+      .array(z.string())
+      .min(1, "Pilih minimal satu gaya belajar")
+      .optional(),
     fotoProfil: z.union([z.instanceof(File), z.string(), z.null()]).optional(),
   })
   .refine(
