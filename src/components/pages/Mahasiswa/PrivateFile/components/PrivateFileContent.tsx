@@ -17,7 +17,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FilePreviewModal } from "./FilePreviewModal";
 import useDeletePV from "../hooks/useDeletePv";
-import { getFileName } from "../helpers";
 import NoData from "@/components/shared/NoData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -47,7 +46,7 @@ const PrivateFileContent = () => {
         (pv) =>
           pv.id.includes(debouncedSearch) ||
           pv.status.toLowerCase().includes(debouncedSearch) ||
-          getFileName(pv.id, pv.file.nama).includes(debouncedSearch) ||
+          pv.file.nama.includes(debouncedSearch) ||
           pv.file.tipe.includes(debouncedSearch),
       )
     : data?.data;
@@ -114,7 +113,7 @@ const PrivateFileContent = () => {
                     <div className="h-10 w-10 rounded-full bg-[#C5D1FF] justify-center items-center flex p-2 shadow">
                       <Icon icon="line-md:file-filled" fontSize={32} />
                     </div>
-                    {getFileName(item.id, item.file.tipe)}
+                    {item.file.nama}
                   </TableCell>
                   <TableCell>{item.file.tipe}</TableCell>
                   <TableCell>{item.status}</TableCell>
@@ -127,7 +126,7 @@ const PrivateFileContent = () => {
                         setPreview({
                           path: item.file.path,
                           tipe: item.file.tipe,
-                          nama: getFileName(item.id, item.file.tipe),
+                          nama: item.file.nama,
                           size: item.file.size,
                         })
                       }

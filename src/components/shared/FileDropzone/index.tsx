@@ -43,6 +43,8 @@ const FileDropzone = ({
     path?: string;
   } | null>(initialFile ?? null);
 
+  const [showModal, setShowModal] = useState(false);
+
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       const file = acceptedFiles[0];
@@ -63,7 +65,6 @@ const FileDropzone = ({
   );
 
   const removeFile = () => {
-    // Revoke object URL to free memory if it was a local file
     if (preview?.path && !initialFile?.path) {
       URL.revokeObjectURL(preview.path);
     }
@@ -113,32 +114,12 @@ const FileDropzone = ({
           </p>
         </div>
       ) : (
-        // ── Preview ──
         <div className="flex flex-col gap-2">
-          {/* Image preview */}
-          {preview.path && isImage && (
-            <div className="relative w-full h-48 rounded-lg overflow-hidden border">
-              <img
-                src={preview.path}
-                alt={preview.name}
-                className="w-full h-full object-contain"
-              />
-            </div>
-          )}
-
-          {/* PDF preview */}
-          {preview.path && isPdf && (
-            <div className="w-full h-48 rounded-lg overflow-hidden border">
-              <iframe
-                src={preview.path}
-                className="w-full h-full"
-                title={preview.name}
-              />
-            </div>
-          )}
-
           {/* File info row */}
-          <div className="flex items-center justify-between rounded-lg border p-4">
+          <div
+            className="flex cursor-pointer items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted/50"
+            onClick={() => setShowModal(true)}
+          >
             <div className="flex items-center gap-3">
               <Icon
                 icon={isImage ? "tabler:photo" : "tabler:file-filled"}
@@ -156,16 +137,61 @@ const FileDropzone = ({
               </div>
             </div>
 
-            {/* Only show remove button if not a read-only initial file */}
             {!disabled && !initialFile && (
               <button
                 type="button"
-                onClick={removeFile}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeFile();
+                }}
                 className="rounded-full p-1 hover:bg-muted"
               >
                 <Icon icon="tabler:x" width={16} height={16} />
               </button>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Modal */}
+      {showModal && preview?.path && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          onClick={() => setShowModal(false)}
+        >
+          <div
+            className="relative mx-4 w-full max-w-3xl overflow-hidden rounded-xl bg-white shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between border-b p-4">
+              <p className="truncate text-sm font-medium">{preview.name}</p>
+              <button
+                type="button"
+                onClick={() => setShowModal(false)}
+                className="rounded-full p-1 hover:bg-muted"
+              >
+                <Icon icon="tabler:x" width={18} height={18} />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-4">
+              {isImage && (
+                <img
+                  src={preview.path}
+                  alt={preview.name}
+                  className="max-h-[70vh] w-full object-contain"
+                />
+              )}
+              {isPdf && (
+                <iframe
+                  src={preview.path}
+                  className="h-[70vh] w-full"
+                  title={preview.name}
+                />
+              )}
+            </div>
           </div>
         </div>
       )}

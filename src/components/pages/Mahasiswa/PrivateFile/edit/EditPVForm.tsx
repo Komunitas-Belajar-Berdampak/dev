@@ -10,7 +10,6 @@ import type { PrivateFile } from "@/types/private-file";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
-import { getFileName } from "../helpers";
 import useEditPV from "../hooks/useEditPV";
 
 const EditPVForm = ({ data }: { data: PrivateFile }) => {
@@ -43,9 +42,10 @@ const EditPVForm = ({ data }: { data: PrivateFile }) => {
           </FieldLabel>
           <FileDropzone
             initialFile={{
-              name: getFileName(data.id, data.file.nama),
+              name: data.file.nama,
               size: data.file.size,
               tipe: data.file.tipe,
+              path: data.file.path,
             }}
             disabled
             accept={{
