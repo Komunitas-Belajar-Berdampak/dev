@@ -23,7 +23,6 @@ const EditPrivateFilePage = () => {
     },
   ];
   const privateFile = data?.data.find((pv) => pv.id === params.id);
-  console.log(privateFile);
   return (
     <div className="flex flex-col gap-6">
       <Title

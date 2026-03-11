@@ -10,7 +10,6 @@ const useCreatePV = () => {
   const { data, mutate, isPending } = useMutation({
     mutationFn: (payload: CreatePrivateFileType) => createPrivateFile(payload),
     onSuccess: () => {
-      console.log(data);
       toast.success(data?.message || "Private file berhasil dibuat!");
       qc.invalidateQueries({ queryKey: ["private-file"] });
       navigate("/mahasiswa/private-file");

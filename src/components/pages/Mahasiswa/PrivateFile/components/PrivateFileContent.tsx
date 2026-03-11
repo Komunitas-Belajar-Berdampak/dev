@@ -1,7 +1,10 @@
 import { getPrivateFiles } from "@/api/private-file";
+import ConfirmDeleteModal from "@/components/pages/Dosen/Matakuliah/MateriTugas/components/ConfirmDeleteModal";
 import AddButton from "@/components/shared/AddButton";
+import NoData from "@/components/shared/NoData";
 import Pagination from "@/components/shared/Pagination";
 import Search from "@/components/shared/Search";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -10,17 +13,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useDebounce } from "@/hooks/use-debounce";
 import { cn } from "@/lib/cn";
 import { Icon } from "@iconify/react";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FilePreviewModal } from "./FilePreviewModal";
 import useDeletePV from "../hooks/useDeletePv";
-import NoData from "@/components/shared/NoData";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useDebounce } from "@/hooks/use-debounce";
-import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import { FilePreviewModal } from "./FilePreviewModal";
+import PVDropdown from "./PVDropdown";
 
 const PrivateFileContent = () => {
   const [page, setPage] = useState(1);
@@ -63,7 +64,6 @@ const PrivateFileContent = () => {
     setIsDeleted(false);
   };
 
-  console.log({ data });
   return (
     <div className="flex flex-col gap-4  grow">
       <div className="flex items-center justify-between">
@@ -118,11 +118,8 @@ const PrivateFileContent = () => {
                   <TableCell>{item.file.tipe}</TableCell>
                   <TableCell>{item.status}</TableCell>
                   <TableCell className="text-center flex items-center gap-2">
-                    <Icon
-                      icon="mdi:eye-outline"
-                      fontSize={20}
-                      className="cursor-pointer text-primary"
-                      onClick={() =>
+                    <PVDropdown
+                      onView={() =>
                         setPreview({
                           path: item.file.path,
                           tipe: item.file.tipe,
@@ -130,32 +127,12 @@ const PrivateFileContent = () => {
                           size: item.file.size,
                         })
                       }
-                    />
-                    <Icon
-                      onClick={() =>
+                      onEdit={() =>
                         navigate(`/mahasiswa/private-file/edit/${item.id}`)
                       }
-                      icon="ic:baseline-edit"
-                      fontSize={20}
-                      className="cursor-pointer text-primary"
-                    />
-                    <Icon
-                      icon={
-                        isDeletePending && selectedId === item.id
-                          ? "tdesign:loading"
-                          : "fluent-mdl2:delete"
-                      }
-                      fontSize={20}
-                      className={cn(
-                        "cursor-pointer text-red-500",
-                        isDeletePending &&
-                          selectedId === item.id &&
-                          "animate-spin",
-                      )}
-                      onClick={() => {
+                      onDelete={() => {
                         setSelectedId(item.id);
                         setIsDeleted(true);
-                        // remove(item.id);
                       }}
                     />
                   </TableCell>
@@ -173,10 +150,13 @@ const PrivateFileContent = () => {
         />
       )}
       {isDeleted && selectedId && (
-        <DeleteConfirmationModal
-          isOpen={isDeleted}
-          onOpenChange={() => setIsDeleted(false)}
-          onDelete={handleDelete}
+        <ConfirmDeleteModal
+          open={isDeleted}
+          onConfirm={handleDelete}
+          onClose={() => setIsDeleted(false)}
+          loading={isDeletePending}
+          title="Apakah Anda yakin ingin menghapus file ini?"
+          description="File akan dihapus secara permanen."
         />
       )}
       {files && files?.length > 0 && (

@@ -64,15 +64,15 @@ const menuItems: MenuItem[] = [
 
   // mahasiswa
   {
-    title: "Private File",
-    path: "/mahasiswa/private-file",
-    icon: <Icon icon="fluent:document-text-32-regular" />,
-    role: ["MAHASISWA"],
-  },
-  {
     title: "Study Groups",
     path: "/mahasiswa/study-groups",
     icon: <Icon icon="fluent:people-community-16-regular" />,
+    role: ["MAHASISWA"],
+  },
+  {
+    title: "Private File",
+    path: "/mahasiswa/private-file",
+    icon: <Icon icon="fluent:document-text-32-regular" />,
     role: ["MAHASISWA"],
   },
 ];

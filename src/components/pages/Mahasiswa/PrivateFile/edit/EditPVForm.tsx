@@ -26,7 +26,6 @@ const EditPVForm = ({ data }: { data: PrivateFile }) => {
   });
 
   const onSubmit = (values: EditPrivateFileType) => {
-    console.log(values);
     mutate({ id: params.id as string, payload: values });
   };
   return (

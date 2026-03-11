@@ -21,7 +21,6 @@ const CreatePVForm = () => {
   });
 
   const onSubmit = (values: CreatePrivateFileType) => {
-    console.log(values);
     mutate(values);
   };
   return (
