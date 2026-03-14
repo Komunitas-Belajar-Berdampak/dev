@@ -1,8 +1,7 @@
-import { useState, useRef } from "react";
-import { Icon } from "@iconify/react";
 import { cn } from "@/lib/cn";
+import { Icon } from "@iconify/react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 
 interface AvatarUploadProps {
   className?: string;
@@ -33,13 +32,10 @@ const AvatarUpload = ({
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // Validate
     if (!file.type.startsWith("image/")) {
       toast.error("File harus berupa gambar");
       return;
     }
-
     const objectUrl = URL.createObjectURL(file);
     setPreview(objectUrl);
     const dataUrl = await fileToDataUrl(file);
@@ -47,7 +43,8 @@ const AvatarUpload = ({
     onChange(dataUrl);
   };
 
-  const handleRemove = () => {
+  const handleRemove = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setPreview(null);
     onChange(null);
     if (inputRef.current) inputRef.current.value = "";
@@ -59,24 +56,46 @@ const AvatarUpload = ({
   return (
     <div className={cn("flex flex-col items-center gap-2", className)}>
       <div
+        onClick={() => !disabled && inputRef.current?.click()}
         className={cn(
-          "relative group rounded-lg overflow-hidden flex flex-col justify-center items-center",
-          !disabled && "cursor-pointer hover:opacity-80 transition-opacity",
+          "relative w-30 h-30 rounded-full overflow-hidden flex items-center justify-center bg-muted",
+          !disabled && "cursor-pointer group",
         )}
       >
         {displayImage ? (
           <img
             src={displayImage}
             alt="Profile"
-            className="w-30 h-30 rounded-lg object-cover"
+            className="w-full h-full object-cover"
           />
         ) : (
           <Icon
             icon="boxicons:user-filled"
             className="text-primary"
-            width="120"
-            height="120"
+            width="80"
+            height="80"
           />
+        )}
+
+        {/* overlay on hover */}
+        {!disabled && (
+          <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
+            <Icon
+              icon="mdi:camera"
+              className="text-white"
+              width="24"
+              height="24"
+            />
+            {displayImage && (
+              <button
+                type="button"
+                onClick={handleRemove}
+                className="text-[10px] text-red-300 hover:text-red-400 transition-colors"
+              >
+                Remove
+              </button>
+            )}
+          </div>
         )}
 
         <input
@@ -87,28 +106,7 @@ const AvatarUpload = ({
           onChange={handleFileChange}
           disabled={disabled}
         />
-        {!displayImage && (
-          <Button
-            type="button"
-            disabled={disabled}
-            className=""
-            onClick={() => inputRef.current?.click()}
-          >
-            Upload Photo
-          </Button>
-        )}
       </div>
-
-      {displayImage && !disabled && (
-        <Button
-          variant={"destructive"}
-          type="button"
-          onClick={handleRemove}
-          className="text-xs text-red-500 hover:bg-red-700"
-        >
-          Delete Photo
-        </Button>
-      )}
     </div>
   );
 };

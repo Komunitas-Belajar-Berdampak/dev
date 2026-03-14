@@ -92,6 +92,10 @@ const routes: RouteObject[] = [
             element: <ProfilePage />,
           },
           {
+            path: ":id",
+            element: <ProfilePage />,
+          },
+          {
             path: "edit",
             element: <EditProfilePage />,
           },

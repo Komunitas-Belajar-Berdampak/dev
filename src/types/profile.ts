@@ -5,7 +5,7 @@ export type UserProfile = {
   fotoProfil: string | null;
   id: string;
   jenisKelamin: string;
-  gayaBelajar: string;
+  gayaBelajar: string[];
   nama: string;
   namaRole: string;
   nrp: string;
