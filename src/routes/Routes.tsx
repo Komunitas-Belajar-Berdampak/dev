@@ -47,6 +47,8 @@ import PrivateFileLayout from "@/components/pages/Mahasiswa/PrivateFile";
 import PrivateFilePage from "@/components/pages/Mahasiswa/PrivateFile/components/PrivateFilePage";
 import CreatePrivateFilePage from "@/components/pages/Mahasiswa/PrivateFile/create";
 import EditPrivateFilePage from "@/components/pages/Mahasiswa/PrivateFile/edit";
+import ProfilePage from "@/components/pages/Profile";
+import EditProfilePage from "@/components/pages/Profile/Edit";
 import DeskripsiPage from "@/components/pages/Dosen/Matakuliah/Deskripsi/DeskripsiPage";
 import DashboardPage from "@/components/pages/Dosen/Matakuliah/Dashboard/DashboardPage";
 import AllPertemuanDashboard from "@/components/pages/Dosen/Matakuliah/Dashboard/AllPertemuanDashboard";
@@ -75,6 +77,25 @@ const routes: RouteObject[] = [
       {
         index: true,
         element: <RoleRedirect />,
+      },
+      {
+        path: "/profile",
+        element: (
+          <ProtectedRoute
+            allowedRoles={["SUPER_ADMIN", "DOSEN", "MAHASISWA"]}
+          />
+        ),
+        children: [
+          {
+            path: "",
+            index: true,
+            element: <ProfilePage />,
+          },
+          {
+            path: "edit",
+            element: <EditProfilePage />,
+          },
+        ],
       },
       {
         element: <ProtectedRoute allowedRoles={["SUPER_ADMIN"]} />,
