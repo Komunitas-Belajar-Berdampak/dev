@@ -23,19 +23,21 @@ const KontribusiBody = ({ data }: KontribusiBodyProps) => {
 
   const threadOptions = [{ label: 'Semua', value: 'all' }, ...(data?.kontribusiTotalByThread ?? []).map((t) => ({ label: t.thread, value: t.thread }))];
 
-  const aktivitasFiltered = (data?.aktivitas ?? []).filter((a) => {
-    if (filter.field !== 'all' && a.thread !== filter.field) return false;
-    if (filter.keyword) {
-      const kw = filter.keyword.toLowerCase();
-      const hay = `${a.thread} ${a.aktivitas}`.toLowerCase();
-      if (!hay.includes(kw)) return false;
-    }
+  const aktivitasFiltered = (data?.aktivitas ?? [])
+    .filter((a) => {
+      if (filter.field !== 'all' && a.thread !== filter.field) return false;
+      if (filter.keyword) {
+        const kw = filter.keyword.toLowerCase();
+        const hay = `${a.thread} ${a.aktivitas}`.toLowerCase();
+        if (!hay.includes(kw)) return false;
+      }
 
-    const ts = new Date(a.timestamp);
-    if (fromDateObj && ts < fromDateObj) return false;
-    if (toDateObj && ts > toDateObj) return false;
-    return true;
-  });
+      const ts = new Date(a.timestamp);
+      if (fromDateObj && ts < fromDateObj) return false;
+      if (toDateObj && ts > toDateObj) return false;
+      return true;
+    })
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
   return (
     <>
