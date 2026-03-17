@@ -13,13 +13,7 @@ const KontribusiMahasiswaDetailSkeleton = () => {
           <Skeleton className='h-11 w-44' />
         </div>
 
-        <div className='flex flex-wrap gap-2'>
-          <Skeleton className='h-8 w-20 rounded-full' />
-          <Skeleton className='h-8 w-28 rounded-full' />
-          <Skeleton className='h-8 w-24 rounded-full' />
-          <Skeleton className='h-8 w-32 rounded-full' />
-        </div>
-
+        
         <Skeleton className='h-1 w-full' />
 
         <div className='rounded-xl border border-accent p-4 space-y-4'>
