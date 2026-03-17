@@ -21,9 +21,10 @@ type EditStudyGroupFormProps = {
   idSg: string;
   courseData: CourseById | undefined;
   studyGroupData: StudyGroupDetail;
+  blockedMemberIds: string[];
 };
 
-const EditStudyGroupForm = ({ idMatkul, idSg, courseData, studyGroupData }: EditStudyGroupFormProps) => {
+const EditStudyGroupForm = ({ idMatkul, idSg, courseData, studyGroupData, blockedMemberIds }: EditStudyGroupFormProps) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -33,6 +34,12 @@ const EditStudyGroupForm = ({ idMatkul, idSg, courseData, studyGroupData }: Edit
 
   // Semua mahasiswa dari course (untuk dropdown)
   const allMahasiswaIds = useMemo(() => mahasiswaCourse.map((m) => m.id), [mahasiswaCourse]);
+  const anggotaSgIds = useMemo(() => anggotaSg.map((a) => a.id), [anggotaSg]);
+
+  const selectableMahasiswaIds = useMemo(() => {
+    const blockedSet = new Set(blockedMemberIds);
+    return allMahasiswaIds.filter((id) => !blockedSet.has(id) || anggotaSgIds.includes(id));
+  }, [allMahasiswaIds, blockedMemberIds, anggotaSgIds]);
 
   // Map id → nama dari kedua sumber supaya chips & dropdown selalu punya label
   const namaById = useMemo(() => {
@@ -66,7 +73,7 @@ const EditStudyGroupForm = ({ idMatkul, idSg, courseData, studyGroupData }: Edit
       kapasitas: studyGroupData.kapasitas ?? 1,
       deskripsi: studyGroupData.deskripsi ?? '',
       status: studyGroupData.status ?? false,
-      idMahasiswa: anggotaSg.map((a) => a.id),
+      idMahasiswa: anggotaSgIds,
     },
   });
 
@@ -142,7 +149,7 @@ const EditStudyGroupForm = ({ idMatkul, idSg, courseData, studyGroupData }: Edit
                   )}
                 />
 
-                <EditStudyGroupMembersField control={form.control} allMahasiswaIds={allMahasiswaIds} namaById={namaById} />
+                <EditStudyGroupMembersField control={form.control} allMahasiswaIds={selectableMahasiswaIds} namaById={namaById} />
               </div>
 
               <Controller

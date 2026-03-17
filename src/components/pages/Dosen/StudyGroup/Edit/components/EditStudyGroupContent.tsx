@@ -1,10 +1,11 @@
 import { getCourseById } from '@/api/course';
-import { getStudyGroupById } from '@/api/study-group';
+import { getStudyGroupById, getStudyGroupsByCourse } from '@/api/study-group';
 import NoData from '@/components/shared/NoData';
 import type { ApiResponse } from '@/types/api';
 import type { CourseById } from '@/types/course';
-import type { StudyGroupDetail } from '@/types/sg';
-import { useQuery } from '@tanstack/react-query';
+import type { StudyGroupDetail, StudyGroupbyCourse } from '@/types/sg';
+import { useQueries, useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import EditStudyGroupForm from './EditStudyGroupForm';
 import EditStudyGroupSkeleton from './EditStudyGroupSkeleton';
 
@@ -28,7 +29,33 @@ const EditStudyGroupContent = ({ idMatkul, idSg }: EditStudyGroupContentProps) =
     select: (res) => res.data,
   });
 
-  if (isLoadingCourse || isLoadingSg) {
+  const { data: sgByCourse, isLoading: isLoadingSgByCourse } = useQuery<ApiResponse<StudyGroupbyCourse[]>, Error, StudyGroupbyCourse[]>({
+    queryKey: ['sg-by-course', idMatkul, 'all-for-edit'],
+    queryFn: () => getStudyGroupsByCourse(idMatkul, 1, 200),
+    select: (res) => res.data,
+  });
+
+  const otherGroupDetails = useQueries({
+    queries: (sgByCourse ?? [])
+      .filter((sg) => sg.id !== idSg)
+      .map((sg) => ({
+        queryKey: ['sg-detail', sg.id],
+        queryFn: () => getStudyGroupById(sg.id),
+        select: (res: ApiResponse<StudyGroupDetail>) => res.data,
+      })),
+  });
+
+  const blockedMemberIds = useMemo(() => {
+    const ids = new Set<string>();
+    otherGroupDetails.forEach((q) => {
+      q.data?.anggota?.forEach((member) => ids.add(member.id));
+    });
+    return [...ids];
+  }, [otherGroupDetails]);
+
+  const isLoadingOtherMembers = isLoadingSgByCourse || otherGroupDetails.some((q) => q.isLoading);
+
+  if (isLoadingCourse || isLoadingSg || isLoadingOtherMembers) {
     return <EditStudyGroupSkeleton />;
   }
 
@@ -36,7 +63,7 @@ const EditStudyGroupContent = ({ idMatkul, idSg }: EditStudyGroupContentProps) =
     return <NoData message='Data Study Group tidak ditemukan.' />;
   }
 
-  return <EditStudyGroupForm idMatkul={idMatkul} idSg={idSg} courseData={courseData} studyGroupData={studyGroupData} />;
+  return <EditStudyGroupForm idMatkul={idMatkul} idSg={idSg} courseData={courseData} studyGroupData={studyGroupData} blockedMemberIds={blockedMemberIds} />;
 };
 
 export default EditStudyGroupContent;
