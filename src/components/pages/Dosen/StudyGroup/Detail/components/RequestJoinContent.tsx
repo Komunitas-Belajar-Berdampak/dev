@@ -1,7 +1,7 @@
 import { approveMembershipRequest, getMembershipsByStudyGroup, rejectMembershipRequest } from '@/api/membership';
 import NoData from '@/components/shared/NoData';
+import UserInitialAvatar from '@/components/shared/UserInitialAvatar';
 import { Button } from '@/components/ui/button';
-import Circle from '@/components/ui/circle';
 import type { ApiResponse } from '@/types/api';
 import type { MembershipByStudyGroup } from '@/types/membership';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -78,7 +78,7 @@ const RequestJoinContent = ({ idSg }: RequestJoinContentProps) => {
           {memberRequest.map((member) => (
             <div className='flex flex-row w-full justify-between gap-6' key={`${member.id} - ${member.nama}`}>
               <div>
-                <Circle />
+                <UserInitialAvatar name={member.nama} />
               </div>
 
               <div className='w-full flex flex-col justify-center'>

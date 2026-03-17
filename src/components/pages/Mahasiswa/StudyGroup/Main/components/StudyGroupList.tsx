@@ -13,7 +13,7 @@ const StudyGroupList = ({ courses }: StudyGroupListProps) => {
       {courses.map((course) => (
         <Fragment key={course.id}>
           <Link className='flex gap-6 items-center' to={`/mahasiswa/study-groups/${course.namaMatkul}/${course.id}`}>
-            <Circle />
+            <Circle theme='course-art' seed={course.id} />
             <div className='flex flex-col'>
               <p className='text-primary font-bold text-sm'>
                 {course.kodeMatkul} - {course.namaMatkul}

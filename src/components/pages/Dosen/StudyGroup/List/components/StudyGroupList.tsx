@@ -28,7 +28,7 @@ const StudyGroupList = ({ studygroups }: StudyGroupListProps) => {
             }}
           >
             <div>
-              <Circle />
+              <Circle theme='study-group' seed={sg.id} />
             </div>
 
             <div className='w-full flex flex-col  '>

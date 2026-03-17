@@ -1,7 +1,7 @@
 import NoData from '@/components/shared/NoData';
+import UserInitialAvatar from '@/components/shared/UserInitialAvatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import Circle from '@/components/ui/circle';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { getUser } from '@/lib/authStorage';
 import { formatDateTime } from '@/lib/datetime';
@@ -46,7 +46,7 @@ const DiscussionContent = ({ threadDetailQuery }: DiscussionContentProps) => {
             <Card key={thread.id} className='py-8 px-4 border-accent'>
               <CardHeader className='flex flex-row gap-6 items-center w-full'>
                 <div>
-                  <Circle />
+                  <UserInitialAvatar name={thread.author.nama} />
                 </div>
 
                 <div className='flex flex-col justify-center w-1/2'>

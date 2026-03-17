@@ -1,10 +1,13 @@
+import { KONTRIBUSI_ALL_THREAD_VALUE } from '@/components/pages/Dosen/StudyGroup/TopikDetail/constant';
 import FilterWithInputRange, { type FilterWithInputRangeValue } from '@/components/shared/Filter/FilterWithInputRange';
 import NoData from '@/components/shared/NoData';
 import { Separator } from '@/components/ui/separator';
-import { formatDateTime } from '@/lib/datetime';
+import { buildDailyTrend, buildTrendSeries, formatDateOnly, formatTimeOnly, getFilteredAktivitas, getMostActiveDay, getThreadOptions, getTrendOptions, groupAktivitasByDate } from '@/lib/kontribusi';
 import type { StudyGroupMemberDetail } from '@/types/sg';
-import { ChevronRight, ListX } from 'lucide-react';
-import { useState } from 'react';
+import { ListX } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import ActivityLogList from './ActivityLogList';
+import OverviewPanel from './OverviewPanel';
 
 type KontribusiBodyProps = {
   data: StudyGroupMemberDetail;
@@ -12,30 +15,36 @@ type KontribusiBodyProps = {
 
 const KontribusiBody = ({ data }: KontribusiBodyProps) => {
   const [filter, setFilter] = useState<FilterWithInputRangeValue<string>>({
-    field: 'all',
+    field: KONTRIBUSI_ALL_THREAD_VALUE,
     keyword: '',
     fromDate: '',
     toDate: '',
   });
 
-  const fromDateObj = filter.fromDate ? new Date(`${filter.fromDate}T00:00:00`) : null;
-  const toDateObj = filter.toDate ? new Date(`${filter.toDate}T23:59:59.999`) : null;
+  const threadOptions = useMemo(() => getThreadOptions(data), [data]);
 
-  const threadOptions = [{ label: 'Semua', value: 'all' }, ...(data?.kontribusiTotalByThread ?? []).map((t) => ({ label: t.thread, value: t.thread }))];
+  const aktivitasFiltered = useMemo(
+    () =>
+      getFilteredAktivitas({
+        aktivitas: data?.aktivitas ?? [],
+        field: filter.field,
+        keyword: filter.keyword,
+        fromDate: filter.fromDate,
+        toDate: filter.toDate,
+      }),
+    [data?.aktivitas, filter.field, filter.keyword, filter.fromDate, filter.toDate],
+  );
 
-  const aktivitasFiltered = (data?.aktivitas ?? []).filter((a) => {
-    if (filter.field !== 'all' && a.thread !== filter.field) return false;
-    if (filter.keyword) {
-      const kw = filter.keyword.toLowerCase();
-      const hay = `${a.thread} ${a.aktivitas}`.toLowerCase();
-      if (!hay.includes(kw)) return false;
-    }
+  const aktivitasGroupedByDate = useMemo(() => groupAktivitasByDate(aktivitasFiltered), [aktivitasFiltered]);
 
-    const ts = new Date(a.timestamp);
-    if (fromDateObj && ts < fromDateObj) return false;
-    if (toDateObj && ts > toDateObj) return false;
-    return true;
-  });
+  const dailyTrend = useMemo(() => buildDailyTrend(aktivitasFiltered), [aktivitasFiltered]);
+
+  const totalAktivitas = aktivitasFiltered.length;
+  const totalPoin = aktivitasFiltered.reduce((sum, item) => sum + item.kontribusi, 0);
+
+  const mostActiveDay = useMemo(() => getMostActiveDay(dailyTrend), [dailyTrend]);
+  const trendSeries = useMemo(() => buildTrendSeries(dailyTrend), [dailyTrend]);
+  const trendOptions = useMemo(() => getTrendOptions(), []);
 
   return (
     <>
@@ -46,6 +55,7 @@ const KontribusiBody = ({ data }: KontribusiBodyProps) => {
           {/* Filter by */}
           <FilterWithInputRange value={filter} onValueChange={setFilter} fields={threadOptions} label='Filter by..' />
         </div>
+
         <Separator className='bg-accent ' />
       </div>
 
@@ -57,17 +67,11 @@ const KontribusiBody = ({ data }: KontribusiBodyProps) => {
             <p className='text-center text-accent'>Tidak ada aktivitas yang sesuai dengan filter.</p>
           </NoData>
         ) : (
-          aktivitasFiltered.map((a, idx) => (
-            <div key={`${a.thread}-${a.timestamp}-${idx}`} className='flex flex-row justify-between items-center'>
-              <div className='flex flex-row justify-center items-center gap-2'>
-                <ChevronRight size={12} className='text-primary' />
-                <span className='text-primary font-medium text-sm'>
-                  {a.aktivitas} {a.kontribusi === 0 ? '' : `(${a.kontribusi} points) `}
-                </span>
-              </div>
-              <span className='text-accent text-xs'>{formatDateTime(a.timestamp)}</span>
-            </div>
-          ))
+          <>
+            <OverviewPanel totalAktivitas={totalAktivitas} totalPoin={totalPoin} mostActiveDay={mostActiveDay} trendOptions={trendOptions} trendSeries={trendSeries} />
+
+            <ActivityLogList grouped={aktivitasGroupedByDate} formatDateOnly={formatDateOnly} formatTimeOnly={formatTimeOnly} />
+          </>
         )}
       </div>
     </>

@@ -1,25 +1,29 @@
 import { useEffect } from 'react';
-import { type FieldPath, type FieldValues, type UseFormReturn, useWatch } from 'react-hook-form';
+import { type FieldPathByValue, type FieldValues, type PathValue, type UseFormReturn, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
+
+const EMPTY_MEMBERS: readonly unknown[] = [];
 
 type UseSgMemberCapacityOptions<TFieldValues extends FieldValues> = {
   form: UseFormReturn<TFieldValues>;
-  kapasitasName: FieldPath<TFieldValues>;
-  membersName: FieldPath<TFieldValues>;
+  kapasitasName: FieldPathByValue<TFieldValues, number>;
+  membersName: FieldPathByValue<TFieldValues, unknown[] | undefined>;
   toastOnTrim?: boolean;
   toasterId?: string;
 };
 
 export function useSgMemberCapacityLimit<TFieldValues extends FieldValues>({ form, kapasitasName, membersName, toastOnTrim = true, toasterId = 'global' }: UseSgMemberCapacityOptions<TFieldValues>) {
-  const kapasitas = (useWatch({ control: form.control, name: kapasitasName }) as unknown as number) ?? 1;
-  const selected = (useWatch({ control: form.control, name: membersName }) as unknown as unknown[]) ?? [];
+  const watchedKapasitas = useWatch({ control: form.control, name: kapasitasName });
+  const watchedSelected = useWatch({ control: form.control, name: membersName });
+
+  const kapasitas = typeof watchedKapasitas === 'number' && Number.isFinite(watchedKapasitas) && watchedKapasitas > 0 ? watchedKapasitas : 1;
+  const selected = Array.isArray(watchedSelected) ? watchedSelected : EMPTY_MEMBERS;
 
   useEffect(() => {
-    if (!Array.isArray(selected)) return;
     if (selected.length <= kapasitas) return;
 
     const trimmed = selected.slice(0, kapasitas);
-    form.setValue(membersName, trimmed as any, {
+    form.setValue(membersName, trimmed as PathValue<TFieldValues, typeof membersName>, {
       shouldValidate: true,
       shouldDirty: true,
     });

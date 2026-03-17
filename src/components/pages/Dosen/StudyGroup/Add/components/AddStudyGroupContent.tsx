@@ -1,5 +1,5 @@
 import { getCourseById } from '@/api/course';
-import { addStudyGroupByCourse } from '@/api/study-group';
+import { addStudyGroupByCourse, getStudyGroupById, getStudyGroupsByCourse } from '@/api/study-group';
 import { StudyGroupMembersField } from '@/components/shared/StudyGroupMembersField';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -10,8 +10,9 @@ import { useSgMemberCapacityLimit } from '@/hooks/use-sg-member-capacity';
 import { studyGroupSchema, type StudyGroupSchemaType } from '@/schemas/sg';
 import type { ApiResponse } from '@/types/api';
 import type { CourseById } from '@/types/course';
+import type { StudyGroupDetail, StudyGroupbyCourse } from '@/types/sg';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -32,10 +33,33 @@ const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
     queryFn: () => getCourseById(idMatkul),
   });
 
+  const { data: sgByCourse, isLoading: isLoadingSgByCourse } = useQuery<ApiResponse<StudyGroupbyCourse[]>, Error, StudyGroupbyCourse[]>({
+    queryKey: ['sg-by-course', idMatkul, 'all-for-add'],
+    queryFn: () => getStudyGroupsByCourse(idMatkul, 1, 200),
+    select: (res) => res.data,
+  });
+
+  const sgDetails = useQueries({
+    queries: (sgByCourse ?? []).map((sg) => ({
+      queryKey: ['sg-detail', sg.id],
+      queryFn: () => getStudyGroupById(sg.id),
+      select: (res: ApiResponse<StudyGroupDetail>) => res.data,
+    })),
+  });
+
+  const blockedMemberIds = useMemo(() => {
+    const ids = new Set<string>();
+    sgDetails.forEach((q) => {
+      q.data?.anggota?.forEach((member) => ids.add(member.id));
+    });
+    return ids;
+  }, [sgDetails]);
+
   const mahasiswaCourse = data?.data.mahasiswa;
 
-  const idItems = useMemo(() => mahasiswaCourse?.map((m) => m.id) ?? [], [mahasiswaCourse]);
+  const idItems = useMemo(() => mahasiswaCourse?.map((m) => m.id).filter((id) => !blockedMemberIds.has(id)) ?? [], [mahasiswaCourse, blockedMemberIds]);
   const namaById = useMemo(() => new Map(mahasiswaCourse?.map((m) => [m.id, m.nama])), [mahasiswaCourse]);
+  const isLoadingEligibleMembers = isLoadingSgByCourse || sgDetails.some((q) => q.isLoading);
 
   // kirim data ke api
   const { mutate, isPending } = useMutation({
@@ -136,7 +160,7 @@ const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
                   )}
                 />
 
-                <StudyGroupMembersField control={form.control} name='idMahasiswa' items={idItems} namaById={namaById} kapasitas={kapasitas} isLoading={isLoading} />
+                <StudyGroupMembersField control={form.control} name='idMahasiswa' items={idItems} namaById={namaById} kapasitas={kapasitas} isLoading={isLoading || isLoadingEligibleMembers} />
               </div>
 
               <Controller

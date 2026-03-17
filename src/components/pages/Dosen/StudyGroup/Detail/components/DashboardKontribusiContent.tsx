@@ -1,5 +1,5 @@
 import NoData from '@/components/shared/NoData';
-import Circle from '@/components/ui/circle';
+import UserInitialAvatar from '@/components/shared/UserInitialAvatar';
 import { getUser } from '@/lib/authStorage';
 import type { StudyGroupDetail } from '@/types/sg';
 import { UserRoundX } from 'lucide-react';
@@ -26,7 +26,7 @@ const DashboardKontribusiContent = ({ totalKontribusi = 0, anggota = [] }: Dashb
           {anggota.map((member) => (
             <Link to={`kontribusi/${member.nama}/${member.id}`} className='w-full flex flex-row gap-6 items-center' key={member.id}>
               <div>
-                <Circle />
+                <UserInitialAvatar name={member.nama} />
               </div>
 
               <div className='flex flex-col w-full'>
