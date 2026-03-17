@@ -37,6 +37,7 @@ const ListItem = ({ studygroups, courseId, page }: StudyGroupListProps) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [activeDialog, setActiveDialog] = useState<null | activeDialogType>(null);
+  const hasApprovedMembership = useMemo(() => studygroups.some((sg) => sg.statusMember === 'APPROVED'), [studygroups]);
 
   const iconByLabel = useMemo(() => new Map(listOption.map((o) => [o.label, o.icon] as const)), []);
 
@@ -74,7 +75,7 @@ const ListItem = ({ studygroups, courseId, page }: StudyGroupListProps) => {
         {studygroups.map((sg) => (
           <Fragment key={sg.id}>
             {(() => {
-              const action = getStudyGroupAction(sg);
+              const action = getStudyGroupAction(sg, hasApprovedMembership);
               const icon = action.kind === 'none' ? null : iconByLabel.get(action.label);
 
               const actionButton =
@@ -125,7 +126,7 @@ const ListItem = ({ studygroups, courseId, page }: StudyGroupListProps) => {
                   }
                 >
                   <div>
-                    <Circle />
+                    <Circle theme='study-group' seed={sg.id} />
                   </div>
 
                   <div className='w-full flex flex-col'>
