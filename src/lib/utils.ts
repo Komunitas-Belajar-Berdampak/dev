@@ -21,3 +21,14 @@ export async function fileToDataUrl(file: File) {
     reader.readAsDataURL(file);
   });
 }
+
+export const formatDate = (date?: string) =>
+  date
+    ? new Date(date).toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "-";
