@@ -41,10 +41,16 @@ const StudyGroupDetailContent = ({ idSg, namaSg }: StudyGroupDetailContentProps)
 
       {/* 3 opsi tabs*/}
       <Tabs defaultValue='request-join'>
-        <TabsList variant={'line'} className='gap-8'>
-          <TabsTrigger value='request-join'>Request Join</TabsTrigger>
-          <TabsTrigger value='members'>Dashboard Kontribusi</TabsTrigger>
-          <TabsTrigger value='topik-pembahasan'>Topik Pembahasan</TabsTrigger>
+        <TabsList variant={'line'} className='w-full flex-wrap justify-start gap-4 mb-12 md:mb-0'>
+          <TabsTrigger value='request-join' className='flex-none whitespace-normal text-left sm:whitespace-nowrap'>
+            Request Join
+          </TabsTrigger>
+          <TabsTrigger value='members' className='flex-none whitespace-normal text-left sm:whitespace-nowrap'>
+            Dashboard Kontribusi
+          </TabsTrigger>
+          <TabsTrigger value='topik-pembahasan' className='flex-none whitespace-normal text-left sm:whitespace-nowrap'>
+            Topik Pembahasan
+          </TabsTrigger>
         </TabsList>
         <TabsContent value='request-join'>
           {/* buat request join */}
