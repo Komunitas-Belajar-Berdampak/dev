@@ -9,6 +9,9 @@ export function getStudyGroupAction(sg: StudyGroupByMembership, hasApprovedMembe
   if (sg.statusMember === 'REJECTED') return { kind: 'icon', label: 'REJECTED', disabled: true };
   if (sg.statusMember === 'APPROVED') return { kind: 'edit', label: 'APPROVED', disabled: false };
 
+  const isFull = sg.totalAnggota >= sg.kapasitas;
+  if (isFull) return { kind: 'none' };
+
   if (hasApprovedMembership) return { kind: 'none' };
 
   return { kind: 'request', label: 'REQUEST', disabled: false };
