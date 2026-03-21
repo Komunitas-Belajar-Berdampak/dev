@@ -67,8 +67,8 @@ const DetailContent = ({ idSg, namaSg, idCourse }: DetailContentProps) => {
       <div className='flex justify-end w-full mb-2'>
         <Dialog open={openDialog} onOpenChange={setOpenDialog}>
           <DialogTrigger asChild>
-            <Button size={'icon-lg'} variant={'ghost'} className='group shadow-none border border-accent'>
-              <Settings className='size-5 text-muted-foreground transition-colors group-hover:text-primary' />
+            <Button variant={'ghost'} size={'icon-lg'} className='group shadow-none border border-accent'>
+              <Settings className='size-4 md:size-5 text-muted-foreground transition-colors group-hover:text-primary' />
             </Button>
           </DialogTrigger>
           <DialogContent>
@@ -78,7 +78,7 @@ const DetailContent = ({ idSg, namaSg, idCourse }: DetailContentProps) => {
       </div>
 
       <ContentHeader title={namaSg}>
-        <p className='text-primary tracking-wide'>{data?.deskripsi || 'Deskripsi study group belum tersedia.'}</p>
+        <p className='text-sm md:text-base text-primary tracking-wide'>{data?.deskripsi || 'Deskripsi study group belum tersedia.'}</p>
       </ContentHeader>
 
       <Tabs
@@ -88,14 +88,18 @@ const DetailContent = ({ idSg, namaSg, idCourse }: DetailContentProps) => {
           if (v !== 'topik-pembahasan') setIsAddThreadOpen(false);
         }}
       >
-        <div className='flex items-center justify-between gap-4'>
-          <TabsList variant={'line'} className='gap-8'>
-            <TabsTrigger value='members'>Dashboard Kontribusi</TabsTrigger>
-            <TabsTrigger value='topik-pembahasan'>Topik Pembahasan</TabsTrigger>
+        <div className='flex items-center justify-between gap-4 flex-wrap'>
+          <TabsList variant={'line'} className='gap-8 '>
+            <TabsTrigger value='members' className='text-xs md:text-sm'>
+              Dashboard Kontribusi
+            </TabsTrigger>
+            <TabsTrigger value='topik-pembahasan' className='text-xs md:text-sm'>
+              Topik Pembahasan
+            </TabsTrigger>
           </TabsList>
 
           {tab === 'topik-pembahasan' && (
-            <Button type='button' variant='default' className='shadow-sm border px-5' onClick={() => setIsAddThreadOpen(true)}>
+            <Button type='button' variant='default' className='text-xs md:text-sm shadow-sm border px-5' onClick={() => setIsAddThreadOpen(true)}>
               <Icon icon='flowbite:messages-solid' className='size-4.5 text-white' />
               New Topic
             </Button>

@@ -42,9 +42,13 @@ const TopikPembahasanDetailTabs = ({ tab, changeTab, filters, studyGroupId, onFi
   return (
     <Tabs value={tab} onValueChange={(v) => changeTab(v as TabsType)} className='w-full'>
       <div className='flex w-full items-center justify-between gap-4 flex-wrap'>
-        <TabsList variant={'line'} className='gap-8'>
-          <TabsTrigger value='todolist'>To Do List</TabsTrigger>
-          <TabsTrigger value='discussion'>Discussion</TabsTrigger>
+        <TabsList variant={'line'} className='gap-4 md:gap-8'>
+          <TabsTrigger value='todolist' className=' text-xs md:text-sm'>
+            To Do List
+          </TabsTrigger>
+          <TabsTrigger value='discussion' className=' text-xs md:text-sm'>
+            Discussion
+          </TabsTrigger>
         </TabsList>
 
         {tab === 'todolist' ? (
@@ -62,7 +66,7 @@ const TopikPembahasanDetailTabs = ({ tab, changeTab, filters, studyGroupId, onFi
             />
 
             <Link to={'new-discussion'}>
-              <Button className='shadow-sm py-5'>
+              <Button className='shadow-sm py-5 text-xs md:text-sm'>
                 <Icon icon='flowbite:messages-solid' className='size-4.5' />
                 New Discussion
               </Button>

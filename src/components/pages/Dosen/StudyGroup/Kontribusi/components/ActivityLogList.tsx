@@ -13,7 +13,7 @@ type ActivityLogListProps = {
 const ActivityLogList = ({ grouped, formatDateOnly, formatTimeOnly }: ActivityLogListProps) => {
   return (
     <>
-      <p className='text-sm uppercase tracking-wider font-semibold text-primary'>Log Aktivitas</p>
+      <p className='text-xs md:text-sm uppercase tracking-wider font-semibold text-primary'>Log Aktivitas</p>
 
       <div className='space-y-5'>
         {grouped.map(([dateKey, items]) => (

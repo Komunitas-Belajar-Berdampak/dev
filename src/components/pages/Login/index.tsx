@@ -61,7 +61,7 @@ const Login = () => {
 
       {/* bagian kanan */}
       <div className='w-full max-w-md xl:max-w-xl'>
-        <h1 className='font-bold text-4xl leading-normal'>Masuk</h1>
+        <h1 className='font-bold text-2xl md:text-4xl leading-normal'>Masuk</h1>
         <p className='font-semibold text-sm '>Selamat datang di LMS Komunitas Belajar Berdampak!</p>
 
         <form onSubmit={form.handleSubmit(onSubmit)} className='mt-4'>

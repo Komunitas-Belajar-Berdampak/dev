@@ -14,9 +14,9 @@ type TodoRowDisplayProps = {
 function TodoRowDisplay({ task, disabled = false, getStatusLabel, onEdit, onDelete }: TodoRowDisplayProps) {
   return (
     <TableRow>
-      <TableCell className='font-medium text-black/50 whitespace-normal'>{task.task}</TableCell>
-      <TableCell>
-        <span className='text-black/50 text-sm'>
+      <TableCell className='font-medium text-black/50 whitespace-normal  text-xs md:text-sm'>{task.task}</TableCell>
+      <TableCell className='align-top min-w-0'>
+        <span className='block whitespace-normal wrap-break-word text-black/50 text-xs md:text-sm'>
           {task.mahasiswa.length === 0
             ? '-'
             : task.mahasiswa
@@ -26,7 +26,7 @@ function TodoRowDisplay({ task, disabled = false, getStatusLabel, onEdit, onDele
         </span>
       </TableCell>
       <TableCell className='text-black/50'>
-        <span className='text-black/50 text-sm'>{getStatusLabel(task.status)}</span>
+        <span className='text-black/50  text-xs md:text-sm'>{getStatusLabel(task.status)}</span>
       </TableCell>
       <TableCell>
         <div className='flex items-center gap-1'>

@@ -131,12 +131,12 @@ const ListItem = ({ studygroups, courseId, page }: StudyGroupListProps) => {
 
                   <div className='w-full flex flex-col'>
                     <div className='flex flex-row items-center justify-between'>
-                      <p className='text-primary font-bold text-sm'>{sg.nama}</p>
-                      <p className='text-primary font-bold text-sm'>{sg.totalKontribusi} points</p>
+                      <p className='text-primary font-bold text-xs md:text-sm'>{sg.nama}</p>
+                      <p className='text-primary font-bold text-xs md:text-sm'>{sg.totalKontribusi} points</p>
                     </div>
 
                     <div className='flex flex-row items-center justify-between'>
-                      <p className='text-accent text-sm'>
+                      <p className='text-accent text-xs md:text-sm'>
                         {sg.totalAnggota} / {sg.kapasitas} Anggota
                       </p>
 

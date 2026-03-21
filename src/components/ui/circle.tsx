@@ -18,7 +18,7 @@ const Circle = ({ size = 12, className = '', children, seed, theme = 'default' }
     const hasCustomContent = children !== undefined && children !== null;
 
     return (
-      <div className={cn(`w-${size} h-${size}`, 'relative overflow-hidden rounded-full shadow-md', variant.circleWrapper, className)}>
+      <div className={cn(`size-10 md:size-${size}`, 'relative overflow-hidden rounded-full shadow-md', variant.circleWrapper, className)}>
         <div className={cn('absolute -top-2 -right-2 h-6 w-6 rounded-full blur-sm', variant.circleDecorPrimary)} />
         <div className={cn('absolute -bottom-3 -left-3 h-8 w-8 rounded-full blur-sm', variant.circleDecorSecondary)} />
         <div className='relative z-10 flex h-full w-full items-center justify-center'>{hasCustomContent ? children : <Icon icon={variant.icon} className={cn('text-xl', variant.circleIconClass)} />}</div>
@@ -31,7 +31,7 @@ const Circle = ({ size = 12, className = '', children, seed, theme = 'default' }
     const hasCustomContent = children !== undefined && children !== null;
 
     return (
-      <div className={cn(`w-${size} h-${size}`, 'relative overflow-hidden rounded-full shadow-md', variant.circleWrapper, className)}>
+      <div className={cn(`size-10 md:size-${size}`, 'relative overflow-hidden rounded-full shadow-md', variant.circleWrapper, className)}>
         <div className={cn('absolute -top-2 -right-2 h-6 w-6 rounded-full blur-sm', variant.circleDecorPrimary)} />
         <div className={cn('absolute -bottom-3 -left-3 h-8 w-8 rounded-full blur-sm', variant.circleDecorSecondary)} />
         <div className='relative z-10 flex h-full w-full items-center justify-center'>{hasCustomContent ? children : <Icon icon={variant.circleIcon} className={cn('text-xl', variant.circleIconClass)} />}</div>
@@ -39,7 +39,7 @@ const Circle = ({ size = 12, className = '', children, seed, theme = 'default' }
     );
   }
 
-  return <div className={`w-${size} h-${size} shadow-md rounded-full bg-purple ${className}`}>{children}</div>;
+  return <div className={cn(`size-10 md:size-${size}`, 'shadow-md rounded-full bg-purple', className)}>{children}</div>;
 };
 
 export default Circle;

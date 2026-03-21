@@ -19,7 +19,7 @@ const Title = (props: TitleProps) => {
 
   return (
     <div className='flex flex-col gap-4'>
-      <h1 className='text-2xl font-bold text-primary tracking-wide'>{title}</h1>
+      <h1 className='text-lg md:text-2xl font-bold text-primary tracking-wide'>{title}</h1>
 
       {hasItems && (
         <Breadcrumb>
@@ -32,12 +32,12 @@ const Title = (props: TitleProps) => {
                   <BreadcrumbItem>
                     {!isLast && item.href ? (
                       <BreadcrumbLink asChild>
-                        <Link to={item.href} className='text-primary font-medium tracking-wide'>
+                        <Link to={item.href} className='text-xs md:text-sm text-primary font-medium tracking-wide'>
                           {item.label}
                         </Link>
                       </BreadcrumbLink>
                     ) : (
-                      <BreadcrumbPage className='text-primary font-semibold tracking-wide'>{item.label}</BreadcrumbPage>
+                      <BreadcrumbPage className='text-xs md:text-sm  text-primary font-semibold tracking-wide'>{item.label}</BreadcrumbPage>
                     )}
                   </BreadcrumbItem>
 

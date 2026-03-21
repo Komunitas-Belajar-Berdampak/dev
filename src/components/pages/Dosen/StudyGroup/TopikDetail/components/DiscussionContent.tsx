@@ -3,6 +3,7 @@ import UserInitialAvatar from '@/components/shared/UserInitialAvatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { getUser } from '@/lib/authStorage';
 import { formatDateTime } from '@/lib/datetime';
 import type { ThreadDetail } from '@/types/thread-post';
@@ -12,6 +13,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import TiptapReadonlyContent from '../../../../../shared/TiptapReadonlyContent';
+import { isEditedPost } from '../utils/isEditedPost';
 import DialogDeletePost from './DialogDeletePost';
 import DiscussionSkeleton from './DiscussionSkeleton';
 
@@ -28,6 +30,7 @@ const DiscussionContent = ({ threadDetailQuery }: DiscussionContentProps) => {
   const user = getUser();
   const nrp = user?.nrp;
   const [openDeleteId, setOpenDeleteId] = useState<string | null>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!threadDetailQuery.isError) return;
@@ -43,19 +46,23 @@ const DiscussionContent = ({ threadDetailQuery }: DiscussionContentProps) => {
       ) : (
         <>
           {threadDetailQuery.data.map((thread: ThreadDetail) => (
-            <Card key={thread.id} className='py-8 px-4 border-accent'>
-              <CardHeader className='flex flex-row gap-6 items-center w-full'>
+            <Card key={thread.id} className='py-12 px-4 border-accent'>
+              <CardHeader className='flex flex-row gap-6 items-center justify-start w-full px-0'>
+                {isMobile ? <div></div> : <div></div>}
                 <div>
                   <UserInitialAvatar name={thread.author.nama} />
                 </div>
 
                 <div className='flex flex-col justify-center w-1/2'>
-                  <p className='text-sm text-primary font-bold'>{thread.author.nama}</p>
-                  <p className='text-sm text-accent '>{thread.author.nrp}</p>
+                  <p className='text-xs md:text-sm text-primary font-bold'>{thread.author.nama}</p>
+                  <p className='text-xs md:text-sm text-accent '>{thread.author.nrp}</p>
                 </div>
 
-                <div className='w-full flex justify-end items-center gap-4'>
-                  <p className='text-sm text-accent'>{formatDateTime(thread.updatedAt, { dateLocale: 'en-GB', timeLocale: 'en-GB', hour12: false })}</p>
+                <div className='w-full flex justify-end items-center gap-2 md:gap-4'>
+                  <p className='text-xs md:text-sm text-accent'>
+                    {isEditedPost(thread) ? 'edited - ' : ''}
+                    {formatDateTime(thread.updatedAt, { dateLocale: 'en-GB', timeLocale: 'en-GB', hour12: false })}
+                  </p>
 
                   {thread.author.nrp === nrp && (
                     <>
@@ -71,7 +78,7 @@ const DiscussionContent = ({ threadDetailQuery }: DiscussionContentProps) => {
                             <Trash className='text-primary' />
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className='rounded-xl'>
+                        <DialogContent className='rounded-xl text-xs md:text-sm'>
                           <DialogDeletePost postId={thread.id} onClose={() => setOpenDeleteId(null)} />
                         </DialogContent>
                       </Dialog>
@@ -81,7 +88,7 @@ const DiscussionContent = ({ threadDetailQuery }: DiscussionContentProps) => {
               </CardHeader>
 
               <CardContent className='py-4 flex flex-col gap-6'>
-                <TiptapReadonlyContent content={thread.konten} className='w-full text-primary border-none' />
+                <TiptapReadonlyContent content={thread.konten} className='w-full text-primary border-none text-xs md:text-sm' />
               </CardContent>
             </Card>
           ))}

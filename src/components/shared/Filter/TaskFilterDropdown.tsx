@@ -37,7 +37,7 @@ const TaskFilterDropdown = ({ value, onValueChange, members, label = 'Filter by.
           className={cn(
             `
             flex items-center gap-2 border border-black/20 bg-white text-black/30 shadow-sm hover:bg-primary
-            hover:text-white py-5 
+            hover:text-white py-5  text-xs md:text-sm
 			`,
             buttonClassName,
           )}
@@ -50,15 +50,17 @@ const TaskFilterDropdown = ({ value, onValueChange, members, label = 'Filter by.
       <DropdownMenuContent className={cn(widthClassName, 'border-accent p-3', contentClassName)} align='end' sideOffset={10}>
         <div className={cn('flex flex-col gap-4', className)}>
           <div className='flex flex-col gap-2'>
-            <span className='text-xs text-primary font-bold'>Nama</span>
+            <span className='text-xs text-primary font-bold '>Nama</span>
             <Select value={value.memberId} onValueChange={(v) => onValueChange({ ...value, memberId: v })}>
-              <SelectTrigger className='w-full border-accent'>
+              <SelectTrigger className='w-full border-accent  text-xs md:text-sm'>
                 <SelectValue placeholder='Semua' />
               </SelectTrigger>
               <SelectContent className='border-accent'>
-                <SelectItem value={TASK_FILTER_ALL}>Semua</SelectItem>
+                <SelectItem value={TASK_FILTER_ALL} className='text-xs md:text-sm'>
+                  Semua
+                </SelectItem>
                 {members.map((m) => (
-                  <SelectItem key={m.id} value={m.id}>
+                  <SelectItem key={m.id} value={m.id} className='text-xs md:text-sm'>
                     {m.nama}
                   </SelectItem>
                 ))}
@@ -69,13 +71,15 @@ const TaskFilterDropdown = ({ value, onValueChange, members, label = 'Filter by.
           <div className='flex flex-col gap-2'>
             <span className='text-xs text-primary font-bold'>Status</span>
             <Select value={value.status} onValueChange={(v) => onValueChange({ ...value, status: v as TaskFilterValue['status'] })}>
-              <SelectTrigger className='w-full border-accent'>
+              <SelectTrigger className='w-full border-accent  text-xs md:text-sm'>
                 <SelectValue placeholder='Semua' />
               </SelectTrigger>
               <SelectContent className='border-accent'>
-                <SelectItem value={TASK_FILTER_ALL}>Semua</SelectItem>
+                <SelectItem value={TASK_FILTER_ALL} className='text-xs md:text-sm'>
+                  Semua
+                </SelectItem>
                 {TASK_STATUS_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
+                  <SelectItem key={opt.value} value={opt.value} className='text-xs md:text-sm'>
                     {opt.label}
                   </SelectItem>
                 ))}

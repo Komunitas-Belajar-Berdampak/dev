@@ -133,12 +133,12 @@ const DialogAddThread = ({ open, onOpenChange, idSg, idCourse }: DialogAddThread
                 />
               </FieldGroup>
 
-              <DialogFooter className='space-x-2'>
-                <Button type='submit' variant='default' className='shadow-sm border px-5' disabled={isPending}>
+              <DialogFooter className='space-x-2 '>
+                <Button type='submit' variant='default' className='w-full md:w-auto shadow-sm border px-5' disabled={isPending}>
                   {isPending ? 'Creating...' : 'Create'}
                 </Button>
                 <DialogClose asChild>
-                  <Button type='button' variant='secondary' className='shadow-sm border bg-accent hover:opacity-85' disabled={isPending}>
+                  <Button type='button' variant='secondary' className='w-full md:w-auto shadow-sm border bg-accent hover:opacity-85' disabled={isPending}>
                     Cancel
                   </Button>
                 </DialogClose>

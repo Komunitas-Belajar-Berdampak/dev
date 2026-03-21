@@ -43,12 +43,12 @@ const TopikPembahasanContent = ({ idSg }: TopikPembahasanContentProps) => {
           {data?.map((thread) => (
             <Link to={`${thread.judul}/${thread.id}`} className='flex flex-row w-full  gap-6' key={thread.id}>
               <Circle className='flex justify-center items-center'>
-                <ListChecks className='text-primary ' />
+                <ListChecks className='text-primary size-5 md:size-6' />
               </Circle>
 
               <div className='flex flex-col justify-center'>
-                <span className='text-primary font-bold text-sm'>{thread.judul}</span>
-                <span className='text-accent text-sm'>{thread.assignment}</span>
+                <span className='text-primary font-bold text-xs md:text-sm'>{thread.judul}</span>
+                <span className='text-accent text-xs md:text-sm'>{thread.assignment}</span>
               </div>
             </Link>
           ))}

@@ -15,10 +15,10 @@ const StudyGroupList = ({ courses }: StudyGroupListProps) => {
           <Link className='flex gap-6 items-center' to={`/dosen/study-groups/${course.namaMatkul}/${course.id}`}>
             <Circle theme='course-art' seed={course.id} />
             <div className='flex flex-col'>
-              <p className='text-primary font-bold text-sm'>
+              <p className='text-primary font-bold text-xs md:text-sm'>
                 {course.kodeMatkul} - {course.namaMatkul}
               </p>
-              <p className='text-accent text-sm'>{course.periode}</p>
+              <p className='text-accent text-xs md:text-sm '>{course.periode}</p>
             </div>
           </Link>
 

@@ -59,7 +59,7 @@ const StudyGroupListContent = ({ idMatkul, namaMatkul }: StudyGroupListProps) =>
 
         {/* Button */}
         <Link to={`/dosen/study-groups/${namaMatkul}/${encodeURIComponent(idMatkul)}/add`}>
-          <Button className='shadow' size={'lg'}>
+          <Button className='shadow text-xs md:text-sm' size={'lg'}>
             <Icon icon='mdi:plus-box' />
             Add Study Group
           </Button>
