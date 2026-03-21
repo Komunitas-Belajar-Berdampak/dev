@@ -1,4 +1,4 @@
-import { EditorContent, EditorContext, useEditor, type JSONContent } from '@tiptap/react';
+import { EditorContent, EditorContext, useEditor, type Editor, type JSONContent } from '@tiptap/react';
 import * as React from 'react';
 
 // --- Tiptap Core Extensions ---
@@ -23,13 +23,14 @@ import { Toolbar, ToolbarGroup, ToolbarSeparator } from '@/components/tiptap-ui-
 import { BlockquoteButton } from '@/components/tiptap-ui/blockquote-button';
 import { CodeBlockButton } from '@/components/tiptap-ui/code-block-button';
 import { ColorHighlightPopover } from '@/components/tiptap-ui/color-highlight-popover';
-import { HeadingDropdownMenu } from '@/components/tiptap-ui/heading-dropdown-menu';
 import { ImageUploadButton } from '@/components/tiptap-ui/image-upload-button';
 import { LinkPopover } from '@/components/tiptap-ui/link-popover';
-import { ListDropdownMenu } from '@/components/tiptap-ui/list-dropdown-menu';
 import { MarkButton } from '@/components/tiptap-ui/mark-button';
 import { TextAlignButton } from '@/components/tiptap-ui/text-align-button';
 import { UndoRedoButton } from '@/components/tiptap-ui/undo-redo-button';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { ChevronDown } from 'lucide-react';
 
 // --- Lib ---
 import { handleImageUpload, MAX_FILE_SIZE } from '@/lib/tiptap-utils';
@@ -48,6 +49,59 @@ export type PostEditorProps = {
   value: JSONContent;
   onChange: (value: JSONContent) => void;
   disabled?: boolean;
+};
+
+type HeadingLevel = 1 | 2 | 3 | 4;
+
+const headingLevels: HeadingLevel[] = [1, 2, 3, 4];
+
+const HeadingCustomDropdown = ({ editor, disabled }: { editor: Editor | null; disabled?: boolean }) => {
+  if (!editor) return null;
+
+  const activeHeading = headingLevels.find((level) => editor.isActive('heading', { level }));
+  const label = activeHeading ? `H${activeHeading}` : 'Heading';
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant='ghost' size='sm' className='h-8 gap-1' disabled={disabled || !editor.isEditable}>
+          {label}
+          <ChevronDown className='h-3 w-3' />
+        </Button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align='start' className='w-36'>
+        {headingLevels.map((level) => (
+          <DropdownMenuItem key={level} onSelect={() => editor.chain().focus().toggleHeading({ level }).run()}>
+            Heading {level}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
+const ListCustomDropdown = ({ editor, disabled }: { editor: Editor | null; disabled?: boolean }) => {
+  if (!editor) return null;
+
+  const label = editor.isActive('taskList') ? 'Task List' : editor.isActive('orderedList') ? 'Numbered List' : editor.isActive('bulletList') ? 'Bullet List' : 'List';
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant='ghost' size='sm' className='h-8 gap-1' disabled={disabled || !editor.isEditable}>
+          {label}
+          <ChevronDown className='h-3 w-3' />
+        </Button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align='start' className='w-44'>
+        <DropdownMenuItem onSelect={() => editor.chain().focus().toggleBulletList().run()}>Bullet List</DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => editor.chain().focus().toggleOrderedList().run()}>Numbered List</DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => editor.chain().focus().toggleTaskList().run()}>Task List</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 };
 
 const PostEditor = ({ value, onChange, disabled }: PostEditorProps) => {
@@ -114,8 +168,8 @@ const PostEditor = ({ value, onChange, disabled }: PostEditorProps) => {
           <ToolbarSeparator />
 
           <ToolbarGroup>
-            <HeadingDropdownMenu levels={[1, 2, 3, 4]} portal={false} />
-            <ListDropdownMenu types={['bulletList', 'orderedList', 'taskList']} portal={false} />
+            <HeadingCustomDropdown editor={editor} disabled={disabled} />
+            <ListCustomDropdown editor={editor} disabled={disabled} />
             <BlockquoteButton />
             <CodeBlockButton />
           </ToolbarGroup>
