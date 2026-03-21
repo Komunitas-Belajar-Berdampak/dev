@@ -16,7 +16,7 @@ type SearchProps = {
 const Search = ({ value, onChange, placeholder = 'Search...', className, inputClassName, buttonClassName, onSearch }: SearchProps) => {
   return (
     <div className={cn('flex w-full sm:w-auto gap-2', className)}>
-      <Input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={cn('w-full border border-accent', inputClassName)} />
+      <Input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={cn('text-xs md:text-sm w-full border border-accent', inputClassName)} />
       <Button size='icon' className={cn('shadow-sm', buttonClassName)} type='button' onClick={onSearch}>
         <Icon icon='mdi:magnify' className='text-lg' />
       </Button>

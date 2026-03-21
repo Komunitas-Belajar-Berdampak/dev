@@ -32,11 +32,11 @@ const DialogDeletePost = ({ postId, onClose }: { postId: string; onClose?: () =>
       <p className='text-sm text-primary'>Apakah Anda yakin ingin menghapus discussion ini? karena tidak dapat dikembalikan.</p>
 
       <DialogFooter className='space-x-2'>
-        <Button variant='default' className='shadow-sm border px-5' onClick={onDelete} disabled={isPending}>
+        <Button variant='default' className='shadow-sm border px-5 w-full md:w-auto' onClick={onDelete} disabled={isPending}>
           Hapus
         </Button>
         <DialogClose asChild>
-          <Button variant='secondary' className='shadow-sm border bg-accent hover:opacity-85'>
+          <Button variant='secondary' className='shadow-sm border bg-accent hover:opacity-85 w-full md:w-auto'>
             Cancel
           </Button>
         </DialogClose>

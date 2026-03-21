@@ -1,6 +1,8 @@
 import NoData from '@/components/shared/NoData';
 import UserInitialAvatar from '@/components/shared/UserInitialAvatar';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { getUser } from '@/lib/authStorage';
+import { shortString } from '@/lib/short-string';
 import type { StudyGroupDetail } from '@/types/sg';
 import { UserRoundX } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -13,6 +15,7 @@ type DashboardKontribusiContentProps = {
 const DashboardKontribusiContent = ({ totalKontribusi = 0, anggota = [] }: DashboardKontribusiContentProps) => {
   const user = getUser();
   const nrp = user?.nrp;
+  const isMobile = useIsMobile();
 
   return (
     <>
@@ -30,15 +33,24 @@ const DashboardKontribusiContent = ({ totalKontribusi = 0, anggota = [] }: Dashb
               </div>
 
               <div className='flex flex-col w-full'>
-                <span className={`text-primary font-bold text-sm`}>{member.nrp === nrp ? `${member.nama} (Anda)` : member.nama}</span>
-                <span className='text-accent text-sm'>{member.nrp}</span>
+                {isMobile ? (
+                  <span className='text-primary font-bold text-xs md:text-sm'>
+                    {shortString(member.nama, 15)} {member.nrp === nrp && '(Anda)'}
+                  </span>
+                ) : (
+                  <span className='text-primary font-bold text-xs md:text-sm'>
+                    {shortString(member.nama, 50)} {member.nrp === nrp && '(Anda)'}
+                  </span>
+                )}
+
+                <span className='text-accent text-xs md:text-sm'>{member.nrp}</span>
               </div>
 
-              <div className='flex flex-row gap-4 items-center w-1/3'>
+              <div className='flex flex-row gap-4 items-center w-full md:w-1/3'>
                 <div className='w-full h-[0.4rem] bg-accent overflow-hidden rounded-xl'>
                   <div className={`bg-primary h-full rounded-full`} style={{ width: ` ${totalKontribusi !== 0 ? (member.totalKontribusi / totalKontribusi) * 100 : 0}%` }} />
                 </div>
-                <span className='text-primary font-bold text-sm'>{member.totalKontribusi}</span>
+                <span className='text-primary font-bold text-xs md:text-sm'>{member.totalKontribusi}</span>
               </div>
             </Link>
           ))}

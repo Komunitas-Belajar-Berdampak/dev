@@ -52,7 +52,7 @@ const FilterWithInputRange = <TField extends string>({
           className={cn(
             `
             flex items-center gap-2 border border-black/20 bg-white text-black/30 shadow-sm hover:bg-primary 
-            hover:text-white 
+            hover:text-white text-xs md:text-sm
 			`,
             buttonClassName,
           )}
@@ -66,12 +66,12 @@ const FilterWithInputRange = <TField extends string>({
         <div className={cn('flex flex-col gap-4 ', className)}>
           {showFieldSelect && (
             <Select value={value.field} onValueChange={(v) => onValueChange({ ...value, field: v as TField })}>
-              <SelectTrigger className=' w-full border-accent '>
+              <SelectTrigger className=' w-full border-accent text-xs md:text-sm'>
                 <SelectValue placeholder='Jenis topik pembahasan' />
               </SelectTrigger>
-              <SelectContent className=' border-accent'>
+              <SelectContent className='border-accent'>
                 {fields.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
+                  <SelectItem key={opt.value} value={opt.value} className='text-xs md:text-sm'>
                     {opt.label}
                   </SelectItem>
                 ))}
@@ -79,11 +79,11 @@ const FilterWithInputRange = <TField extends string>({
             </Select>
           )}
 
-          {showKeywordInput && <Input className=' border-accent' placeholder='Cari (search apapun)' value={value.keyword} onChange={(e) => onValueChange({ ...value, keyword: e.target.value })} />}
+          {showKeywordInput && <Input className=' border-accent text-xs md:text-sm' placeholder='Cari (search apapun)' value={value.keyword} onChange={(e) => onValueChange({ ...value, keyword: e.target.value })} />}
 
           <div className='grid grid-cols-2 gap-2'>
-            <Input className=' border-accent' type='date' placeholder='Dari' value={value.fromDate} onChange={(e) => onValueChange({ ...value, fromDate: e.target.value })} />
-            <Input className=' border-accent' type='date' placeholder='Sampai' value={value.toDate} onChange={(e) => onValueChange({ ...value, toDate: e.target.value })} />
+            <Input className=' border-accent text-xs md:text-sm' type='date' placeholder='Dari' value={value.fromDate} onChange={(e) => onValueChange({ ...value, fromDate: e.target.value })} />
+            <Input className=' border-accent text-xs md:text-sm' type='date' placeholder='Sampai' value={value.toDate} onChange={(e) => onValueChange({ ...value, toDate: e.target.value })} />
           </div>
         </div>
       </DropdownMenuContent>

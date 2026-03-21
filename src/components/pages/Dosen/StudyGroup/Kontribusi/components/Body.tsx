@@ -50,7 +50,7 @@ const KontribusiBody = ({ data }: KontribusiBodyProps) => {
     <>
       <div className='flex flex-col gap-4 '>
         <div className='flex flex-row justify-between items-center'>
-          <h2 className='text-primary font-bold '>Aktivitas yang dilakukan</h2>
+          <h2 className='text-primary font-bold text-sm md:text-base'>Aktivitas yang dilakukan</h2>
 
           {/* Filter by */}
           <FilterWithInputRange value={filter} onValueChange={setFilter} fields={threadOptions} label='Filter by..' />

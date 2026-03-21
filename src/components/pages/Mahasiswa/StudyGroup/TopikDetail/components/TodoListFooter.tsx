@@ -12,7 +12,7 @@ function TodoListFooter({ disabled = false, onNew }: TodoListFooterProps) {
     <TableFooter>
       <TableRow>
         <TableCell colSpan={4} className='text-center'>
-          <Button type='button' variant='link' disabled={disabled} onClick={onNew}>
+          <Button type='button' variant='link' disabled={disabled} onClick={onNew} className='text-xs md:text-sm'>
             <Icon icon='ic:round-add-box' className='size-5' />
             New To Do
           </Button>

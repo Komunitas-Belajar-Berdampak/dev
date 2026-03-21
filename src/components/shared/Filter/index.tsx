@@ -29,7 +29,7 @@ const Filter = <TValue extends string>({ value, onValueChange, options, label = 
           className={cn(
             `
             flex items-center gap-2 border border-black/20 bg-white text-black/30 shadow-sm hover:bg-primary 
-            hover:text-white
+            hover:text-white text-xs md:text-sm lg:text-base
 			`,
             buttonClassName,
           )}
@@ -41,7 +41,7 @@ const Filter = <TValue extends string>({ value, onValueChange, options, label = 
       <DropdownMenuContent className={cn(widthClassName, 'border-accent', contentClassName)} align='end' sideOffset={10}>
         <DropdownMenuRadioGroup value={value} onValueChange={(v) => onValueChange(v as TValue)} className={className}>
           {options.map((opt) => (
-            <DropdownMenuRadioItem key={opt.value} value={opt.value}>
+            <DropdownMenuRadioItem key={opt.value} value={opt.value} className='text-xs md:text-sm '>
               {opt.label}
             </DropdownMenuRadioItem>
           ))}
