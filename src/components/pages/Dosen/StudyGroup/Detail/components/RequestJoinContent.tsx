@@ -82,8 +82,8 @@ const RequestJoinContent = ({ idSg }: RequestJoinContentProps) => {
               </div>
 
               <div className='w-full flex flex-col justify-center'>
-                <span className='text-primary font-bold text-sm'>{member.nama}</span>
-                <span className='text-accent text-sm'>{member.nrp}</span>
+                <span className='text-primary font-bold text-xs md:text-sm'>{member.nama}</span>
+                <span className='text-accent text-xs md:text-sm'>{member.nrp}</span>
               </div>
 
               <div className='flex flex-row gap-2 items-center'>

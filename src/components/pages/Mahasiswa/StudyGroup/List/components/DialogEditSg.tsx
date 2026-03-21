@@ -74,11 +74,11 @@ const DialogEditSg = ({ defaultValues, onSave, isPending = false }: DialogEditSg
           </FieldGroup>
 
           <DialogFooter className='space-x-2 '>
-            <Button type='submit' variant='default' className='shadow-sm border px-5' disabled={isPending}>
+            <Button type='submit' variant='default' className='shadow-sm border px-5 w-full md:w-auto' disabled={isPending}>
               Save
             </Button>
             <DialogClose asChild>
-              <Button type='button' variant='secondary' className='shadow-sm border bg-accent hover:opacity-85'>
+              <Button type='button' variant='secondary' className='shadow-sm border bg-accent hover:opacity-85 w-full md:w-auto'>
                 Cancel
               </Button>
             </DialogClose>

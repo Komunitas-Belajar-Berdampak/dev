@@ -42,14 +42,16 @@ function MembersMultiSelect({ value, onChange, members, disabled }: MembersMulti
         onChange([...current, pickedId]);
       }}
     >
-      <ComboboxChips ref={anchor} className='w-full'>
+      <ComboboxChips ref={anchor} className='w-full min-w-0'>
         <ComboboxValue>
           {(values) => (
             <>
               {(values as string[]).map((id: string) => (
-                <ComboboxChip key={`${id}`}>{namaById.get(id) ?? id}</ComboboxChip>
+                <ComboboxChip key={`${id}`} className='max-w-full'>
+                  <span className='block max-w-full truncate'>{namaById.get(id) ?? id}</span>
+                </ComboboxChip>
               ))}
-              <ComboboxChipsInput placeholder={members.length === 0 ? 'No members' : 'Pick members'} />
+              <ComboboxChipsInput className={'min-w-0 text-xs md:text-sm'} placeholder={members.length === 0 ? 'No members' : 'Pick members'} />
             </>
           )}
         </ComboboxValue>
@@ -58,7 +60,7 @@ function MembersMultiSelect({ value, onChange, members, disabled }: MembersMulti
         <ComboboxEmpty>No items found.</ComboboxEmpty>
         <ComboboxList>
           {(id) => (
-            <ComboboxItem key={id} value={id}>
+            <ComboboxItem key={id} value={id} className={' text-xs md:text-sm'}>
               {namaById.get(String(id)) ?? String(id)}
             </ComboboxItem>
           )}

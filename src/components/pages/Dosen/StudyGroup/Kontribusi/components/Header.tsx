@@ -13,23 +13,23 @@ const KontribusiHeader = ({ namaAnggota, data, totalKontribusi }: KontribusiHead
   console.info(data);
   return (
     <ContentHeader>
-      <h1 className='text-primary font-bold text-lg '>{namaAnggota}</h1>
+      <h1 className='text-primary font-bold text-sm md:text-lg '>{namaAnggota}</h1>
 
       {data.length === 0 ? (
         <p className='text-accent text-sm'> Belum ada point pada thread apapun </p>
       ) : (
         data.map((e) => (
           <div className='flex flex-row gap-6 items-center mt-4 w-full px-4 ' key={e.thread}>
-            <Circle size={12} className='flex justify-center items-center'>
-              <ListChecks className='text-primary w-12 h-12 p-3.5' />
+            <Circle className='flex justify-center items-center'>
+              <ListChecks className='text-primary size-10 md:size-12 p-2.5 md:p-3.5' />
             </Circle>
 
-            <span className='text-primary font-bold text-sm w-full'>{e.thread}</span>
+            <span className='text-primary font-bold text-xs md:text-sm w-full'>{e.thread}</span>
 
             <div className='h-[0.4rem] bg-accent overflow-hidden rounded-xl w-1/3'>
               <div className='bg-primary h-full rounded-full' style={{ width: `${(e.kontribusi / totalKontribusi) * 100}%` }} />
             </div>
-            <span className='text-primary font-bold text-sm'>{e.kontribusi}</span>
+            <span className='text-primary font-bold text-xs md:text-sm'>{e.kontribusi}</span>
           </div>
         ))
       )}

@@ -46,7 +46,7 @@ const ToDoListContent = ({ filters, tasksQuery }: ToDoListContentProps) => {
         <TableHeader>
           <TableRow>
             {tableHeaders.map((header) => (
-              <TableHead key={header} className='text-primary w-screen font-semibold'>
+              <TableHead key={header} className='text-primary w-screen font-semibold  text-xs md:text-sm'>
                 {header}
               </TableHead>
             ))}
@@ -55,7 +55,7 @@ const ToDoListContent = ({ filters, tasksQuery }: ToDoListContentProps) => {
         <TableBody>
           {tasksView.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={3} className='text-center text-accent py-10'>
+              <TableCell colSpan={3} className='text-center text-accent py-10 '>
                 <NoData message={'Belum ada rencana to do yang dibuat'} />
               </TableCell>
             </TableRow>
@@ -63,9 +63,9 @@ const ToDoListContent = ({ filters, tasksQuery }: ToDoListContentProps) => {
             tasksView.map((task) => {
               return (
                 <TableRow key={task.id}>
-                  <TableCell className='font-medium text-black/50 whitespace-normal'>{task.task}</TableCell>
+                  <TableCell className='text-xs md:text-sm font-medium text-black/50 whitespace-normal'>{task.task}</TableCell>
                   <TableCell>
-                    <span className='text-black/50 text-sm'>
+                    <span className='text-black/50 text-xs md:text-sm'>
                       {task.mahasiswa.length === 0
                         ? '-'
                         : task.mahasiswa
@@ -75,7 +75,7 @@ const ToDoListContent = ({ filters, tasksQuery }: ToDoListContentProps) => {
                     </span>
                   </TableCell>
                   <TableCell className='text-black/50'>
-                    <span className='text-black/50 text-sm'>{getTaskStatusLabel(task.status)}</span>
+                    <span className='text-black/50  text-xs md:text-sm'>{getTaskStatusLabel(task.status)}</span>
                   </TableCell>
                 </TableRow>
               );

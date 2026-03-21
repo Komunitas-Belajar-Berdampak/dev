@@ -32,8 +32,8 @@ const Header = () => {
         <SidebarTrigger className=' text-primary' />
 
         <div className='flex flex-row gap-6  items-center'>
-          <p className='text-primary font-semibold '>
-            Hello, <span className=' underline underline-offset-4'>{nama}</span>!
+          <p className='text-primary font-semibold text-sm md:text-base'>
+            Hello, <span className='underline underline-offset-4'>{nama}</span>!
           </p>
 
           <DropdownMenu>
@@ -55,11 +55,11 @@ const Header = () => {
 
                       {isLogout ? (
                         <DropdownMenuItem disabled={logoutMutation.isPending} onSelect={() => logoutMutation.mutate()}>
-                          <span className='flex items-center gap-2 w-full text-foreground/70'>{logoutMutation.isPending ? 'Logging out...' : item.title}</span>
+                          <span className='text-xs md:text-sm  flex items-center gap-2 w-full text-foreground/70'>{logoutMutation.isPending ? 'Logging out...' : item.title}</span>
                         </DropdownMenuItem>
                       ) : (
                         <DropdownMenuItem asChild>
-                          <Link to={item.link} className='flex items-center gap-2 w-full text-foreground/70'>
+                          <Link to={item.link} className='text-xs md:text-sm flex items-center gap-2 w-full text-foreground/70'>
                             {item.title}
                           </Link>
                         </DropdownMenuItem>

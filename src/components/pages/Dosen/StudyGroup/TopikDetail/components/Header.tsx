@@ -26,7 +26,7 @@ const TopikPembahasanDetailHeader = ({ tab, namaTopik, statusToDoList, totalDisc
               <div key={item.label} className='flex flex-row gap-2 justify-center items-center'>
                 {item.label === 'Completed' ? <div className='bg-primary rounded-full p-0.5 flex items-center justify-center'>{item.icon}</div> : item.icon}
 
-                <span className='text-primary text-sm'>
+                <span className='text-primary text-xs md:text-sm'>
                   {item.label === 'Completed' ? String(DONE) : item.label === 'On Progress' ? String(INPROGRESS) : String(DO)} {item.label}
                 </span>
               </div>
@@ -35,7 +35,7 @@ const TopikPembahasanDetailHeader = ({ tab, namaTopik, statusToDoList, totalDisc
         ) : (
           <div>
             <Icon icon='flowbite:messages-solid' className='size-5.5 inline-block mr-2 text-primary' />
-            <span className='text-primary'>{totalDiscussions} Discussions</span>
+            <span className='text-primary text-xs md:text-sm'>{totalDiscussions} Discussions</span>
           </div>
         )}
       </div>

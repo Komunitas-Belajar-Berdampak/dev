@@ -20,7 +20,7 @@ type TodoRowFormProps = {
 function TodoRowForm({ form, members, disabled = false, statusOptions, onSubmit, onCancel }: TodoRowFormProps) {
   return (
     <TableRow>
-      <TableCell className='align-top'>
+      <TableCell className='align-top min-w-0'>
         <Controller
           name='task'
           control={form.control}
@@ -33,7 +33,7 @@ function TodoRowForm({ form, members, disabled = false, statusOptions, onSubmit,
         />
       </TableCell>
 
-      <TableCell className='align-top'>
+      <TableCell className='align-top min-w-0'>
         <Controller
           name='idMahasiswa'
           control={form.control}
@@ -46,19 +46,19 @@ function TodoRowForm({ form, members, disabled = false, statusOptions, onSubmit,
         />
       </TableCell>
 
-      <TableCell className='align-top'>
+      <TableCell className='align-top min-w-0'>
         <Controller
           name='status'
           control={form.control}
           render={({ field, fieldState }) => (
             <div className='space-y-1'>
               <Select value={field.value} onValueChange={(v) => field.onChange(v as TaskSchemaType['status'])} disabled={disabled}>
-                <SelectTrigger className='w-full'>
+                <SelectTrigger className='w-full min-w-0'>
                   <SelectValue placeholder='Pilih status' />
                 </SelectTrigger>
                 <SelectContent>
                   {statusOptions.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
+                    <SelectItem key={opt.value} value={opt.value} className='text-xs md:text-sm'>
                       {opt.label}
                     </SelectItem>
                   ))}
@@ -71,7 +71,7 @@ function TodoRowForm({ form, members, disabled = false, statusOptions, onSubmit,
       </TableCell>
 
       <TableCell className='align-top'>
-        <div className='flex items-center gap-2'>
+        <div className='flex items-center justify-center gap-1 md:justify-start md:gap-2'>
           <Button type='button' variant='ghost' size='icon-sm' disabled={disabled} onClick={form.handleSubmit(onSubmit)}>
             <Check className='size-4 text-primary' />
           </Button>

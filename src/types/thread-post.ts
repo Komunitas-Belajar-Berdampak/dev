@@ -11,5 +11,6 @@ export type ThreadDetail = {
     nama: string;
   };
   konten: import('@tiptap/react').JSONContent;
+  createdAt: string;
   updatedAt: string;
 };

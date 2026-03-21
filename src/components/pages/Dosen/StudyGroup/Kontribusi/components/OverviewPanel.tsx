@@ -15,18 +15,18 @@ const OverviewPanel = ({ totalAktivitas, totalPoin, mostActiveDay, trendOptions,
       <div className='mb-4 grid grid-cols-1 gap-3 md:grid-cols-3'>
         <div className='rounded-lg border border-accent bg-secondary px-3 py-2 shadow-sm'>
           <p className='text-xs text-accent'>Total aktivitas</p>
-          <p className='text-sm font-semibold text-primary'>{totalAktivitas}</p>
+          <p className='text-xs md:text-sm font-semibold text-primary'>{totalAktivitas}</p>
         </div>
         <div className='rounded-lg border border-accent bg-secondary px-3 py-2 shadow-sm'>
           <p className='text-xs text-accent'>Total points</p>
-          <p className='text-sm font-semibold text-primary'>{totalPoin}</p>
+          <p className='text-xs md:text-sm font-semibold text-primary'>{totalPoin}</p>
         </div>
         <div className='rounded-lg border border-accent bg-secondary px-3 py-2 shadow-sm'>
           <p className='text-xs text-accent'>Hari paling aktif</p>
-          <p className='text-sm font-semibold text-primary'>{mostActiveDay}</p>
+          <p className='text-xs md:text-sm font-semibold text-primary'>{mostActiveDay}</p>
         </div>
       </div>
-      <h3 className='mb-3 text-sm font-semibold text-primary'>Tren kontribusi per hari</h3>
+      <h3 className='mb-3 text-xs md:text-sm font-semibold text-primary'>Tren kontribusi per hari</h3>
       <ReactApexChart options={trendOptions} series={trendSeries} type='bar' height={260} />
     </div>
   );
