@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import TiptapReadonlyContent from '../../../../../shared/TiptapReadonlyContent';
+import { isEditedPost } from '../utils/isEditedPost';
 import DialogDeletePost from './DialogDeletePost';
 import DiscussionSkeleton from './DiscussionSkeleton';
 
@@ -55,7 +56,10 @@ const DiscussionContent = ({ threadDetailQuery }: DiscussionContentProps) => {
                 </div>
 
                 <div className='w-full flex justify-end items-center gap-4'>
-                  <p className='text-sm text-accent'>{formatDateTime(thread.updatedAt, { dateLocale: 'en-GB', timeLocale: 'en-GB', hour12: false })}</p>
+                  <p className='text-sm text-accent'>
+                    {isEditedPost(thread) ? 'edited - ' : ''}
+                    {formatDateTime(thread.updatedAt, { dateLocale: 'en-GB', timeLocale: 'en-GB', hour12: false })}
+                  </p>
 
                   {thread.author.nrp === nrp && (
                     <>
