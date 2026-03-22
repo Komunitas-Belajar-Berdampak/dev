@@ -64,6 +64,12 @@ const menuItems: MenuItem[] = [
 
   // mahasiswa
   {
+    title: "Courses",
+    path: "/mahasiswa/courses",
+    icon: <Icon icon="mage:book" />,
+    role: ["MAHASISWA"],
+  },
+  {
     title: "Study Groups",
     path: "/mahasiswa/study-groups",
     icon: <Icon icon="fluent:people-community-16-regular" />,
