@@ -291,7 +291,7 @@ const MhsMeetingDetail = () => {
                   }
                   className="text-sm text-blue-900 hover:underline shrink-0"
                 >
-                  Submit Tugas
+                  Lihat Detail
                 </button>
               </div>
             );
