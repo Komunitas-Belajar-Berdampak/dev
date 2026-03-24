@@ -231,8 +231,8 @@ const MhsSubmissionPage = () => {
                         Pilih file atau drag and drop di sini
                       </p>
                       <p className="text-xs text-gray-400">
-                        JPG, JPEG, PNG, PDF, DOC, DOCX, PPT, PPTX, ZIP maks.
-                        50MB
+                        JPG, PNG, PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, CSV, ZIP
+                        — maks. 50MB
                       </p>
                       <Button
                         type="button"
@@ -247,7 +247,7 @@ const MhsSubmissionPage = () => {
                   <input
                     ref={inputRef}
                     type="file"
-                    accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.ppt,.pptx,.zip"
+                    accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.xlsm,.xlsb,.csv,.zip"
                     className="hidden"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
