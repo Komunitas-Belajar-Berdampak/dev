@@ -1,14 +1,14 @@
-import type { AcademicTerm } from './academic-terms';
-import type { User } from './user';
+import type { AcademicTerm } from "./academic-terms";
+import type { User } from "./user";
 
 export type Course = {
   id: string;
   kodeMatkul: string;
   namaMatkul: string;
   sks: number;
-  status: 'aktif' | 'tidak aktif';
+  status: "aktif" | "tidak aktif";
   periode: string;
-  deskripsi: string;
+  deskripsi: string | null;
   pengajar: string;
   kelas: string;
 };
@@ -18,7 +18,7 @@ export type CourseById = {
   kodeMatkul: string;
   namaMatkul: string;
   sks: number;
-  status: 'aktif' | 'tidak aktif';
+  status: "aktif" | "tidak aktif";
   periode: AcademicTerm;
   pengajar: User[];
   mahasiswa: User[];

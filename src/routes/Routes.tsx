@@ -55,6 +55,11 @@ import AllPertemuanDashboard from "@/components/pages/Dosen/Matakuliah/Dashboard
 import PerPertemuanDashboard from "@/components/pages/Dosen/Matakuliah/Dashboard/PerPertemuanDashboard";
 import PertemuanDashboardDetail from "@/components/pages/Dosen/Matakuliah/Dashboard/PertemuanDashboardDetail";
 import ViewNilaiMahasiswaPage from "@/components/pages/Dosen/Matakuliah/Mahasiswa/ViewNilaiMahasiswaPage";
+import MhsCourseLayout from "@/components/pages/Mahasiswa/Courses";
+import MhsCoursePage from "@/components/pages/Mahasiswa/Courses/components/MhsCoursePage";
+import MhsCourseDetailPage from "@/components/pages/Mahasiswa/Courses/components/MhsCourseDetailPage";
+import MhsMeetingDetail from "@/components/pages/Mahasiswa/Courses/components/MhsMeetingDetail";
+import MhsSubmissionPage from "@/components/pages/Mahasiswa/Courses/components/MhsSubmissionPage";
 
 const routes: RouteObject[] = [
   {
@@ -279,6 +284,28 @@ const routes: RouteObject[] = [
             index: true,
           },
           {
+            path: "courses",
+            element: <MhsCourseLayout />,
+            children: [
+              {
+                index: true,
+                element: <MhsCoursePage />,
+              },
+              {
+                path: ":id",
+                element: <MhsCourseDetailPage />,
+              },
+              {
+                path: ":idMatkul/meeting/:idMeeting",
+                element: <MhsMeetingDetail />,
+              },
+              {
+                path: ":idMatkul/meeting/:idMeeting/submission/:idAssignment",
+                element: <MhsSubmissionPage />,
+              },
+            ],
+          },
+          {
             path: "private-file",
             element: <PrivateFileLayout />,
             children: [
@@ -294,49 +321,49 @@ const routes: RouteObject[] = [
                 path: "edit/:id",
                 element: <EditPrivateFilePage />,
               },
-            ],
-          },
-          {
-            path: "study-groups",
-            element: <StudyGroupLayout />,
-            children: [
               {
-                index: true,
-                element: <StudyGroupMainMhs />,
-              },
-              {
-                path: ":namaMatkul/:idMatkul",
-                element: <StudyGroupListMhs />,
-              },
-              {
-                path: ":namaMatkul/:idMatkul/:namaSg/:idSg",
-                element: <StudyGroupDetailMhs />,
-              },
-              {
-                path: ":namaMatkul/:idMatkul/:namaSg/:idSg/kontribusi/:namaAnggota/:idAnggota",
-                element: <KontribusiMahasiswaDetailMhs />,
-              },
-              {
-                path: ":namaMatkul/:idMatkul/:namaSg/:idSg/:namaTopik/:idTopik",
-                element: <TopikPembahasanDetailMhs />,
-              },
-              {
-                path: ":namaMatkul/:idMatkul/:namaSg/:idSg/:namaTopik/:idTopik/new-discussion",
-                element: <AddPostMhs />,
-              },
-              {
-                path: ":namaMatkul/:idMatkul/:namaSg/:idSg/:namaTopik/:idTopik/edit-discussion/:idPost",
-                element: <EditPostMhs />,
+                path: "study-groups",
+                element: <StudyGroupLayout />,
+                children: [
+                  {
+                    index: true,
+                    element: <StudyGroupMainMhs />,
+                  },
+                  {
+                    path: ":namaMatkul/:idMatkul",
+                    element: <StudyGroupListMhs />,
+                  },
+                  {
+                    path: ":namaMatkul/:idMatkul/:namaSg/:idSg",
+                    element: <StudyGroupDetailMhs />,
+                  },
+                  {
+                    path: ":namaMatkul/:idMatkul/:namaSg/:idSg/kontribusi/:namaAnggota/:idAnggota",
+                    element: <KontribusiMahasiswaDetailMhs />,
+                  },
+                  {
+                    path: ":namaMatkul/:idMatkul/:namaSg/:idSg/:namaTopik/:idTopik",
+                    element: <TopikPembahasanDetailMhs />,
+                  },
+                  {
+                    path: ":namaMatkul/:idMatkul/:namaSg/:idSg/:namaTopik/:idTopik/new-discussion",
+                    element: <AddPostMhs />,
+                  },
+                  {
+                    path: ":namaMatkul/:idMatkul/:namaSg/:idSg/:namaTopik/:idTopik/edit-discussion/:idPost",
+                    element: <EditPostMhs />,
+                  },
+                ],
               },
             ],
           },
         ],
       },
+      {
+        path: "*",
+        element: <ErrorPage />,
+      },
     ],
-  },
-  {
-    path: "*",
-    element: <ErrorPage />,
   },
 ];
 
