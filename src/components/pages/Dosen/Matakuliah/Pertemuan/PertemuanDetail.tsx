@@ -7,28 +7,11 @@ import { useMeetingDetail } from "../hooks/useMeetingDetail";
 import { useMaterialsByCourse } from "../hooks/useMaterialsByCourse";
 import { useAssignmentsByCourse } from "../hooks/useAssignmentsByCourse";
 
-// Helper: unwrap deskripsi dari BE yang bisa berupa { text: "..." } atau string biasa
 function unwrapDeskripsi(val: any): string {
   if (!val) return "";
   if (typeof val === "string") return val;
   if (typeof val === "object" && typeof val.text === "string") return val.text;
   return String(val);
-}
-
-// Helper: build URL download dari pathFile
-// pathFile di DB: "materials/IF101/meet01/namafile.pdf"
-// URL final:      "http://localhost:3002/materials/IF101/meet01/namafile.pdf"
-const STORAGE_BASE_URL = import.meta.env.VITE_API_URL
-  ? String(import.meta.env.VITE_API_URL).replace(/\/api\/?$/, "")
-  : "";
-
-function buildFileUrl(pathFile?: string | null): string | undefined {
-  if (!pathFile) return undefined;
-  // Kalau sudah full URL (http/https), langsung pakai
-  if (/^https?:\/\//.test(pathFile)) return pathFile;
-  // Gabungkan base URL + path (hindari double slash)
-  const cleanPath = pathFile.replace(/^\/+/, "");
-  return `${STORAGE_BASE_URL}/${cleanPath}`;
 }
 
 function SkeletonBlock({ className = "" }: { className?: string }) {
@@ -61,26 +44,72 @@ function PertemuanDetailSkeleton() {
   );
 }
 
+function PdfPreviewModal({
+  url,
+  title,
+  onClose,
+}: {
+  url: string;
+  title: string;
+  onClose: () => void;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="relative flex w-full max-w-4xl flex-col rounded-2xl bg-white shadow-xl"
+        style={{ height: "90vh" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-3">
+          <h3 className="truncate max-w-[80%] text-sm font-semibold text-blue-900">{title}</h3>
+          <div className="flex items-center gap-2">
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-blue-600 px-3 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-50 transition"
+            >
+              <Icon icon="mdi:download" className="text-sm" />
+              Download
+            </a>
+            <button
+              onClick={onClose}
+              className="rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition"
+            >
+              <Icon icon="mdi:close" className="text-xl" />
+            </button>
+          </div>
+        </div>
+
+        <iframe
+          src={`${url}#toolbar=1&navpanes=0`}
+          className="flex-1 w-full rounded-b-2xl"
+          title={title}
+        />
+      </div>
+    </div>
+  );
+}
+
 export default function PertemuanDetail() {
   const { id: idCourse, pertemuanId } = useParams<{
     id: string;
     pertemuanId: string;
   }>();
 
-  const {
-    data: pertemuan,
-    isLoading,
-    error,
-    refetch,
-  } = useMeetingDetail(pertemuanId, idCourse);
-
+  const { data: pertemuan, isLoading, error, refetch } = useMeetingDetail(pertemuanId, idCourse);
   const { data: materials = [] } = useMaterialsByCourse(idCourse);
   const { data: assignments = [] } = useAssignmentsByCourse(idCourse);
 
   const navigate = useNavigate();
 
-  // Fetch semua pertemuan untuk navigasi prev/next
   const [allMeetings, setAllMeetings] = useState<MeetingEntity[]>([]);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewTitle, setPreviewTitle] = useState<string>("");
+
   useEffect(() => {
     if (!idCourse) return;
     MeetingService.getMeetingsByCourseId(idCourse)
@@ -97,31 +126,28 @@ export default function PertemuanDetail() {
 
   const pertemuanNum = Number(pertemuan?.pertemuan ?? 0);
 
-  // FIX 1: Filter materi — coba berdasarkan field "pertemuan" dulu,
-  // fallback ke pathFile pattern jika field tidak ada
-  const meetKey = pertemuanNum
-    ? `meet${String(pertemuanNum).padStart(2, "0")}`
-    : null;
-
   const materiPertemuan = pertemuanNum
     ? (materials as any[]).filter((m: any) => {
-        // Prioritas: field pertemuan langsung
-        if (m.pertemuan !== undefined && m.pertemuan !== null) {
-          return Number(m.pertemuan) === pertemuanNum;
-        }
-        // Fallback: pathFile pattern (meet01, meet02, dst)
-        if (meetKey) {
-          const p = String(m.pathFile ?? "");
-          return p.includes(`/${meetKey}/`) || p.includes(`${meetKey}/`);
-        }
-        return false;
+        if (m.idMeeting) return String(m.idMeeting) === String(pertemuanId);
+        const meetKey = `meet${String(pertemuanNum).padStart(2, "0")}`;
+        const p = String(m.pathFile ?? "");
+        return p.includes(`/${meetKey}/`) || p.includes(`${meetKey}/`);
       })
     : (materials as any[]);
 
-  // Filter tugas per pertemuan
   const tugasPertemuan = (assignments as any[]).filter(
-    (a: any) => Number(a.pertemuan) === pertemuanNum
+    (a: any) => String(a.idMeeting) === String(pertemuanId)
   );
+
+  const openPreview = (url: string, title: string) => {
+    setPreviewTitle(title);
+    setPreviewUrl(url);
+  };
+
+  const closePreview = () => {
+    setPreviewUrl(null);
+    setPreviewTitle("");
+  };
 
   if (isLoading) return <PertemuanDetailSkeleton />;
 
@@ -141,9 +167,7 @@ export default function PertemuanDetail() {
 
   if (!pertemuan) {
     return (
-      <p className="text-sm text-gray-500 text-center">
-        Pertemuan tidak ditemukan.
-      </p>
+      <p className="text-sm text-gray-500 text-center">Pertemuan tidak ditemukan.</p>
     );
   }
 
@@ -158,20 +182,17 @@ export default function PertemuanDetail() {
 
   return (
     <div className="space-y-8">
-      {/* TITLE + BREADCRUMB */}
       <Title
         title={`Pertemuan ${pertemuan.pertemuan} – ${pertemuan.judul}`}
         items={breadcrumbItems}
       />
 
-      {/* PERTEMUAN TITLE CARD */}
       <div className="rounded-2xl border border-gray-200 bg-white px-8 py-6 text-center">
         <h2 className="text-2xl sm:text-3xl font-bold text-blue-900">
           Pertemuan {pertemuan.pertemuan} – {pertemuan.judul}
         </h2>
       </div>
 
-      {/* FIX 2: Unwrap deskripsi pertemuan (bisa berupa object { text: "..." }) */}
       {pertemuan.deskripsi && (
         <div className="text-blue-900 text-base max-w-full">
           <p>{unwrapDeskripsi(pertemuan.deskripsi)}</p>
@@ -188,41 +209,34 @@ export default function PertemuanDetail() {
           <p className="text-sm text-gray-500">Belum ada materi untuk pertemuan ini.</p>
         ) : (
           materiPertemuan.map((m: any, idx: number) => {
-            // FIX 3: Build full URL dari pathFile (path relatif di DB)
-            const downloadUrl = buildFileUrl(m.pathFile ?? m.fileUrl ?? m.url);
-
+            const fileUrl = m.pathFile ?? m.fileUrl ?? m.url ?? null;
+            const namaFile = m.namaFile ?? m.judul ?? "Materi";
             const deskripsiText = unwrapDeskripsi(m.deskripsi);
 
             return (
               <div key={m.id ?? idx} className="flex items-center gap-4">
                 <div className="w-12 h-12 flex items-center justify-center rounded-full bg-blue-100 shrink-0">
-                  <Icon
-                    icon="mdi:file-document-outline"
-                    className="text-2xl text-blue-800"
-                  />
+                  <Icon icon="mdi:file-document-outline" className="text-2xl text-blue-800" />
                 </div>
-                <div className="space-y-1">
+                <div className="flex-1 space-y-1">
                   <h4 className="font-semibold text-blue-900">
-                    Materi {idx + 1} – {m.namaFile ?? m.judul ?? "Materi"}
+                    Materi {idx + 1} – {namaFile}
                   </h4>
                   {deskripsiText && (
                     <p className="text-sm text-blue-900 max-w-xl">{deskripsiText}</p>
                   )}
-                  {/* FIX 4: Tampilkan tombol download jika ada URL */}
-                  {downloadUrl ? (
-                    <a
-                      href={downloadUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-blue-600 hover:underline inline-flex items-center gap-1"
-                    >
-                      <Icon icon="mdi:download" />
-                      Download
-                    </a>
-                  ) : (
-                    <p className="text-xs text-gray-400 italic">File tidak tersedia</p>
-                  )}
                 </div>
+                {fileUrl ? (
+                  <button
+                    onClick={() => openPreview(fileUrl, namaFile)}
+                    className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-blue-600 px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 transition"
+                  >
+                    <Icon icon="mdi:eye-outline" className="text-base" />
+                    Preview
+                  </button>
+                ) : (
+                  <span className="shrink-0 text-xs text-gray-400 italic">File tidak tersedia</span>
+                )}
               </div>
             );
           })
@@ -239,28 +253,19 @@ export default function PertemuanDetail() {
           <p className="text-sm text-gray-500">Belum ada tugas untuk pertemuan ini.</p>
         ) : (
           tugasPertemuan.map((t: any, idx: number) => {
-            // FIX 5: Build full URL lampiran dari field "lampiran" (path relatif di DB)
-            const lampiranUrl = buildFileUrl(t.lampiran ?? t.pathLampiran ?? t.fileUrl);
-
+            const lampiranUrl = t.lampiran ?? t.pathLampiran ?? null;
             const deskripsiText = unwrapDeskripsi(t.deskripsi);
 
             return (
-              <div
-                key={t.id ?? idx}
-                className="flex items-start justify-between gap-4"
-              >
+              <div key={t.id ?? idx} className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 flex items-center justify-center rounded-full bg-pink-100 shrink-0">
-                    <Icon
-                      icon="mdi:clipboard-check-outline"
-                      className="text-2xl text-pink-700"
-                    />
+                    <Icon icon="mdi:clipboard-check-outline" className="text-2xl text-pink-700" />
                   </div>
-                  <div className="space-y-1">
+                  <div className="flex-1 space-y-1">
                     <h4 className="font-semibold text-blue-900">
                       Tugas {idx + 1} – {t.judul}
                     </h4>
-                    {/* FIX 6: Unwrap deskripsi tugas */}
                     {deskripsiText && (
                       <p className="text-sm text-blue-900 max-w-xl">{deskripsiText}</p>
                     )}
@@ -274,64 +279,67 @@ export default function PertemuanDetail() {
                         })}
                       </p>
                     )}
-                    {/* FIX 7: Tampilkan download lampiran jika ada */}
-                    {lampiranUrl && (
-                      <a
-                        href={lampiranUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-blue-600 hover:underline inline-flex items-center gap-1"
-                      >
-                        <Icon icon="mdi:download" />
-                        Download Lampiran
-                      </a>
-                    )}
                   </div>
                 </div>
 
-                <button 
-                  onClick={() => navigate(`/dosen/courses/${idCourse}/pertemuan/${t.id}/submissions`)}
-                  className="text-sm text-blue-900 hover:underline shrink-0">
-                  View Submission
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  {lampiranUrl && (
+                    <button
+                      onClick={() => openPreview(lampiranUrl, t.judul ?? "Lampiran Tugas")}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-blue-600 px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 transition"
+                    >
+                      <Icon icon="mdi:eye-outline" className="text-base" />
+                      Preview
+                    </button>
+                  )}
+                  <button
+                    onClick={() => navigate(`/dosen/courses/${idCourse}/pertemuan/${t.id}/submissions`)}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-blue-900 hover:bg-gray-50 transition"
+                  >
+                    View Submission
+                  </button>
+                </div>
               </div>
             );
           })
         )}
       </div>
 
-      {/* PREV / NEXT NAVIGATION */}
-      <div className="fixed bottom-12 left-0 right-0 z-50 flex justify-between px-12 pointer-events-none">
-        {/* PREV */}
+      {/* PREV / NEXT */}
+      <div className="fixed bottom-12 left-0 right-0 z-40 flex justify-between px-12 pointer-events-none">
         {prevMeeting ? (
           <button
             onClick={() => navigate(`/dosen/courses/${idCourse}/pertemuan/${prevMeeting.id}`)}
             className="pointer-events-auto flex items-center gap-2 text-blue-900 hover:opacity-70 transition"
           >
             <Icon icon="mdi:chevron-left" className="text-xl" />
-            <span className="text-sm">
-              Pertemuan {prevMeeting.pertemuan}
-            </span>
+            <span className="text-sm">Pertemuan {prevMeeting.pertemuan}</span>
           </button>
         ) : (
           <div />
         )}
 
-        {/* NEXT */}
         {nextMeeting ? (
           <button
             onClick={() => navigate(`/dosen/courses/${idCourse}/pertemuan/${nextMeeting.id}`)}
             className="pointer-events-auto flex items-center gap-2 text-blue-900 hover:opacity-70 transition"
           >
-            <span className="text-sm">
-              Pertemuan {nextMeeting.pertemuan}
-            </span>
+            <span className="text-sm">Pertemuan {nextMeeting.pertemuan}</span>
             <Icon icon="mdi:chevron-right" className="text-xl" />
           </button>
         ) : (
           <div />
         )}
       </div>
+
+      {/* PDF PREVIEW MODAL */}
+      {previewUrl && (
+        <PdfPreviewModal
+          url={previewUrl}
+          title={previewTitle}
+          onClose={closePreview}
+        />
+      )}
     </div>
   );
 }

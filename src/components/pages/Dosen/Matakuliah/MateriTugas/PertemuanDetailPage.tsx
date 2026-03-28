@@ -85,12 +85,17 @@ export default function PertemuanDetailPage() {
     useAssignmentsByCourse(id);
 
   const materials = useMemo(() => {
-    if (!meetKey) return materialsAll;
+    if (!meeting) return materialsAll;
+    const meetingId = meeting.id ?? (meeting as any)._id;
     return (materialsAll as any[]).filter((m) => {
-      const p = String((m as any).pathFile ?? "");
+      // Prioritaskan match by idMeeting kalau ada di response
+      if (m.idMeeting) return String(m.idMeeting) === String(meetingId);
+      // Fallback: cocokkan via meetKey di pathFile (backward-compat)
+      if (!meetKey) return true;
+      const p = String(m.pathFile ?? "");
       return p.includes(`/${meetKey}/`) || p.includes(`${meetKey}/`);
     });
-  }, [materialsAll, meetKey]);
+  }, [materialsAll, meeting, meetKey]);
 
   const assignments = useMemo(() => {
     const n = meeting?.pertemuan;
@@ -170,10 +175,8 @@ export default function PertemuanDetailPage() {
       setEditingMaterialId(it.id ?? it._id);
       setMaterialInitial({
         namaFile: it.namaFile ?? "",
-        tipe: it.tipe ?? "",
-        pathFile: it.pathFile ?? "",
         visibility: it.visibility ?? "VISIBLE",
-        deskripsi: it.deskripsi ?? "",
+        deskripsi: it.deskripsi?.text ?? it.deskripsi ?? "",
       });
       setOpenMaterialModal(true);
     } else {
@@ -182,10 +185,15 @@ export default function PertemuanDetailPage() {
       const tenggatDate = it.tenggat ? new Date(it.tenggat) : null;
       const endDate = tenggatDate ? tenggatDate.toISOString().split("T")[0] : "";
       const endTime = tenggatDate ? tenggatDate.toTimeString().slice(0, 5) : "10:30";
+
+      // lampiran dari BE adalah pathLampiran (full R2 URL), ambil nama file-nya saja untuk tampilan
+      const lampiranRaw: string = it.lampiran ?? it.pathLampiran ?? "";
+      const lampiranNama = lampiranRaw ? lampiranRaw.split("/").pop() : "";
+
       setAssignmentInitial({
         judul: it.judul ?? "",
-        deskripsi: it.deskripsi ?? "",
-        lampiran: it.lampiran ?? it.pathLampiran ?? "",
+        deskripsi: it.deskripsi?.text ?? it.deskripsi ?? "",
+        lampiranNama,
         endDate,
         endTime,
         statusTugas: it.statusTugas === true || it.statusTugas === "kelompok",
@@ -233,10 +241,6 @@ export default function PertemuanDetailPage() {
       toastError("Pertemuan Tidak Ditemukan!", undefined, "Silakan refresh halaman dan coba lagi.");
       return;
     }
-    if (!payload.namaFile?.trim()) {
-      toastError("Nama File Wajib Diisi!", undefined, "Silakan isi nama file sebelum melanjutkan.");
-      return;
-    }
 
     if (materialMode === "edit") {
       if (!editingMaterialId) return;
@@ -244,9 +248,8 @@ export default function PertemuanDetailPage() {
         {
           idMaterial: editingMaterialId,
           payload: {
+            file: payload.file,
             namaFile: payload.namaFile,
-            tipe: payload.tipe,
-            pathFile: payload.pathFile,
             visibility: payload.visibility,
             deskripsi: payload.deskripsi,
           },
@@ -262,14 +265,18 @@ export default function PertemuanDetailPage() {
       return;
     }
 
+    if (!payload.file) {
+      toastError("File Wajib Dipilih!", undefined, "Silakan pilih file materi terlebih dahulu.");
+      return;
+    }
+
     createMaterial.mutate(
       {
         idCourse: id,
         pertemuan: pertemuanNumber,
         payload: {
+          file: payload.file,
           namaFile: payload.namaFile,
-          tipe: payload.tipe,
-          pathFile: payload.pathFile,
           visibility: payload.visibility,
           deskripsi: payload.deskripsi,
         },
@@ -312,7 +319,7 @@ export default function PertemuanDetailPage() {
             statusTugas: payload.statusTugas,
             tenggat: payload.tenggat,
             status: payload.status,
-            lampiran: payload.lampiran,
+            file: payload.file,
             deskripsi: payload.deskripsi,
           },
         },
@@ -336,7 +343,7 @@ export default function PertemuanDetailPage() {
           statusTugas: payload.statusTugas,
           tenggat: payload.tenggat,
           status: payload.status,
-          lampiran: payload.lampiran,
+          file: payload.file,
           deskripsi: payload.deskripsi,
         },
       },
@@ -425,8 +432,6 @@ export default function PertemuanDetailPage() {
       <MaterialModal
         open={openMaterialModal}
         mode={materialMode}
-        kodeMatkul={course?.kodeMatkul}
-        pertemuan={pertemuanNumber ?? undefined}
         initial={materialInitial}
         onClose={() => setOpenMaterialModal(false)}
         onSubmit={submitMaterial}
@@ -435,8 +440,6 @@ export default function PertemuanDetailPage() {
       <AssignmentModal
         open={openAssignmentModal}
         mode={assignmentMode}
-        kodeMatkul={course?.kodeMatkul}
-        pertemuan={pertemuanNumber ?? undefined}
         initial={assignmentInitial}
         onClose={() => setOpenAssignmentModal(false)}
         onSubmit={submitAssignment}

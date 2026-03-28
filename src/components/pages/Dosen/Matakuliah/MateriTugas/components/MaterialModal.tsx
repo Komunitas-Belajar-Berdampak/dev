@@ -11,9 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Icon } from "@iconify/react";
 
 export type MaterialFormPayload = {
+  file?: File;                       // file asli — dikirim ke BE via FormData
   namaFile: string;
-  tipe: string;
-  pathFile: string;
   visibility: "HIDE" | "VISIBLE";
   deskripsi: string;
 };
@@ -21,12 +20,8 @@ export type MaterialFormPayload = {
 type Props = {
   open: boolean;
   mode: "add" | "edit";
-  kodeMatkul?: string;
-  pertemuan?: number;
   initial?: {
     namaFile?: string;
-    tipe?: string;
-    pathFile?: string;
     visibility?: "HIDE" | "VISIBLE";
     deskripsi?: string;
   } | null;
@@ -35,15 +30,13 @@ type Props = {
 };
 
 type FieldErrors = {
+  file?: string;
   namaFile?: string;
-  pathFile?: string;
 };
 
 export default function MaterialModal({
   open,
   mode,
-  kodeMatkul,
-  pertemuan,
   initial,
   onClose,
   onSubmit,
@@ -53,62 +46,51 @@ export default function MaterialModal({
     [mode]
   );
 
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [namaFile, setNamaFile] = useState("");
-  const [tipe, setTipe] = useState("");
-  const [pathFile, setPathFile] = useState("");
   const [visibility, setVisibility] = useState<"HIDE" | "VISIBLE">("VISIBLE");
   const [deskripsi, setDeskripsi] = useState("");
-  const [fileName, setFileName] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!open) return;
-    // Semua field diisi dari data existing — termasuk deskripsi
+    setSelectedFile(null);
     setNamaFile(initial?.namaFile ?? "");
-    setTipe(initial?.tipe ?? "");
-    setPathFile(initial?.pathFile ?? "");
     setVisibility(initial?.visibility ?? "VISIBLE");
     setDeskripsi(initial?.deskripsi ?? "");
-    setFileName("");
     setErrors({});
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, [open, initial]);
 
-  const generatePathFile = (nama: string) => {
-    if (!kodeMatkul || !pertemuan || !nama) return "";
-    const meetPad = `meet${String(pertemuan).padStart(2, "0")}`;
-    return `materials/${kodeMatkul}/${meetPad}/${nama}`;
-  };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
-    const generated = generatePathFile(f.name);
-    setFileName(f.name);
+    setSelectedFile(f);
     setNamaFile(f.name);
-    setTipe(f.type);
-    setPathFile(generated);
-    setErrors((prev) => ({ ...prev, namaFile: undefined, pathFile: undefined }));
-  };
-
-  const handleNamaFileChange = (val: string) => {
-    setNamaFile(val);
-    setPathFile(generatePathFile(val));
-    if (val.trim()) setErrors((prev) => ({ ...prev, namaFile: undefined }));
+    setErrors((prev) => ({ ...prev, file: undefined, namaFile: undefined }));
   };
 
   const validate = (): boolean => {
     const newErrors: FieldErrors = {};
-    if (!namaFile.trim()) newErrors.namaFile = "Nama file wajib diisi.";
-    if (!pathFile.trim()) newErrors.pathFile = "Path file wajib diisi. Pilih file terlebih dahulu.";
+    if (mode === "add" && !selectedFile) {
+      newErrors.file = "File materi wajib dipilih.";
+    }
+    if (!namaFile.trim()) {
+      newErrors.namaFile = "Nama file wajib diisi.";
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = () => {
     if (!validate()) return;
-    onSubmit({ namaFile, tipe, pathFile, visibility, deskripsi });
+    onSubmit({
+      file: selectedFile ?? undefined,
+      namaFile,
+      visibility,
+      deskripsi,
+    });
   };
 
   return (
@@ -127,13 +109,16 @@ export default function MaterialModal({
             </label>
 
             {/* Tampilkan file existing saat edit dan belum ganti file */}
-            {mode === "edit" && (initial?.namaFile || namaFile) && !fileName && (
+            {mode === "edit" && initial?.namaFile && !selectedFile && (
               <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
-                <Icon icon="mdi:file-document-outline" className="text-blue-900 shrink-0" />
+                <Icon
+                  icon="mdi:file-document-outline"
+                  className="text-blue-900 shrink-0"
+                />
                 <span className="text-xs text-gray-600">
                   File saat ini:{" "}
                   <span className="font-semibold text-gray-800">
-                    {initial?.namaFile ?? namaFile}
+                    {initial.namaFile}
                   </span>
                 </span>
               </div>
@@ -143,14 +128,24 @@ export default function MaterialModal({
               ref={fileInputRef}
               type="file"
               onChange={handleFileChange}
-              className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+              className={[
+                "border-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+                errors.file ? "border-red-500" : "border-black",
+              ].join(" ")}
             />
 
-            {fileName && (
+            {errors.file && (
+              <p className="flex items-center gap-1 text-xs text-red-500">
+                <Icon icon="mdi:alert-circle-outline" className="shrink-0" />
+                {errors.file}
+              </p>
+            )}
+
+            {selectedFile && (
               <p className="text-xs text-gray-500">
                 Dipilih:{" "}
-                <span className="font-medium">{fileName}</span>{" "}
-                {tipe && <span className="text-gray-400">({tipe})</span>}
+                <span className="font-medium">{selectedFile.name}</span>{" "}
+                <span className="text-gray-400">({selectedFile.type})</span>
               </p>
             )}
 
@@ -169,7 +164,11 @@ export default function MaterialModal({
             <Input
               placeholder="Otomatis terisi dari file yang dipilih"
               value={namaFile}
-              onChange={(e) => handleNamaFileChange(e.target.value)}
+              onChange={(e) => {
+                setNamaFile(e.target.value);
+                if (e.target.value.trim())
+                  setErrors((prev) => ({ ...prev, namaFile: undefined }));
+              }}
               className={[
                 "border-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
                 errors.namaFile ? "border-red-500 focus:border-red-500" : "border-black",
@@ -183,46 +182,11 @@ export default function MaterialModal({
             )}
           </div>
 
-          {/* Tipe File */}
-          <div className="space-y-2">
-            <label className="text-sm font-bold text-blue-900">Tipe File</label>
-            <Input
-              placeholder="Otomatis terisi dari file yang dipilih"
-              value={tipe}
-              onChange={(e) => setTipe(e.target.value)}
-              className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-            />
-          </div>
-
-          {/* Path File */}
-          <div className="space-y-2">
-            <label className="text-sm font-bold text-blue-900">
-              Path File{" "}
-              <span className="text-xs font-normal text-gray-400">(auto-generate)</span>
-            </label>
-            <Input
-              placeholder="Otomatis terisi setelah pilih file"
-              value={pathFile}
-              onChange={(e) => {
-                setPathFile(e.target.value);
-                if (e.target.value.trim()) setErrors((prev) => ({ ...prev, pathFile: undefined }));
-              }}
-              className={[
-                "border-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-gray-600",
-                errors.pathFile ? "border-red-500 focus:border-red-500" : "border-black",
-              ].join(" ")}
-            />
-            {errors.pathFile && (
-              <p className="flex items-center gap-1 text-xs text-red-500">
-                <Icon icon="mdi:alert-circle-outline" className="shrink-0" />
-                {errors.pathFile}
-              </p>
-            )}
-          </div>
-
           {/* Visibility */}
           <div className="space-y-2">
-            <label className="text-sm font-bold text-blue-900">Visibility</label>
+            <label className="text-sm font-bold text-blue-900">
+              Visibility
+            </label>
             <div className="flex items-center gap-6">
               {(["VISIBLE", "HIDE"] as const).map((v) => (
                 <label key={v} className="flex items-center gap-2 cursor-pointer">
