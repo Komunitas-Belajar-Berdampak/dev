@@ -12,7 +12,7 @@ export type CreateAssignmentPayload = {
   tenggat: string;
   statusTugas?: boolean;
   status?: BEStatus;
-  lampiran?: string;
+  file?: File;                       // file lampiran opsional
   deskripsi?: string;
 };
 
@@ -35,21 +35,27 @@ export const AssignmentService = {
     pertemuan: number,
     payload: CreateAssignmentPayload
   ): Promise<Assignment> {
-    const body: Record<string, any> = {
-      judul: payload.judul,
-      statusTugas: payload.statusTugas ?? false,
-      tenggat: payload.tenggat,
-      lampiran: payload.lampiran ?? "",
-      status: payload.status ?? "VISIBLE",
-    };
+    const form = new FormData();
 
-    if (payload.deskripsi && payload.deskripsi.trim() !== "") {
-      body.deskripsi = { text: payload.deskripsi };
+    form.append("judul", payload.judul);
+    form.append("statusTugas", String(payload.statusTugas ?? false));
+    form.append("tenggat", payload.tenggat);
+    form.append("status", payload.status ?? "VISIBLE");
+
+    // BE mengambil file lampiran via req.file dengan field name "lampiran"
+    if (payload.file) {
+      form.append("lampiran", payload.file);
+    }
+
+    // deskripsi harus JSON string karena BE pakai parseJsonField
+    if (payload.deskripsi?.trim()) {
+      form.append("deskripsi", JSON.stringify({ text: payload.deskripsi.trim() }));
     }
 
     const res = await api.post<any>(
       `/assignments/${idCourse}/meetings/${pertemuan}`,
-      body
+      form,
+      { headers: { "Content-Type": "multipart/form-data" } }
     );
 
     return normalizeAssignmentOne(res.data);
@@ -59,18 +65,26 @@ export const AssignmentService = {
     idAssignment: string,
     payload: UpdateAssignmentPayload
   ): Promise<void> {
-    const body: Record<string, any> = {};
+    const form = new FormData();
 
-    if (payload.judul !== undefined) body.judul = payload.judul;
-    if (payload.statusTugas !== undefined) body.statusTugas = payload.statusTugas;
-    if (payload.tenggat !== undefined) body.tenggat = payload.tenggat;
-    if (payload.status !== undefined) body.status = payload.status;
-    if (payload.lampiran !== undefined) body.lampiran = payload.lampiran;
-    if (payload.deskripsi !== undefined && payload.deskripsi.trim() !== "") {
-      body.deskripsi = { text: payload.deskripsi };
+    if (payload.judul !== undefined) form.append("judul", payload.judul);
+    if (payload.statusTugas !== undefined) form.append("statusTugas", String(payload.statusTugas));
+    if (payload.tenggat !== undefined) form.append("tenggat", payload.tenggat);
+    if (payload.status !== undefined) form.append("status", payload.status);
+
+    // File lampiran baru opsional
+    if (payload.file) {
+      form.append("lampiran", payload.file);
     }
 
-    await api.put(`/assignments/${idAssignment}`, body);
+    // deskripsi harus JSON string karena BE pakai parseJsonField
+    if (payload.deskripsi !== undefined && payload.deskripsi.trim() !== "") {
+      form.append("deskripsi", JSON.stringify({ text: payload.deskripsi.trim() }));
+    }
+
+    await api.put(`/assignments/${idAssignment}`, form, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
   },
 
   async deleteAssignment(idAssignment: string): Promise<void> {

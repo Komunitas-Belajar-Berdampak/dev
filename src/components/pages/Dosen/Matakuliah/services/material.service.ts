@@ -8,14 +8,18 @@ function normalizeMaterialOne(payload: any): Material {
 export type BEVisibility = "HIDE" | "VISIBLE";
 
 export type CreateMaterialPayload = {
-  namaFile: string;
-  tipe?: string;
-  pathFile?: string;
+  file: File;                        // file wajib saat create
+  namaFile?: string;                 // opsional, fallback ke file.name
   visibility?: BEVisibility;
   deskripsi?: string;
 };
 
-export type UpdateMaterialPayload = Partial<CreateMaterialPayload>;
+export type UpdateMaterialPayload = {
+  file?: File;                       // opsional saat update
+  namaFile?: string;
+  visibility?: BEVisibility;
+  deskripsi?: string;
+};
 
 export const MaterialService = {
   async getMaterialsByCourse(idCourse: string): Promise<Material[]> {
@@ -34,20 +38,27 @@ export const MaterialService = {
     pertemuan: number,
     payload: CreateMaterialPayload
   ): Promise<Material> {
-    const body: Record<string, any> = {
-      namaFile: payload.namaFile,
-      tipe: payload.tipe ?? "",
-      pathFile: payload.pathFile ?? "",
-      visibility: payload.visibility ?? "VISIBLE",
-    };
+    const form = new FormData();
 
-    if (payload.deskripsi && payload.deskripsi.trim() !== "") {
-      body.deskripsi = { text: payload.deskripsi };
+    // BE mengambil file via req.file dengan field name "file"
+    form.append("file", payload.file);
+
+    // namaFile opsional — BE fallback ke req.file.originalname
+    if (payload.namaFile?.trim()) {
+      form.append("namaFile", payload.namaFile.trim());
+    }
+
+    form.append("visibility", payload.visibility ?? "VISIBLE");
+
+    // deskripsi harus JSON string karena BE pakai parseJsonField
+    if (payload.deskripsi?.trim()) {
+      form.append("deskripsi", JSON.stringify({ text: payload.deskripsi.trim() }));
     }
 
     const res = await api.post<any>(
       `/materials/${idCourse}/meetings/${pertemuan}`,
-      body
+      form,
+      { headers: { "Content-Type": "multipart/form-data" } }
     );
 
     return normalizeMaterialOne(res.data);
@@ -57,17 +68,29 @@ export const MaterialService = {
     idMaterial: string,
     payload: UpdateMaterialPayload
   ): Promise<void> {
-    const body: Record<string, any> = {};
+    const form = new FormData();
 
-    if (payload.namaFile !== undefined) body.namaFile = payload.namaFile;
-    if (payload.tipe !== undefined) body.tipe = payload.tipe;
-    if (payload.pathFile !== undefined) body.pathFile = payload.pathFile;
-    if (payload.visibility !== undefined) body.visibility = payload.visibility;
-    if (payload.deskripsi !== undefined && payload.deskripsi.trim() !== "") {
-      body.deskripsi = { text: payload.deskripsi };
+    // File baru opsional — kalau tidak ada, BE tidak mengganti pathFile
+    if (payload.file) {
+      form.append("file", payload.file);
     }
 
-    await api.put(`/materials/${idMaterial}`, body);
+    if (payload.namaFile !== undefined) {
+      form.append("namaFile", payload.namaFile);
+    }
+
+    if (payload.visibility !== undefined) {
+      form.append("visibility", payload.visibility);
+    }
+
+    // deskripsi harus JSON string karena BE pakai parseJsonField
+    if (payload.deskripsi !== undefined && payload.deskripsi.trim() !== "") {
+      form.append("deskripsi", JSON.stringify({ text: payload.deskripsi.trim() }));
+    }
+
+    await api.put(`/materials/${idMaterial}`, form, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
   },
 
   async deleteMaterial(idMaterial: string): Promise<void> {

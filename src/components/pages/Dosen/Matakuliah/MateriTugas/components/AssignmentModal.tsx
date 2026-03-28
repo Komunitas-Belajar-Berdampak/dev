@@ -15,19 +15,17 @@ export type AssignmentFormPayload = {
   statusTugas: boolean;
   tenggat: string;
   deskripsi: string;
-  lampiran: string;
+  file?: File;                       // file asli — dikirim ke BE via FormData
   status: "HIDE" | "VISIBLE";
 };
 
 type Props = {
   open: boolean;
   mode: "add" | "edit";
-  kodeMatkul?: string;
-  pertemuan?: number;
   initial?: {
     judul?: string;
     deskripsi?: string;
-    lampiran?: string;
+    lampiranNama?: string;           // nama file lampiran existing (untuk tampilan saja)
     endDate?: string;
     endTime?: string;
     statusTugas?: boolean;
@@ -45,8 +43,6 @@ type FieldErrors = {
 export default function AssignmentModal({
   open,
   mode,
-  kodeMatkul,
-  pertemuan,
   initial,
   onClose,
   onSubmit,
@@ -58,8 +54,7 @@ export default function AssignmentModal({
 
   const [judul, setJudul] = useState("");
   const [deskripsi, setDeskripsi] = useState("");
-  const [pathLampiran, setPathLampiran] = useState("");
-  const [fileName, setFileName] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [endDate, setEndDate] = useState("");
   const [endTime, setEndTime] = useState("10:30");
   const [status, setStatus] = useState<"HIDE" | "VISIBLE">("VISIBLE");
@@ -69,11 +64,9 @@ export default function AssignmentModal({
 
   useEffect(() => {
     if (!open) return;
-    // Semua field diisi dari data existing — termasuk deskripsi
     setJudul(initial?.judul ?? "");
     setDeskripsi(initial?.deskripsi ?? "");
-    setPathLampiran(initial?.lampiran ?? "");
-    setFileName("");
+    setSelectedFile(null);
     setEndDate(initial?.endDate ?? "");
     setEndTime(initial?.endTime ?? "10:30");
     setStatus(initial?.status ?? "VISIBLE");
@@ -82,17 +75,10 @@ export default function AssignmentModal({
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, [open, initial]);
 
-  const generateLampiran = (nama: string) => {
-    if (!kodeMatkul || !pertemuan || !nama) return "";
-    const meetPad = `meet${String(pertemuan).padStart(2, "0")}`;
-    return `assignments/${kodeMatkul}/${meetPad}/${nama}`;
-  };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
-    setFileName(f.name);
-    setPathLampiran(generateLampiran(f.name));
+    setSelectedFile(f);
   };
 
   const validate = (): boolean => {
@@ -109,7 +95,14 @@ export default function AssignmentModal({
       endDate && endTime
         ? new Date(`${endDate}T${endTime}:00`).toISOString()
         : "";
-    onSubmit({ judul, statusTugas, tenggat, deskripsi, lampiran: pathLampiran, status });
+    onSubmit({
+      judul,
+      statusTugas,
+      tenggat,
+      deskripsi,
+      file: selectedFile ?? undefined,
+      status,
+    });
   };
 
   return (
@@ -130,11 +123,14 @@ export default function AssignmentModal({
               value={judul}
               onChange={(e) => {
                 setJudul(e.target.value);
-                if (e.target.value.trim()) setErrors((prev) => ({ ...prev, judul: undefined }));
+                if (e.target.value.trim())
+                  setErrors((prev) => ({ ...prev, judul: undefined }));
               }}
               className={[
                 "border-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
-                errors.judul ? "border-red-500 focus:border-red-500" : "border-black",
+                errors.judul
+                  ? "border-red-500 focus:border-red-500"
+                  : "border-black",
               ].join(" ")}
             />
             {errors.judul && (
@@ -148,18 +144,20 @@ export default function AssignmentModal({
           {/* File Lampiran */}
           <div className="space-y-2">
             <label className="text-sm font-bold text-blue-900">
-              File Lampiran{" "}
-              {mode === "add" && <span className="text-red-500">*</span>}
+              File Lampiran
             </label>
 
             {/* Tampilkan file existing saat edit dan belum ganti file */}
-            {mode === "edit" && (initial?.lampiran || pathLampiran) && !fileName && (
+            {mode === "edit" && initial?.lampiranNama && !selectedFile && (
               <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
-                <Icon icon="mdi:paperclip" className="text-blue-900 shrink-0" />
+                <Icon
+                  icon="mdi:paperclip"
+                  className="text-blue-900 shrink-0"
+                />
                 <span className="text-xs text-gray-600">
                   File saat ini:{" "}
                   <span className="font-semibold text-gray-800">
-                    {(initial?.lampiran ?? pathLampiran).split("/").pop()}
+                    {initial.lampiranNama}
                   </span>
                 </span>
               </div>
@@ -172,9 +170,10 @@ export default function AssignmentModal({
               className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
             />
 
-            {fileName && (
+            {selectedFile && (
               <p className="text-xs text-gray-500">
-                Dipilih: <span className="font-medium">{fileName}</span>
+                Dipilih:{" "}
+                <span className="font-medium">{selectedFile.name}</span>
               </p>
             )}
 
@@ -183,20 +182,6 @@ export default function AssignmentModal({
                 Biarkan kosong jika tidak ingin mengganti file.
               </p>
             )}
-          </div>
-
-          {/* Path Lampiran */}
-          <div className="space-y-2">
-            <label className="text-sm font-bold text-blue-900">
-              Path Lampiran{" "}
-              <span className="text-xs font-normal text-gray-400">(auto-generate)</span>
-            </label>
-            <Input
-              placeholder="Otomatis terisi setelah pilih file"
-              value={pathLampiran}
-              onChange={(e) => setPathLampiran(e.target.value)}
-              className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-gray-600"
-            />
           </div>
 
           {/* Deskripsi */}
@@ -225,16 +210,22 @@ export default function AssignmentModal({
                   value={endDate}
                   onChange={(e) => {
                     setEndDate(e.target.value);
-                    if (e.target.value.trim()) setErrors((prev) => ({ ...prev, endDate: undefined }));
+                    if (e.target.value.trim())
+                      setErrors((prev) => ({ ...prev, endDate: undefined }));
                   }}
                   className={[
                     "border-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
-                    errors.endDate ? "border-red-500 focus:border-red-500" : "border-black",
+                    errors.endDate
+                      ? "border-red-500 focus:border-red-500"
+                      : "border-black",
                   ].join(" ")}
                 />
                 {errors.endDate && (
                   <p className="flex items-center gap-1 text-xs text-red-500">
-                    <Icon icon="mdi:alert-circle-outline" className="shrink-0" />
+                    <Icon
+                      icon="mdi:alert-circle-outline"
+                      className="shrink-0"
+                    />
                     {errors.endDate}
                   </p>
                 )}
@@ -256,7 +247,10 @@ export default function AssignmentModal({
             <label className="text-sm font-bold text-blue-900">Status</label>
             <div className="flex items-center gap-6">
               {(["VISIBLE", "HIDE"] as const).map((v) => (
-                <label key={v} className="flex items-center gap-2 cursor-pointer">
+                <label
+                  key={v}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
                   <input
                     type="radio"
                     name="assignment-status"
