@@ -10,7 +10,6 @@ type KontribusiHeaderProps = {
 };
 
 const KontribusiHeader = ({ namaAnggota, data, totalKontribusi }: KontribusiHeaderProps) => {
-  console.info(data);
   return (
     <ContentHeader>
       <h1 className='text-primary font-bold text-sm md:text-lg '>{namaAnggota}</h1>
