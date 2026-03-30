@@ -4,11 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useScrollJump } from '@/hooks/use-scroll-jump';
 import { getUser } from '@/lib/authStorage';
 import { formatDateTime } from '@/lib/datetime';
 import type { ThreadDetail } from '@/types/thread-post';
 import { DialogTrigger } from '@radix-ui/react-dialog';
-import { Edit, Trash } from 'lucide-react';
+import { ArrowDown, ArrowUp, Edit, Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -31,6 +32,7 @@ const DiscussionContent = ({ threadDetailQuery }: DiscussionContentProps) => {
   const nrp = user?.nrp;
   const [openDeleteId, setOpenDeleteId] = useState<string | null>(null);
   const isMobile = useIsMobile();
+  const { canScrollUp, canScrollDown, scrollToTop, scrollToBottom } = useScrollJump({ watchValue: threadDetailQuery.data.length });
 
   useEffect(() => {
     if (!threadDetailQuery.isError) return;
@@ -92,6 +94,22 @@ const DiscussionContent = ({ threadDetailQuery }: DiscussionContentProps) => {
               </CardContent>
             </Card>
           ))}
+
+          {(canScrollUp || canScrollDown) && (
+            <div className='fixed right-4 bottom-6 md:right-8 md:bottom-8 z-40 flex flex-col gap-2'>
+              {canScrollUp && (
+                <Button type='button' variant='default' size='icon' onClick={scrollToTop} className='rounded-full shadow-sm' aria-label='Scroll ke atas'>
+                  <ArrowUp className='size-4' />
+                </Button>
+              )}
+
+              {canScrollDown && (
+                <Button type='button' variant='default' size='icon' onClick={scrollToBottom} className='rounded-full shadow-sm' aria-label='Scroll ke bawah'>
+                  <ArrowDown className='size-4' />
+                </Button>
+              )}
+            </div>
+          )}
         </>
       )}
     </div>
