@@ -15,7 +15,7 @@ const createThreadByStudyGroup = async (studyGroupId: string, payload: { judul: 
 };
 
 const getThreadsById = async (threadId: string): Promise<ApiResponse<ThreadDetail[]>> => {
-  const res = await api.get<ApiResponse<ThreadDetail[]>>(`/threads/${threadId}`);
+  const res = await api.get<ApiResponse<ThreadDetail[]>>(`/threads/${threadId}?page=1&limit=100`);
 
   return res.data;
 };
