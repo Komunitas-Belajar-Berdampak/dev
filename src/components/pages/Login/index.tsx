@@ -32,7 +32,6 @@ const Login = () => {
     onSuccess: (data) => {
       const { token, user } = data.data;
 
-      console.log(user.namaRole);
       setToken(token);
       setUser(user);
 
@@ -48,6 +47,7 @@ const Login = () => {
 
   const onSubmit = (data: UserSchemaType) => {
     mutate(data);
+    
   };
 
   return (
