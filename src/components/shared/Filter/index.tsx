@@ -29,7 +29,7 @@ const Filter = <TValue extends string>({ value, onValueChange, options, label = 
           className={cn(
             `
             flex items-center gap-2 border border-black/20 bg-white text-black/30 shadow-sm hover:bg-primary 
-            hover:text-white text-xs md:text-sm lg:text-base
+            hover:text-white text-xs md:text-sm 
 			`,
             buttonClassName,
           )}
