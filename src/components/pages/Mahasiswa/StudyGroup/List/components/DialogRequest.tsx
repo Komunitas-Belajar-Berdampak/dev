@@ -16,7 +16,7 @@ const DialogRequest = ({ studyGroupName, onRequest, isPending = false }: DialogR
       </DialogHeader>
 
       <DialogFooter className='space-x-2 pt-4'>
-        <Button variant='default' className='shadow-sm border px-5' onClick={onRequest} disabled={isPending}>
+        <Button variant='default' className='shadow-sm border px-5 w-full md:w-auto' onClick={onRequest} disabled={isPending}>
           Request Join
         </Button>
         <DialogClose asChild>

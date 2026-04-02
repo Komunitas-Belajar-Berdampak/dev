@@ -1,69 +1,77 @@
-# React + TypeScript + Vite
+# Komunitas Belajar Berdampak - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Release Version
 
-Currently, two official plugins are available:
+Alpha (v0.1.0-alpha)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tujuan
 
-## Expanding the ESLint configuration
+Platform manajemen pembelajaran kolaboratif untuk tiga peran utama: Super Admin, Dosen, dan Mahasiswa.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Tech Stack
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- React 19 + TypeScript + Vite
+- React Router DOM untuk routing dan proteksi role
+- TanStack React Query + Axios untuk data fetching
+- React Hook Form + Zod untuk form dan validasi
+- Zustand untuk state management
+- Tailwind CSS 4 + Radix UI untuk UI components
+- TipTap untuk rich text editor
+- ApexCharts untuk visualisasi data
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+## Fitur
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Autentikasi login dan role-based access (Super Admin, Dosen, Mahasiswa)
+- Manajemen data akademik oleh Super Admin: user, fakultas, program studi, tahun akademik/semester, mata kuliah
+- Fitur Dosen: kelola pertemuan, materi/tugas, penilaian submission, dashboard perkuliahan, dan study group
+- Fitur Mahasiswa: akses mata kuliah, upload submission, kelola private file, dan ikut diskusi study group
+- Manajemen profil pengguna
+
+## Directory Utama
+
+```text
+src/
+  api/            # Service API per modul
+  components/     # Layout, pages, dan shared components
+  hooks/          # Custom React hooks
+  lib/            # Utility (axios client, helper, formatter)
+  routes/         # Konfigurasi routing dan route guard
+  styles/         # Styling global dan variables
+  types/          # Type definitions per domain
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Cara Install
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. Clone repository ini.
+2. Install dependencies:
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+   ```bash
+   npm install
+   ```
+
+3. Buat file environment dari template:
+
+   ```powershell
+   Copy-Item .env.example .env
+   ```
+
+4. Jalankan project:
+
+   ```bash
+   npm run dev
+   ```
+
+## Environment
+
+Gunakan variabel berikut di file `.env`:
+
+```env
+VITE_API_URL=http://localhost:3000/api
 ```
+
+## Script Penting
+
+- `npm run dev` menjalankan development server
+- `npm run build` build untuk production
+- `npm run preview` preview hasil build
+- `npm run lint` menjalankan ESLint
