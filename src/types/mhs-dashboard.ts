@@ -8,9 +8,11 @@ export type MhsDashboard = {
   }[];
   tugasDeadlineDekat: {
     id: string;
+    idMeeting: string;
+    idCourse: string;
     judul: string;
     tenggat: string;
-    sudahLewat: boolean;
+    sudahLewat: true;
     matkul: string;
     pertemuan: number;
   }[];
@@ -19,14 +21,17 @@ export type MhsDashboard = {
     tugasBelumSelesai: number;
     deadlineTerdekat: string;
   };
-  lastMateri:
-    | null
-    | {
-        id: string;
-        judul: string;
-        tenggat: string;
-        sudahLewat: boolean;
-        matkul: string;
-        pertemuan: number;
-      }[];
+  lastMateri: {
+    id: string;
+    idMeeting: string;
+    namaFile: string;
+    tipe: string;
+    accessedAt: string;
+    matkul: {
+      id: string;
+      namaMatkul: string;
+      kodeMatkul: string;
+    };
+    pertemuan: number;
+  };
 };

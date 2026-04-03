@@ -6,6 +6,9 @@ import { Icon } from "@iconify/react";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import useMhsDashboard from "./hooks/useMhsDashboard";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
 
 function StatCardSkeleton() {
   return (
@@ -45,6 +48,8 @@ const MhsDashboard = () => {
     },
   ];
 
+  const lastMateri = data?.data?.lastMateri || null;
+
   console.log(data);
   return (
     <div
@@ -59,12 +64,12 @@ const MhsDashboard = () => {
       "
     >
       <section className="flex flex-col gap-2">
-        <h1 className="text-3xl text-primary font-semibold">
+        <h1 className="text-lg lg:text-3xl text-primary font-semibold">
           Welcome back, {user?.nama}
         </h1>
-        <p className="text-lg">{currentDate}</p>
+        <p className="lg:text-lg">{currentDate}</p>
       </section>
-      <section className="grid grid-cols-3 items-center gap-6">
+      <section className="grid grid-cols-1 lg:grid-cols-3 items-center gap-6">
         {isPending
           ? Array.from({ length: 3 }).map((_, i) => (
               <StatCardSkeleton key={i} />
@@ -84,52 +89,62 @@ const MhsDashboard = () => {
               </Card>
             ))}
       </section>
-      <section className="grid grid-cols-2 justify-between gap-10">
+      <section className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-10">
         <Card>
           <CardHeader>
             <CardTitle className="text-primary">UPCOMING DEADLINES</CardTitle>
           </CardHeader>
-          <CardContent className="max-h-48 overflow-auto">
+          <CardContent className="min-h-48 max-h-48 overflow-auto">
             {data?.data?.tugasDeadlineDekat &&
             data.data.tugasDeadlineDekat.length > 0 ? (
-              <div className="flex flex-col gap-6">
-                {data?.data.tugasDeadlineDekat.map((tugas) => (
+              <div className="flex flex-col gap-2">
+                {data?.data.tugasDeadlineDekat.map((tugas, idx) => (
                   <div
+                    className="hover:bg-muted rounded-md p-2 cursor-pointer flex flex-col gap-2"
                     key={tugas.id}
-                    className="flex items-center justify-between hover:bg-muted rounded-md p-2"
-                    onClick={() =>
-                      navigate(`mahasiswa/courses/699deac86d0b54ffd9f3ec63`)
-                    }
                   >
-                    <div className="flex gap-4">
+                    <div
+                      key={tugas.id}
+                      className="flex items-center justify-between"
+                      onClick={() =>
+                        navigate(
+                          `/mahasiswa/courses/${tugas.idCourse}/meeting/${tugas.idMeeting}/submission/${tugas.id}`,
+                        )
+                      }
+                    >
+                      <div className="flex gap-4">
+                        <div
+                          className={cn(
+                            "h-4 w-4 rounded-full",
+                            tugas.sudahLewat ? "bg-red-500" : "bg-amber-500",
+                          )}
+                        ></div>
+                        <div className="">
+                          <h3 className="font-semibold text-primary">
+                            {tugas.judul}
+                          </h3>
+                          <p>
+                            {tugas.matkul} • Pertemuan {tugas.pertemuan}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {dayjs(tugas.tenggat).format("MMMM D, YYYY")}
+                          </p>
+                        </div>
+                      </div>
                       <div
                         className={cn(
-                          "h-4 w-4 rounded-full",
-                          tugas.sudahLewat ? "bg-red-500" : "bg-amber-500",
+                          "self-start px-2 py-1 text-sm rounded-full",
+                          tugas.sudahLewat
+                            ? "text-red-500 bg-red-100"
+                            : "text-amber-500 bg-amber-100",
                         )}
-                      ></div>
-                      <div className="">
-                        <h3 className="font-semibold text-primary">
-                          {tugas.judul}
-                        </h3>
-                        <p>
-                          {tugas.matkul} • Pertemuan {tugas.pertemuan}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {dayjs(tugas.tenggat).format("MMMM D, YYYY")}
-                        </p>
+                      >
+                        {tugas.sudahLewat ? "expired" : "upcoming"}
                       </div>
                     </div>
-                    <div
-                      className={cn(
-                        "self-start px-2 py-1 text-sm rounded-full",
-                        tugas.sudahLewat
-                          ? "text-red-500 bg-red-100"
-                          : "text-amber-500 bg-amber-100",
-                      )}
-                    >
-                      {tugas.sudahLewat ? "expired" : "upcoming"}
-                    </div>
+                    {idx !== data.data.tugasDeadlineDekat.length - 1 && (
+                      <hr className="border-t" />
+                    )}
                   </div>
                 ))}
               </div>
@@ -144,7 +159,7 @@ const MhsDashboard = () => {
           <CardHeader>
             <CardTitle className="text-primary">ACTIVE COURSES</CardTitle>
           </CardHeader>
-          <CardContent className="max-h-48 overflow-auto">
+          <CardContent className="min-h-48 max-h-48 overflow-auto">
             {data?.data?.matakuliahAktif &&
             data.data.matakuliahAktif.length > 0 ? (
               <div className="flex flex-col gap-6">
@@ -165,9 +180,12 @@ const MhsDashboard = () => {
                         <p>
                           {matkul.kodeMatkul} • Kelas {matkul.kelas}
                         </p>
+                        <div className="w-fit lg:hidden self-start px-2 py-1 text-sm rounded-full bg-gray-200">
+                          {matkul.sks} SKS
+                        </div>
                       </div>
                     </div>
-                    <div className="self-start px-2 py-1 text-sm rounded-full bg-gray-200">
+                    <div className="hidden w-fit lg:block self-start px-2 py-1 text-sm rounded-full bg-gray-200">
                       {matkul.sks} SKS
                     </div>
                   </div>
@@ -190,7 +208,66 @@ const MhsDashboard = () => {
           </CardHeader>
           <CardContent>
             {data?.data.lastMateri ? (
-              <div className="max-h-48 overflow-auto">ada card nya</div>
+              <section
+                className="flex items-center justify-between hover:bg-muted rounded-md p-4 cursor-pointer group"
+                onClick={() =>
+                  navigate(
+                    `/mahasiswa/courses/${lastMateri?.matkul}/meeting/${lastMateri?.idMeeting}`,
+                  )
+                }
+              >
+                <div className="flex items-center gap-4">
+                  <div
+                    className={cn(
+                      "p-4 rounded-md w-fit",
+                      lastMateri?.tipe === "image"
+                        ? "bg-blue-100 text-blue-800"
+                        : "bg-red-100 text-red-700",
+                    )}
+                  >
+                    <Icon
+                      icon={
+                        lastMateri?.tipe === "image"
+                          ? "mi:image"
+                          : "mdi:file-document-outline"
+                      }
+                      fontSize={28}
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <h3 className="font-semibold text-primary">
+                      {lastMateri?.namaFile}
+                    </h3>
+                    <p className="text-sm">
+                      {lastMateri?.matkul.kodeMatkul} •{" "}
+                      {lastMateri?.matkul.namaMatkul}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Pertemuan {lastMateri?.pertemuan}
+                    </p>
+                    <p
+                      className={cn(
+                        ` rounded-full px-2 mt-1 font-semibold w-fit text-xs`,
+                        {
+                          "bg-blue-100 text-blue-800":
+                            lastMateri?.tipe === "image",
+                          "bg-red-100 text-red-700":
+                            lastMateri?.tipe !== "image",
+                        },
+                      )}
+                    >
+                      {lastMateri?.tipe === "image" ? "Image" : "Document"}
+                    </p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                      <Icon icon="mdi:clock-time-four-outline" fontSize={16} />
+                      <p>{dayjs("2026-04-02T12:09:05.380Z").fromNow()}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-2 w-fit rounded-full text-primary bg-primary/20 group-hover:bg-primary/50">
+                  <Icon icon="mingcute:right-line" fontSize={24} />
+                </div>
+              </section>
             ) : (
               <div className="text-muted-foreground italic text-center py-10">
                 No materials accessed yet.
