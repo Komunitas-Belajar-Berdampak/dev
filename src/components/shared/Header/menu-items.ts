@@ -4,10 +4,6 @@ const menuItems = [
     link: '/profile',
   },
   {
-    title: 'Settings',
-    link: '/settings',
-  },
-  {
     title: 'Logout',
     link: '',
   },
