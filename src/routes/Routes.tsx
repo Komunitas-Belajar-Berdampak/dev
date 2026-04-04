@@ -61,6 +61,9 @@ import GuestRoute from "./GuestRoute";
 import ProtectedRoute from "./ProtectedRoute";
 import RoleRedirect from "./RoleRedirect";
 import MhsDashboard from "@/components/pages/Mahasiswa/Dashboard";
+import MhsGradeLayout from "@/components/pages/Mahasiswa/Grades";
+import MhsGradePage from "@/components/pages/Mahasiswa/Grades/components/MhsGradePage";
+import MhsGradeDetail from "@/components/pages/Mahasiswa/Grades/detail";
 
 const routes: RouteObject[] = [
   {
@@ -356,6 +359,20 @@ const routes: RouteObject[] = [
               {
                 path: ":namaMatkul/:idMatkul/:namaSg/:idSg/:namaTopik/:idTopik/edit-discussion/:idPost",
                 element: <EditPostMhs />,
+              },
+            ],
+          },
+          {
+            path: "grades",
+            element: <MhsGradeLayout />,
+            children: [
+              {
+                index: true,
+                element: <MhsGradePage />,
+              },
+              {
+                path: "courses/:id",
+                element: <MhsGradeDetail />,
               },
             ],
           },

@@ -87,6 +87,12 @@ const menuItems: MenuItem[] = [
     icon: <Icon icon="fluent:document-text-32-regular" />,
     role: ["MAHASISWA"],
   },
+  {
+    title: "Grades",
+    path: "/mahasiswa/grades",
+    icon: <Icon icon="fluent:clipboard-checkmark-16-regular" fontSize={32} />,
+    role: ["MAHASISWA"],
+  },
 ];
 
 export default menuItems;
