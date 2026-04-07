@@ -76,6 +76,7 @@ const ProfileContent = ({ isEditing }: { isEditing: boolean }) => {
   const isUser = currentUser?.nrp === data?.nrp;
 
   console.log(data);
+  console.log(id);
 
   const form = useForm<updateProfile>({
     resolver: zodResolver(updateProfileSchema),

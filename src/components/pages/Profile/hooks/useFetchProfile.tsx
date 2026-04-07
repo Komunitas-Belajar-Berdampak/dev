@@ -4,10 +4,11 @@ import { useQuery } from "@tanstack/react-query";
 
 export const useFetchProfile = (id?: string) => {
   const user = getUser();
+  const profileId = id ? id : (user?.id as string);
 
   const { data: userData, isPending } = useQuery({
-    queryKey: ["profile", user?.id as string],
-    queryFn: () => getUserById(id ?? (user?.id as string)),
+    queryKey: ["profile", profileId],
+    queryFn: () => getUserById(profileId),
   });
 
   const data = userData?.data;
