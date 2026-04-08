@@ -8,6 +8,11 @@ export const getUserById = async (id: string) => {
   return res.data;
 };
 
+export const getUserByNrp = async (nrp: string) => {
+  const res = await api.get<ApiResponse<UserProfile>>(`/users/nrp/${nrp}`);
+  return res.data;
+};
+
 export const updateProfile = async (payload: updateProfileType) => {
   const res = await api.patch<
     ApiResponse<{

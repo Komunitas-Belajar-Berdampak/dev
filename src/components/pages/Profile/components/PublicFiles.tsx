@@ -1,16 +1,20 @@
-import { useQuery } from "@tanstack/react-query";
-import ProfileCard from "./ProfileCard";
-import { getPrivateFiles } from "@/api/private-file";
-import { Icon } from "@iconify/react";
+import { getPrivateFiles, getPrivateFilesById } from "@/api/private-file";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FilePreviewModal } from "../../Mahasiswa/PrivateFile/components/FilePreviewModal";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { Icon } from "@iconify/react";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { FilePreviewModal } from "../../Mahasiswa/PrivateFile/components/FilePreviewModal";
+import ProfileCard from "./ProfileCard";
+import { getUser } from "@/lib/authStorage";
 const isImages = ["jpg", "jpeg", "png", "gif", "bmp", "webp"];
-const PublicFiles = () => {
+const PublicFiles = ({ id }: { id: string }) => {
+  const user = getUser();
+  const isUser = user?.id === id;
   const { data, isPending } = useQuery({
-    queryKey: ["publicFiles"],
-    queryFn: () => getPrivateFiles({}),
+    queryKey: ["publicFiles", id], // also add id to queryKey
+    queryFn: () => (isUser ? getPrivateFiles({}) : getPrivateFilesById(id!)),
+    enabled: !!id, // don't run until id exists
   });
   const [preview, setPreview] = useState<{
     nama: string;
@@ -21,7 +25,6 @@ const PublicFiles = () => {
   const publicFiles = data?.data.filter(
     (file) => file.status.toLowerCase() === "visible",
   );
-  console.log("data nih", data);
   const amountFile = publicFiles?.length || 0;
   return (
     <ProfileCard className="">
@@ -33,7 +36,14 @@ const PublicFiles = () => {
       </div>
       {isPending && <Skeleton className="w-full h-40 mt-4" />}
       {!isPending && (
-        <section className="min-h-40 grid gap-4 grid-cols-1 md:grid-cols-2 mt-4">
+        <section
+          className={cn(
+            "min-h-40 max-h-80 overflow-y-auto gap-4  mt-4",
+            publicFiles && publicFiles?.length > 0
+              ? "grid grid-cols-1 md:grid-cols-2"
+              : "flex items-center justify-center",
+          )}
+        >
           {publicFiles && publicFiles?.length > 0 ? (
             publicFiles.map((data) => (
               <div
