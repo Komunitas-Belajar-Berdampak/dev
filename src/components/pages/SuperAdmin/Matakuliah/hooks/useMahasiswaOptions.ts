@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { api } from "@/lib/axios";
+import { api } from '@/lib/axios';
+import { useEffect, useState } from 'react';
 
 export type MahasiswaOption = {
   id: string;
@@ -24,36 +24,35 @@ export function useMahasiswaOptions() {
 
     setLoading(true);
     api
-      .get<any>("/users", { params: { role: "mahasiswa", limit: 1000, page: 1 } })
+      .get<any>('/users', { params: { role: 'mahasiswa', limit: 1000, page: 1 } })
       .then((res) => {
         if (cancelled) return;
 
-        console.log("[useMahasiswaOptions] raw response:", res.data);
         const list = normalizeMahasiswa(res.data);
-        console.log("[useMahasiswaOptions] normalized list:", list);
 
         const mapped: MahasiswaOption[] = list
           .map((m: any) => {
-            const id = String(m?.id ?? m?._id ?? "").trim();
-            const nim = String(m?.nim ?? m?.nrp ?? m?.nip ?? "").trim();
-            const nama = String(m?.nama ?? m?.name ?? "").trim();
+            const id = String(m?.id ?? m?._id ?? '').trim();
+            const nim = String(m?.nim ?? m?.nrp ?? m?.nip ?? '').trim();
+            const nama = String(m?.nama ?? m?.name ?? '').trim();
             const label = nim && nama ? `${nim} – ${nama}` : nama || nim || id;
             return { id, label };
           })
           .filter((m) => m.id);
 
-        console.log("[useMahasiswaOptions] mapped options:", mapped);
         setOptions(mapped);
       })
       .catch((err) => {
-        console.error("[useMahasiswaOptions] error:", err);
+        console.error('[useMahasiswaOptions] error:', err);
         if (!cancelled) setOptions([]);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return { options, loading };
