@@ -1,9 +1,18 @@
 import MatkulDesc from "@/components/pages/Dosen/Matakuliah/Detail/components/MatkulDesc";
 import { useMeetingsByCourse } from "@/components/pages/Dosen/Matakuliah/hooks/useMeetingsByCourse";
 import Title from "@/components/shared/Title";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Users } from "lucide-react";
 import { useMemo } from "react";
-import { useParams } from "react-router-dom";
-import { useDetailCourses } from "../hooks/useDetailCourses";
+import { Link, useParams } from "react-router-dom";
+import { useDetailCourses, type CourseMember } from "../hooks/useDetailCourses";
 import MhsMeetingList from "./MhsMeetingList";
 
 function SkeletonBlock({ className = "" }: { className?: string }) {
@@ -104,13 +113,92 @@ const MhsCourseDetailPage = () => {
     );
   }
 
+  const members: CourseMember[] = [
+    ...course.pengajarList,
+    ...course.mahasiswaList,
+  ];
+
   return (
     <div className="space-y-6">
-      <div className="text-xl sm:text-2xl">
-        <Title
-          title={`${course.kodeMatkul} – ${course.namaMatkul}`}
-          items={breadcrumbItems}
-        />
+      <div className="flex items-start justify-between gap-4">
+        <div className="text-xl sm:text-2xl">
+          <Title
+            title={`${course.kodeMatkul} – ${course.namaMatkul}`}
+            items={breadcrumbItems}
+          />
+        </div>
+
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="default" size="sm" className="shrink-0 gap-2">
+              <Users className="size-4" />
+              <span className="hidden sm:inline">Participants</span>
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-h-[80vh] flex flex-col">
+            <DialogHeader>
+              <DialogTitle>Participants</DialogTitle>
+            </DialogHeader>
+
+            <div className="overflow-y-auto -mx-6 px-6 space-y-4">
+              {course.pengajarList.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Lecturers
+                  </p>
+                  <ul className="space-y-1">
+                    {course.pengajarList.map((member) => (
+                      <li key={member.id}>
+                        <Link
+                          to={`/profile/${member.nrp}`}
+                          className="flex items-center justify-between rounded-lg px-3 py-2.5 hover:bg-accent transition-colors"
+                        >
+                          <span className="text-sm font-medium">
+                            {member.nama}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {member.nrp}
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {course.mahasiswaList.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Students
+                  </p>
+                  <ul className="space-y-1">
+                    {course.mahasiswaList.map((member) => (
+                      <li key={member.id}>
+                        <Link
+                          to={`/profile/${member.nrp}`}
+                          className="flex items-center justify-between rounded-lg px-3 py-2.5 hover:bg-accent transition-colors"
+                        >
+                          <span className="text-sm font-medium">
+                            {member.nama}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {member.nrp}
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {members.length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  No members in this class yet.
+                </p>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <MatkulDesc

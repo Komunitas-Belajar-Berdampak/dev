@@ -22,6 +22,13 @@ export const getPrivateFiles = async ({
   return res.data;
 };
 
+export const getPrivateFilesById = async (id: string) => {
+  const res = await api.get<ApiResponse<PrivateFile[]>>(
+    `/private-files/user/${id}`,
+  );
+  return res.data;
+};
+
 export const createPrivateFile = async (payload: CreatePrivateFileType) => {
   const formData = new FormData();
   formData.append("file", payload.file);

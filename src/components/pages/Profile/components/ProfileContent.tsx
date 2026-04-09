@@ -1,6 +1,7 @@
 import AvatarUpload from "@/components/shared/AvatarUpload";
 import PasswordInput from "@/components/shared/PasswordInput";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldError, FieldLabel, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,17 +12,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getUser } from "@/lib/authStorage";
+import { cn } from "@/lib/cn";
 import { updateProfileSchema, type updateProfile } from "@/schemas/profile";
+import type { UserProfile } from "@/types/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Icon } from "@iconify/react";
 import { Controller, useForm } from "react-hook-form";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useEditProfile from "../hooks/useEditProfile";
-import { useFetchProfile } from "../hooks/useFetchProfile";
 import ProfileCard from "./ProfileCard";
-import { cn } from "@/lib/cn";
-import { getUser } from "@/lib/authStorage";
-import { Checkbox } from "@/components/ui/checkbox";
 
 const genders = [
   {
@@ -64,18 +64,24 @@ const learningStyle = [
   },
 ];
 
-const ProfileContent = ({ isEditing }: { isEditing: boolean }) => {
+const ProfileContent = ({
+  isEditing,
+  data,
+  isPending,
+}: {
+  id?: string;
+  isEditing: boolean;
+  data: UserProfile;
+  isPending: boolean;
+}) => {
   const navigate = useNavigate();
-  const { id } = useParams();
-  const { data, isPending } = useFetchProfile(id);
+
   const { mutate, isPending: isSubmitting } = useEditProfile(
     data?.id as string,
   );
 
   const currentUser = getUser();
   const isUser = currentUser?.nrp === data?.nrp;
-
-  console.log(data);
 
   const form = useForm<updateProfile>({
     resolver: zodResolver(updateProfileSchema),
