@@ -86,7 +86,10 @@ export default function FakultasTable() {
   const fakultasEntities: FakultasEntity[] = fakultasEntitiesRaw ?? [];
 
   const rows: FakultasTableRow[] = useMemo(
-    () => fakultasEntities.map(toFakultasTableRow),
+    () =>
+      fakultasEntities
+        .map(toFakultasTableRow)
+        .sort((a, b) => b.id.localeCompare(a.id)),
     [fakultasEntities],
   );
 
@@ -208,6 +211,7 @@ export default function FakultasTable() {
         open={openAdd}
         onClose={() => setOpenAdd(false)}
         onSuccess={() => {
+          refetch();
           setPage(1);
           setOpenAdd(false);
         }}
@@ -218,7 +222,11 @@ export default function FakultasTable() {
         open={openEdit}
         onClose={() => { setOpenEdit(false); setSelected(null); }}
         fakultas={selectedEntity}
-        onSuccess={() => { setOpenEdit(false); setSelected(null); }}
+        onSuccess={() => {
+          refetch();
+          setOpenEdit(false);
+          setSelected(null);
+        }}
       />
 
       {totalPages > 1 && (

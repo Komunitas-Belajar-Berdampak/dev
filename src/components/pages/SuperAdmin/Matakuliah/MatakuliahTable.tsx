@@ -20,6 +20,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
+  PaginationEllipsis,
 } from "@/components/ui/pagination";
 
 import MataKuliahActionDropdown from "../Matakuliah/MatakuliahActionDropdown";
@@ -110,7 +111,10 @@ export default function MatakuliahTable() {
   }, [termOptions]);
 
   const rows: MatakuliahTableRow[] = useMemo(
-    () => entities.map((m: Matakuliah) => toMatakuliahTableRow(m)),
+    () =>
+      entities
+        .map((m: Matakuliah) => toMatakuliahTableRow(m))
+        .sort((a, b) => b.id.localeCompare(a.id)), // newest first
     [entities],
   );
 
@@ -301,29 +305,51 @@ export default function MatakuliahTable() {
               <PaginationItem>
                 <PaginationPrevious
                   onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                  aria-disabled={page === 1}
+                  className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                 />
               </PaginationItem>
 
-              {Array.from({ length: totalPages }).map((_, i) => (
-                <PaginationItem key={i}>
-                  <PaginationLink
-                    isActive={page === i + 1}
-                    onClick={() => setPage(i + 1)}
-                  >
-                    {i + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+                .reduce<(number | "ellipsis")[]>((acc, p, idx, arr) => {
+                  if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push("ellipsis");
+                  acc.push(p);
+                  return acc;
+                }, [])
+                .map((p, idx) =>
+                  p === "ellipsis" ? (
+                    <PaginationItem key={`ellipsis-${idx}`}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  ) : (
+                    <PaginationItem key={p}>
+                      <PaginationLink
+                        isActive={page === p}
+                        onClick={() => setPage(p)}
+                        className="cursor-pointer"
+                      >
+                        {p}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )
+                )}
 
               <PaginationItem>
                 <PaginationNext
                   onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+                  aria-disabled={page === totalPages}
+                  className={page === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
                 />
               </PaginationItem>
             </PaginationContent>
           </Pagination>
         </div>
       )}
+
+       <p className="text-xs text-red-400 mt-4 text-center font-bold sm:text-left">
+        * Klik baris matakuliah untuk melihat detail.
+      </p>
     </div>
   );
 }

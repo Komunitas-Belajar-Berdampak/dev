@@ -17,6 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Pagination,
   PaginationContent,
+  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -59,7 +60,6 @@ function TahunAkademikDanSemesterTableSkeleton() {
                 <TableHead className="font-bold text-blue-900 text-center">Aksi</TableHead>
               </TableRow>
             </TableHeader>
-
             <TableBody>
               {rows.map((_, i) => (
                 <TableRow key={i} className="h-14 border-b border-black/5">
@@ -92,7 +92,10 @@ export default function TahunAkademikDanSemesterTable() {
     useTahunAkademikDanSemester();
 
   const rows: TahunAkademikDanSemesterTableRow[] = useMemo(
-    () => entities.map((t: TahunAkademikDanSemesterEntity) => toTahunAkademikDanSemesterTableRow(t)),
+    () =>
+      entities
+        .map((t: TahunAkademikDanSemesterEntity) => toTahunAkademikDanSemesterTableRow(t))
+        .sort((a, b) => b.id.localeCompare(a.id)),
     [entities],
   );
 
@@ -100,9 +103,11 @@ export default function TahunAkademikDanSemesterTable() {
   const [page, setPage] = useState(1);
   const limit = 10;
 
-  const filtered = rows.filter((d) =>
-    d.periode.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = useMemo(() => {
+    return rows.filter((d) =>
+      d.periode.toLowerCase().includes(search.toLowerCase()),
+    );
+  }, [rows, search]);
 
   const totalPages = Math.ceil(filtered.length / limit);
   const paginated = filtered.slice((page - 1) * limit, page * limit);
@@ -143,7 +148,7 @@ export default function TahunAkademikDanSemesterTable() {
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
-              setPage(1);
+              setPage(1); // reset ke halaman 1 saat search
             }}
             className="w-full sm:w-72 border border-black/20 text-blue-800"
           />
@@ -207,7 +212,6 @@ export default function TahunAkademikDanSemesterTable() {
                         <Badge variant="danger">Tidak Aktif</Badge>
                       )}
                     </TableCell>
-
                     <TableCell className="text-center">
                       <div onClick={(e) => e.stopPropagation()}>
                         <TahunAkademikDanSemesterActionDropdown
@@ -227,7 +231,10 @@ export default function TahunAkademikDanSemesterTable() {
       <AddTahunAkademikDanSemesterModal
         open={openAdd}
         onClose={() => setOpenAdd(false)}
-        onSuccess={() => refetch()}
+        onSuccess={() => {
+          refetch();
+          setPage(1);
+        }}
       />
 
       <DeleteTahunAkademikDanSemesterModal
@@ -239,7 +246,11 @@ export default function TahunAkademikDanSemesterTable() {
         id={selectedId}
         periode={selectedRow?.periode ?? null}
         isActive={selectedRow?.status === "Aktif"}
-        onSuccess={() => refetch()}
+        onSuccess={() => {
+          refetch();
+          setOpenDelete(false);
+          setSelectedRow(null);
+        }}
       />
 
       {/* Pagination */}
@@ -250,29 +261,51 @@ export default function TahunAkademikDanSemesterTable() {
               <PaginationItem>
                 <PaginationPrevious
                   onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                  aria-disabled={page === 1}
+                  className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                 />
               </PaginationItem>
 
-              {Array.from({ length: totalPages }).map((_, i) => (
-                <PaginationItem key={i}>
-                  <PaginationLink
-                    isActive={page === i + 1}
-                    onClick={() => setPage(i + 1)}
-                  >
-                    {i + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+                .reduce<(number | "ellipsis")[]>((acc, p, idx, arr) => {
+                  if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push("ellipsis");
+                  acc.push(p);
+                  return acc;
+                }, [])
+                .map((p, idx) =>
+                  p === "ellipsis" ? (
+                    <PaginationItem key={`ellipsis-${idx}`}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  ) : (
+                    <PaginationItem key={p}>
+                      <PaginationLink
+                        isActive={page === p}
+                        onClick={() => setPage(p)}
+                        className="cursor-pointer"
+                      >
+                        {p}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )
+                )}
 
               <PaginationItem>
                 <PaginationNext
                   onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+                  aria-disabled={page === totalPages}
+                  className={page === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
                 />
               </PaginationItem>
             </PaginationContent>
           </Pagination>
         </div>
       )}
+
+      <p className="text-xs text-red-400 mt-4 text-center font-bold sm:text-left">
+        * Klik baris periode untuk melihat detail.
+      </p>
     </div>
   );
 }
