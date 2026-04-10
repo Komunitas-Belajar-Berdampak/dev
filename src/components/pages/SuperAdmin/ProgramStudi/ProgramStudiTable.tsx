@@ -15,11 +15,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Pagination,
   PaginationContent,
+  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-  PaginationEllipsis,
 } from "@/components/ui/pagination";
 
 import ProgramStudiActionDropdown from "../ProgramStudi/ProgramStudiActionDropdown";
@@ -79,8 +79,12 @@ export default function ProgramStudiTable() {
   const { programStudi: programStudiEntitiesRaw, loading, error, refetch } = useProgramStudi();
   const programStudiEntities: ProgramStudiEntity[] = programStudiEntitiesRaw ?? [];
 
+  // Sort newest first by id descending
   const rows: ProgramStudiTableRow[] = useMemo(
-    () => programStudiEntities.map(toProgramStudiTableRow),
+    () =>
+      programStudiEntities
+        .map(toProgramStudiTableRow)
+        .sort((a, b) => b.id.localeCompare(a.id)),
     [programStudiEntities],
   );
 
@@ -129,7 +133,10 @@ export default function ProgramStudiTable() {
           <Input
             placeholder="Search..."
             value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1); // reset ke halaman 1 saat search
+            }}
             className="w-full sm:w-64 border border-black/20 text-blue-800"
           />
           <Button size="icon" className="border-2 border-black shadow-[3px_3px_0_0_#000]">
@@ -179,7 +186,10 @@ export default function ProgramStudiTable() {
                     <TableCell>{item.namaFakultas}</TableCell>
                     <TableCell className="text-center">
                       <ProgramStudiActionDropdown
-                        onEdit={() => { setSelected(item); setOpenEdit(true); }}
+                        onEdit={() => {
+                          setSelected(item);
+                          setOpenEdit(true);
+                        }}
                       />
                     </TableCell>
                   </TableRow>
@@ -194,7 +204,8 @@ export default function ProgramStudiTable() {
         open={openAdd}
         onClose={() => setOpenAdd(false)}
         onSuccess={() => {
-          setPage(1);
+          refetch();
+          setPage(1); // kembali ke halaman 1 setelah add
           setOpenAdd(false);
         }}
       />
@@ -202,9 +213,16 @@ export default function ProgramStudiTable() {
       <EditProgramStudiModal
         key={selectedEntity?.id ?? selected?.id ?? "no-prodi"}
         open={openEdit}
-        onClose={() => { setOpenEdit(false); setSelected(null); }}
+        onClose={() => {
+          setOpenEdit(false);
+          setSelected(null);
+        }}
         data={selectedEntity}
-        onSuccess={() => { setOpenEdit(false); setSelected(null); }}
+        onSuccess={() => {
+          refetch();
+          setOpenEdit(false);
+          setSelected(null);
+        }}
       />
 
       {totalPages > 1 && (

@@ -57,11 +57,24 @@ function pickName(v: any): string {
 }
 
 const errorIcon = (
-  <Icon icon="lets-icons:check-fill" className="text-white text-lg shrink-0 mt-0.5 rotate-45" />
+  <Icon
+    icon="lets-icons:check-fill"
+    className="text-white text-lg shrink-0 mt-0.5 rotate-45"
+  />
 );
-const errorStyle = { background: "#dc2626", color: "#ffffff", border: "none", alignItems: "flex-start" };
+const errorStyle = {
+  background: "#dc2626",
+  color: "#ffffff",
+  border: "none",
+  alignItems: "flex-start",
+};
 
-export default function EditUserModal({ open, onClose, userId, onSuccess }: Props) {
+export default function EditUserModal({
+  open,
+  onClose,
+  userId,
+  onSuccess,
+}: Props) {
   const { updateUser, loading: saving } = useUpdateUser();
 
   const rolesQ = useRoles();
@@ -103,7 +116,6 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
       pickId(user.prodi?.idProdi) ||
       pickId(user.prodi);
 
-    // pakai foto dari data user kalau ada
     setPreview(user.fotoProfil ?? "");
     setForm({
       nrp: user.nrp ?? "",
@@ -146,7 +158,11 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
       norm(pickName(user.prodiName)) ||
       norm(pickName(user.namaProdi));
     if (!prodiName) return;
-    const match = list.find((p) => norm(pickName(p.namaProdi ?? p.namaProgramStudi ?? p.nama)) === prodiName);
+    const match = list.find(
+      (p) =>
+        norm(pickName(p.namaProdi ?? p.namaProgramStudi ?? p.nama)) ===
+        prodiName
+    );
     const id = match ? pickId(match) : "";
     if (id) setForm((p) => ({ ...p, idProdi: id }));
   }, [open, user?.id, prodiQ.programStudi, form.idProdi]);
@@ -178,14 +194,18 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
     if (!form.idRole) {
       toast.error("Role Wajib Dipilih!", {
         description: "Silakan pilih role untuk user ini.",
-        icon: errorIcon, style: errorStyle, descriptionClassName: "!text-white/90",
+        icon: errorIcon,
+        style: errorStyle,
+        descriptionClassName: "!text-white/90",
       });
       return;
     }
     if (!form.idProdi) {
       toast.error("Program Studi Wajib Dipilih!", {
         description: "Silakan pilih program studi untuk user ini.",
-        icon: errorIcon, style: errorStyle, descriptionClassName: "!text-white/90",
+        icon: errorIcon,
+        style: errorStyle,
+        descriptionClassName: "!text-white/90",
       });
       return;
     }
@@ -210,8 +230,18 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
 
       toast.success("User Berhasil Diperbarui!", {
         description: `Data user ${form.nama} berhasil disimpan.`,
-        icon: <Icon icon="lets-icons:check-fill" className="text-white text-lg shrink-0 mt-0.5" />,
-        style: { background: "#16a34a", color: "#ffffff", border: "none", alignItems: "flex-start" },
+        icon: (
+          <Icon
+            icon="lets-icons:check-fill"
+            className="text-white text-lg shrink-0 mt-0.5"
+          />
+        ),
+        style: {
+          background: "#16a34a",
+          color: "#ffffff",
+          border: "none",
+          alignItems: "flex-start",
+        },
         descriptionClassName: "!text-white/90",
       });
     } catch (err: any) {
@@ -224,21 +254,37 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
       let title = "Gagal Memperbarui User!";
       let description = msg;
 
-      if (msgLower.includes("nrp") || (msgLower.includes("duplicate") && msgLower.includes("nrp"))) {
+      if (
+        msgLower.includes("nrp") ||
+        (msgLower.includes("duplicate") && msgLower.includes("nrp"))
+      ) {
         title = "NRP Sudah Terdaftar!";
         description = `NRP ${form.nrp} sudah digunakan oleh user lain.`;
       } else if (msgLower.includes("email")) {
         title = "Email Sudah Terdaftar!";
         description = `Email ${form.email} sudah digunakan oleh user lain.`;
-      } else if (msgLower.includes("duplicate") || msgLower.includes("already") || msgLower.includes("sudah")) {
+      } else if (
+        msgLower.includes("duplicate") ||
+        msgLower.includes("already") ||
+        msgLower.includes("sudah")
+      ) {
         title = "Data Sudah Terdaftar!";
-        description = "Beberapa data yang dimasukkan sudah terdaftar di sistem.";
-      } else if (msgLower.includes("validation") || msgLower.includes("invalid")) {
+        description =
+          "Beberapa data yang dimasukkan sudah terdaftar di sistem.";
+      } else if (
+        msgLower.includes("validation") ||
+        msgLower.includes("invalid")
+      ) {
         title = "Data Tidak Valid!";
         description = msg;
-      } else if (msgLower.includes("network") || msgLower.includes("timeout") || msgLower.includes("econnrefused")) {
+      } else if (
+        msgLower.includes("network") ||
+        msgLower.includes("timeout") ||
+        msgLower.includes("econnrefused")
+      ) {
         title = "Koneksi Bermasalah!";
-        description = "Tidak dapat terhubung ke server. Periksa koneksi internet kamu.";
+        description =
+          "Tidak dapat terhubung ke server. Periksa koneksi internet kamu.";
       }
 
       toast.error(title, {
@@ -250,7 +296,6 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
     }
   };
 
-  // banner hanya untuk error load data (roles/prodi/user), bukan error submit
   const loadError =
     rolesQ.error ??
     prodiQ.error ??
@@ -264,10 +309,13 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-3xl">
+      {/* ✅ max-w-5xl — sama lebar dengan AddUserModal */}
+      <DialogContent className="max-w-5xl w-full">
         <DialogHeader>
           <DialogTitle>Edit User</DialogTitle>
-          <p className="text-sm text-muted-foreground">Silahkan ubah data User!</p>
+          <p className="text-sm text-muted-foreground">
+            Silahkan ubah data User!
+          </p>
         </DialogHeader>
 
         {loadError ? (
@@ -277,16 +325,26 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
         ) : null}
 
         {userQ.isLoading ? (
-          <div className="py-10 text-sm text-muted-foreground">Memuat data user...</div>
+          <div className="py-10 text-sm text-muted-foreground">
+            Memuat data user...
+          </div>
         ) : !user ? (
-          <div className="py-10 text-sm text-muted-foreground">User tidak ditemukan.</div>
+          <div className="py-10 text-sm text-muted-foreground">
+            User tidak ditemukan.
+          </div>
         ) : (
           <>
+            {/* ── Avatar Upload ── */}
             <div className="flex flex-col items-center gap-3 mt-2">
               <img
-                src={preview || `https://ui-avatars.com/api/?name=${encodeURIComponent(form.nama)}&background=e5e7eb&color=111827`}
+                src={
+                  preview ||
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                    form.nama
+                  )}&background=e5e7eb&color=111827`
+                }
                 alt="profile"
-                className="w-24 h-24 rounded-full object-cover bg-gray-200"
+                className="w-24 h-24 rounded-full object-cover bg-gray-200 border border-gray-200"
               />
               <input
                 ref={fileRef}
@@ -295,12 +353,18 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
                 className="hidden"
                 onChange={(e) => onFileChange(e.target.files?.[0] ?? null)}
               />
-              <Button variant="outline" size="sm" type="button" onClick={pickFile}>
+              <Button
+                variant="outline"
+                size="sm"
+                type="button"
+                onClick={pickFile}
+              >
                 Upload Foto Profil
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+            {/* ✅ Grid 3 kolom — sama seperti AddUserModal */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-4">
               <Field label="NRP">
                 <Input
                   value={form.nrp}
@@ -309,60 +373,89 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
                 />
               </Field>
 
-              <Field label="Nama">
-                <Input value={form.nama} onChange={(e) => setForm((p) => ({ ...p, nama: e.target.value }))} />
+              <Field label="Nama Lengkap">
+                <Input
+                  value={form.nama}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, nama: e.target.value }))
+                  }
+                />
               </Field>
 
               <Field label="Angkatan">
-                <Input value={form.angkatan} onChange={(e) => setForm((p) => ({ ...p, angkatan: e.target.value }))} />
-              </Field>
-
-              <Field label="Email">
-                <Input value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} />
-              </Field>
-
-              <Field label="Alamat">
-                <Input value={form.alamat} onChange={(e) => setForm((p) => ({ ...p, alamat: e.target.value }))} />
+                <Input
+                  value={form.angkatan}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, angkatan: e.target.value }))
+                  }
+                />
               </Field>
 
               <Field label="Program Studi">
-                <Select value={form.idProdi} onValueChange={(v) => setForm((p) => ({ ...p, idProdi: v }))}>
+                <Select
+                  value={form.idProdi}
+                  onValueChange={(v) =>
+                    setForm((p) => ({ ...p, idProdi: v }))
+                  }
+                >
                   <SelectTrigger className="w-full h-10">
-                    <SelectValue placeholder={prodiQ.loading ? "Memuat prodi..." : "Pilih Program Studi"} />
+                    <SelectValue
+                      placeholder={
+                        prodiQ.loading
+                          ? "Memuat prodi..."
+                          : "Pilih Program Studi"
+                      }
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {(prodiQ.programStudi ?? []).map((p: any) => {
                       const id = pickId(p);
-                      const label = String(p.namaProdi ?? p.namaProgramStudi ?? p.nama ?? "-");
+                      const label = String(
+                        p.namaProdi ?? p.namaProgramStudi ?? p.nama ?? "-"
+                      );
                       if (!id) return null;
-                      return <SelectItem key={id} value={id}>{label}</SelectItem>;
+                      return (
+                        <SelectItem key={id} value={id}>
+                          {label}
+                        </SelectItem>
+                      );
                     })}
                   </SelectContent>
                 </Select>
               </Field>
 
-              <Field label="Role">
-                <Select value={form.idRole} onValueChange={(v) => setForm((p) => ({ ...p, idRole: v }))}>
-                  <SelectTrigger className="w-full h-10">
-                    <SelectValue placeholder={rolesQ.loading ? "Memuat role..." : "Pilih Role"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(rolesQ.roles ?? []).map((r: any) => {
-                      const id = pickId(r);
-                      const label = String(r.nama ?? r.name ?? "-");
-                      if (!id) return null;
-                      return <SelectItem key={id} value={id}>{label}</SelectItem>;
-                    })}
-                  </SelectContent>
-                </Select>
+              <Field label="Email">
+                <Input
+                  value={form.email}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, email: e.target.value }))
+                  }
+                />
+              </Field>
+
+              <Field label="Alamat" optional>
+                <Input
+                  value={form.alamat}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, alamat: e.target.value }))
+                  }
+                  placeholder="Jl. ..."
+                />
               </Field>
 
               <Field label="Jenis Kelamin">
                 <Select
                   value={form.jenisKelamin}
-                  onValueChange={(v) => setForm((p) => ({ ...p, jenisKelamin: v as JenisKelamin }))}
+                  onValueChange={(v) =>
+                    setForm((p) => ({
+                      ...p,
+                      jenisKelamin: v as JenisKelamin,
+                    }))
+                  }
                 >
-                  <SelectTrigger className="w-full h-10"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-full h-10">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="pria">Pria</SelectItem>
                     <SelectItem value="wanita">Wanita</SelectItem>
@@ -371,20 +464,58 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
               </Field>
 
               <Field label="Status">
-                <Select value={form.status} onValueChange={(v) => setForm((p) => ({ ...p, status: v as UserStatusBE }))}>
-                  <SelectTrigger className="w-full h-10"><SelectValue /></SelectTrigger>
+                <Select
+                  value={form.status}
+                  onValueChange={(v) =>
+                    setForm((p) => ({ ...p, status: v as UserStatusBE }))
+                  }
+                >
+                  <SelectTrigger className="w-full h-10">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="aktif">Aktif</SelectItem>
                     <SelectItem value="tidak aktif">Tidak Aktif</SelectItem>
                   </SelectContent>
                 </Select>
               </Field>
+
+              <Field label="Role">
+                <Select
+                  value={form.idRole}
+                  onValueChange={(v) =>
+                    setForm((p) => ({ ...p, idRole: v }))
+                  }
+                >
+                  <SelectTrigger className="w-full h-10">
+                    <SelectValue
+                      placeholder={
+                        rolesQ.loading ? "Memuat role..." : "Pilih Role"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(rolesQ.roles ?? []).map((r: any) => {
+                      const id = pickId(r);
+                      const label = String(r.nama ?? r.name ?? "-");
+                      if (!id) return null;
+                      return (
+                        <SelectItem key={id} value={id}>
+                          {label}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+              </Field>
             </div>
 
             <div className="mt-6 flex justify-end gap-2">
-              <Button variant="outline" onClick={onClose}>Batal</Button>
+              <Button variant="outline" onClick={onClose}>
+                Batal
+              </Button>
               <Button onClick={submit} disabled={disabled}>
-                {saving ? "Menyimpan..." : "Simpan"}
+                {saving ? "Menyimpan..." : "Simpan Perubahan"}
               </Button>
             </div>
           </>
@@ -394,10 +525,29 @@ export default function EditUserModal({ open, onClose, userId, onSuccess }: Prop
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function Field({
+  label,
+  children,
+  optional = false,
+}: {
+  label: string;
+  children: React.ReactNode;
+  optional?: boolean;
+}) {
   return (
     <div className="space-y-1">
-      <div className="text-sm font-medium">{label}</div>
+      <label className="text-sm font-medium">
+        {label}{" "}
+        {optional ? (
+          <span className="text-muted-foreground font-normal text-xs">
+            (opsional)
+          </span>
+        ) : (
+          <span className="text-red-500">*</span>
+        )}
+      </label>
       {children}
     </div>
   );

@@ -8,12 +8,10 @@ import {
 
 interface Props {
   onEdit?: () => void;
-  onDelete?: () => void;
+  onEditPassword?: () => void;
 }
 
-export default function UserActionDropdown({
-  onEdit,
-}: Props) {
+export default function UserActionDropdown({ onEdit, onEditPassword }: Props) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -22,13 +20,14 @@ export default function UserActionDropdown({
         </button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-36">
-        <DropdownMenuItem
-          onClick={onEdit}
-          className="cursor-pointer text-base-700"
-        >
+      <DropdownMenuContent align="end" className="w-40">
+        <DropdownMenuItem onClick={onEdit} className="cursor-pointer text-base-700">
           <Icon icon="mdi:pencil" className="mr-2" />
           Edit User
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={onEditPassword} className="cursor-pointer text-base-700">
+          <Icon icon="mdi:lock-reset" className="mr-2" />
+          Edit Password
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

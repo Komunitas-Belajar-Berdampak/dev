@@ -17,6 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import UserActionDropdown from "./UserActionDropdown";
 import AddUserModal from "./Modal/AddUserModal";
 import EditUserModal from "./Modal/EditUserModal";
+import ResetPasswordModal from "./Modal/ResetPasswordDefault";
 
 import {
   Pagination,
@@ -75,24 +76,12 @@ function UsersTableSkeleton() {
             <TableBody>
               {rows.map((_, i) => (
                 <TableRow key={i} className="h-14 border-b border-black/5">
-                  <TableCell>
-                    <Skeleton className="h-4 w-20" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-44" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-16" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-40" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-6 w-20 rounded-full" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-16" />
-                  </TableCell>
+                  <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-44" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-40" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-16" /></TableCell>
                   <TableCell className="text-center">
                     <Skeleton className="h-8 w-8 inline-block rounded-md" />
                   </TableCell>
@@ -110,7 +99,10 @@ export default function UserTable() {
   const { users: userEntities, loading, error, refetch } = useUsers();
 
   const USERS: UserTableRow[] = useMemo(
-    () => (userEntities ?? []).map(mapUserToTable),
+    () =>
+      (userEntities ?? [])
+        .map(mapUserToTable)
+        .sort((a, b) => b.id.localeCompare(a.id)),
     [userEntities],
   );
 
@@ -118,19 +110,25 @@ export default function UserTable() {
   const [page, setPage] = useState(1);
   const limit = 10;
 
-  const filteredUsers = USERS.filter(
-    (u) =>
-      u.nama.toLowerCase().includes(search.toLowerCase()) ||
-      u.nrp.includes(search),
-  );
+  const filteredUsers = useMemo(() => {
+    const q = search.toLowerCase();
+    return USERS.filter(
+      (u) =>
+        u.nama.toLowerCase().includes(q) ||
+        u.nrp.includes(search),
+    );
+  }, [USERS, search]);
 
   const totalPages = Math.ceil(filteredUsers.length / limit);
   const paginatedUsers = filteredUsers.slice((page - 1) * limit, page * limit);
 
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
+  const [openResetPassword, setOpenResetPassword] = useState(false);
 
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedUserName, setSelectedUserName] = useState<string | null>(null);
+  const [selectedUserNrp, setSelectedUserNrp] = useState<string | null>(null);
 
   if (loading) return <UsersTableSkeleton />;
 
@@ -161,10 +159,7 @@ export default function UserTable() {
             }}
             className="w-full sm:w-64 border border-black/20 text-blue-800"
           />
-          <Button
-            size="icon"
-            className="border-2 border-black shadow-[3px_3px_0_0_#000]"
-          >
+          <Button size="icon" className="border-2 border-black shadow-[3px_3px_0_0_#000]">
             <Icon icon="mdi:magnify" />
           </Button>
         </div>
@@ -186,14 +181,10 @@ export default function UserTable() {
                 <TableHead className="font-bold text-blue-900">NRP</TableHead>
                 <TableHead className="font-bold text-blue-900">Nama</TableHead>
                 <TableHead className="font-bold text-blue-900">Angkatan</TableHead>
-                <TableHead className="font-bold text-blue-900">
-                  Program Studi
-                </TableHead>
+                <TableHead className="font-bold text-blue-900">Program Studi</TableHead>
                 <TableHead className="font-bold text-blue-900">Status</TableHead>
                 <TableHead className="font-bold text-blue-900">Role</TableHead>
-                <TableHead className="font-bold text-blue-900 text-center">
-                  Aksi
-                </TableHead>
+                <TableHead className="font-bold text-blue-900 text-center">Aksi</TableHead>
               </TableRow>
             </TableHeader>
 
@@ -212,10 +203,7 @@ export default function UserTable() {
                 </TableRow>
               ) : (
                 paginatedUsers.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    className="h-14 border-b border-black/5"
-                  >
+                  <TableRow key={row.id} className="h-14 border-b border-black/5">
                     <TableCell>{row.nrp}</TableCell>
                     <TableCell className="font-medium">{row.nama}</TableCell>
                     <TableCell>{row.angkatan}</TableCell>
@@ -234,6 +222,12 @@ export default function UserTable() {
                           setSelectedUserId(row.id);
                           setOpenEdit(true);
                         }}
+                        onEditPassword={() => {
+                          setSelectedUserId(row.id);
+                          setSelectedUserName(row.nama);
+                          setSelectedUserNrp(row.nrp);
+                          setOpenResetPassword(true);
+                        }}
                       />
                     </TableCell>
                   </TableRow>
@@ -248,6 +242,7 @@ export default function UserTable() {
         open={openAdd}
         onClose={() => setOpenAdd(false)}
         onSuccess={() => {
+          refetch();
           setPage(1);
           setOpenAdd(false);
         }}
@@ -261,8 +256,29 @@ export default function UserTable() {
           setSelectedUserId(null);
         }}
         onSuccess={() => {
+          refetch();
           setOpenEdit(false);
           setSelectedUserId(null);
+        }}
+      />
+
+      <ResetPasswordModal
+        open={openResetPassword}
+        userId={selectedUserId}
+        userName={selectedUserName}
+        userNrp={selectedUserNrp}
+        onClose={() => {
+          setOpenResetPassword(false);
+          setSelectedUserId(null);
+          setSelectedUserName(null);
+          setSelectedUserNrp(null);
+        }}
+        onSuccess={() => {
+          refetch();
+          setOpenResetPassword(false);
+          setSelectedUserId(null);
+          setSelectedUserName(null);
+          setSelectedUserNrp(null);
         }}
       />
 

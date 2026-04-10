@@ -24,6 +24,8 @@ import ImportUserModal from "./ImportUserModal";
 
 import type { CreateUserPayload, JenisKelamin, UserStatusBE } from "../types/user";
 
+// ─── Avatar SVG ──────────────────────────────────────────────────────────────
+
 const baldAvatarSvg = `data:image/svg+xml;utf8,${encodeURIComponent(`
 <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120">
   <rect width="120" height="120" rx="60" fill="#e5e7eb"/>
@@ -35,6 +37,8 @@ const baldAvatarSvg = `data:image/svg+xml;utf8,${encodeURIComponent(`
 </svg>
 `)}`;
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+
 type Props = {
   open: boolean;
   onClose: () => void;
@@ -42,6 +46,8 @@ type Props = {
 };
 
 type Tab = "manual" | "import";
+
+// ─── Initial state ────────────────────────────────────────────────────────────
 
 const initialForm: CreateUserPayload = {
   nrp: "",
@@ -57,6 +63,8 @@ const initialForm: CreateUserPayload = {
   fotoProfil: "",
 };
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
 async function fileToDataUrl(file: File) {
   return await new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
@@ -67,8 +75,12 @@ async function fileToDataUrl(file: File) {
 }
 
 const errorIcon = (
-  <Icon icon="lets-icons:check-fill" className="text-white text-lg shrink-0 mt-0.5 rotate-45" />
+  <Icon
+    icon="lets-icons:check-fill"
+    className="text-white text-lg shrink-0 mt-0.5 rotate-45"
+  />
 );
+
 const errorStyle = {
   background: "#dc2626",
   color: "#ffffff",
@@ -76,12 +88,25 @@ const errorStyle = {
   alignItems: "flex-start",
 };
 
-// ─── Component ───────────────────────────────────────────────────────────────
+const successStyle = {
+  background: "#16a34a",
+  color: "#ffffff",
+  border: "none",
+  alignItems: "flex-start",
+};
+
+const successIcon = (
+  <Icon
+    icon="lets-icons:check-fill"
+    className="text-white text-lg shrink-0 mt-0.5"
+  />
+);
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function AddUserModal({ open, onClose, onSuccess }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("manual");
 
-  // ── Manual form state ──
   const { createUser, loading } = useCreateUser();
   const { programStudi, loading: loadingProdi } = useProgramStudi();
   const { roles, loading: loadingRoles } = useRoles();
@@ -90,7 +115,7 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
   const [preview, setPreview] = useState<string>(baldAvatarSvg);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
-  // Auto-set first role
+  // Auto-set first role when roles load
   useEffect(() => {
     if (!open) return;
     if (!form.idRole && roles.length) {
@@ -98,7 +123,7 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
     }
   }, [open, roles, form.idRole]);
 
-  // Reset on close
+  // Reset form on close
   useEffect(() => {
     if (!open) {
       setForm(initialForm);
@@ -176,18 +201,8 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
 
       toast.success("User Berhasil Ditambahkan!", {
         description: `Data user ${form.nama} dengan NRP ${nrpTrim} berhasil disimpan.`,
-        icon: (
-          <Icon
-            icon="lets-icons:check-fill"
-            className="text-white text-lg shrink-0 mt-0.5"
-          />
-        ),
-        style: {
-          background: "#16a34a",
-          color: "#ffffff",
-          border: "none",
-          alignItems: "flex-start",
-        },
+        icon: successIcon,
+        style: successStyle,
         descriptionClassName: "!text-white/90",
       });
     } catch (err: any) {
@@ -216,7 +231,10 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
       ) {
         title = "Data Sudah Terdaftar!";
         description = "Beberapa data yang dimasukkan sudah terdaftar di sistem.";
-      } else if (msgLower.includes("validation") || msgLower.includes("invalid")) {
+      } else if (
+        msgLower.includes("validation") ||
+        msgLower.includes("invalid")
+      ) {
         title = "Data Tidak Valid!";
         description = msg;
       } else if (
@@ -240,12 +258,20 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
 
   return (
     <>
-      <Dialog open={open && activeTab === "manual"} onOpenChange={(v) => { if (!v) onClose(); }}>
-        <DialogContent className="max-w-3xl">
+      {/* ── Manual Input Dialog ── */}
+      <Dialog
+        open={open && activeTab === "manual"}
+        onOpenChange={(v) => {
+          if (!v) onClose();
+        }}
+      >
+        {/* ✅ max-w-5xl — lebih lebar, nyaman di laptop M */}
+        <DialogContent className="max-w-5xl w-full">
           <DialogHeader>
             <DialogTitle>Tambah User</DialogTitle>
           </DialogHeader>
 
+          {/* ── Tab Switcher ── */}
           <div className="flex gap-1 p-1 bg-gray-100 rounded-lg w-fit">
             <TabButton
               active={activeTab === "manual"}
@@ -261,11 +287,12 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
             />
           </div>
 
+          {/* ── Avatar Upload ── */}
           <div className="flex flex-col items-center gap-3 mt-2">
             <img
               src={preview}
               alt="profile"
-              className="w-24 h-24 rounded-full object-cover bg-gray-200"
+              className="w-24 h-24 rounded-full object-cover bg-gray-200 border border-gray-200"
             />
             <input
               ref={fileRef}
@@ -274,16 +301,24 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
               className="hidden"
               onChange={(e) => onFileChange(e.target.files?.[0] ?? null)}
             />
-            <Button variant="outline" size="sm" type="button" onClick={pickFile}>
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
+              onClick={pickFile}
+            >
               Upload Profile Picture
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          {/* ✅ Grid 3 kolom */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-4">
             <Field label="NRP">
               <Input
                 value={form.nrp}
-                onChange={(e) => setForm((p) => ({ ...p, nrp: e.target.value }))}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, nrp: e.target.value }))
+                }
                 placeholder="2272001"
               />
             </Field>
@@ -291,7 +326,9 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
             <Field label="Nama Lengkap">
               <Input
                 value={form.nama}
-                onChange={(e) => setForm((p) => ({ ...p, nama: e.target.value }))}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, nama: e.target.value }))
+                }
                 placeholder="Nama"
               />
             </Field>
@@ -299,7 +336,9 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
             <Field label="Angkatan">
               <Input
                 value={form.angkatan}
-                onChange={(e) => setForm((p) => ({ ...p, angkatan: e.target.value }))}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, angkatan: e.target.value }))
+                }
                 placeholder="2022"
               />
             </Field>
@@ -307,7 +346,9 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
             <Field label="Program Studi">
               <Select
                 value={form.idProdi}
-                onValueChange={(v) => setForm((p) => ({ ...p, idProdi: v }))}
+                onValueChange={(v) =>
+                  setForm((p) => ({ ...p, idProdi: v }))
+                }
               >
                 <SelectTrigger className="w-full h-10">
                   <SelectValue placeholder="Pilih Program Studi" />
@@ -315,7 +356,9 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
                 <SelectContent>
                   {(programStudi ?? []).map((p: any) => {
                     const id = String(p._id ?? p.id ?? "");
-                    const label = String(p.namaProdi ?? p.namaProgramStudi ?? "-");
+                    const label = String(
+                      p.namaProdi ?? p.namaProgramStudi ?? "-"
+                    );
                     if (!id) return null;
                     return (
                       <SelectItem key={id} value={id}>
@@ -330,15 +373,19 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
             <Field label="Email">
               <Input
                 value={form.email}
-                onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, email: e.target.value }))
+                }
                 placeholder="email@kampus.ac.id"
               />
             </Field>
 
-            <Field label="Alamat">
+            <Field label="Alamat" optional>
               <Input
                 value={form.alamat ?? ""}
-                onChange={(e) => setForm((p) => ({ ...p, alamat: e.target.value }))}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, alamat: e.target.value }))
+                }
                 placeholder="Jl. ..."
               />
             </Field>
@@ -380,7 +427,9 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
             <Field label="Role">
               <Select
                 value={form.idRole}
-                onValueChange={(v) => setForm((p) => ({ ...p, idRole: v }))}
+                onValueChange={(v) =>
+                  setForm((p) => ({ ...p, idRole: v }))
+                }
               >
                 <SelectTrigger className="w-full h-10">
                   <SelectValue placeholder="Pilih Role" />
@@ -397,13 +446,13 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
           </div>
 
           <p className="mt-3 text-xs text-muted-foreground">
-            *Password default akan disamakan dengan NRP dan disarankan untuk diganti
-            saat login pertama.
+            *Password default akan disamakan dengan NRP dan disarankan untuk
+            diganti saat login pertama.
           </p>
 
-          <div className="pt-6">
+          <div className="pt-4">
             <Button
-              className="w-full md:w-1/3"
+              className="w-full md:w-auto"
               type="button"
               onClick={submit}
               disabled={disabled}
@@ -414,6 +463,7 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
         </DialogContent>
       </Dialog>
 
+      {/* ── Import Dialog ── */}
       <ImportUserModal
         open={open && activeTab === "import"}
         onClose={onClose}
@@ -422,6 +472,8 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
     </>
   );
 }
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
 
 function TabButton({
   active,
@@ -444,7 +496,10 @@ function TabButton({
           : "text-gray-500 hover:text-gray-700"
       }`}
     >
-      <Icon icon={icon} className={active ? "text-blue-600" : "text-gray-400"} />
+      <Icon
+        icon={icon}
+        className={active ? "text-blue-600" : "text-gray-400"}
+      />
       {label}
     </button>
   );
@@ -453,14 +508,23 @@ function TabButton({
 function Field({
   label,
   children,
+  optional = false,
 }: {
   label: string;
   children: React.ReactNode;
+  optional?: boolean;
 }) {
   return (
     <div className="space-y-1">
       <label className="text-sm font-medium">
-        {label} <span className="text-red-500">*</span>
+        {label}{" "}
+        {optional ? (
+          <span className="text-muted-foreground font-normal text-xs">
+            (opsional)
+          </span>
+        ) : (
+          <span className="text-red-500">*</span>
+        )}
       </label>
       {children}
     </div>
