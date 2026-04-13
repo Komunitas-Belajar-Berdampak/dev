@@ -35,7 +35,7 @@ export function useTodoTaskMutations(threadId: string, studygroupId: string, opt
   });
 
   const updateDescriptionMutation = useMutation({
-    mutationFn: ({ taskId, description }: { taskId: string; description: string }) => updateTask(taskId, { description }),
+    mutationFn: ({ taskId, deskripsi }: { taskId: string; deskripsi: string }) => updateTask(taskId, { deskripsi }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['tasks', threadId] });
     },

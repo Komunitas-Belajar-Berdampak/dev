@@ -1,7 +1,7 @@
 export type Task = {
   id: string;
   task: string;
-  description?: string;
+  deskripsi?: string;
   mahasiswa: {
     id: string;
     nama: string;

@@ -45,7 +45,7 @@ function TaskDetailDialog({ open, task, getStatusLabel, onOpenChange }: TaskDeta
 
             <div className='space-y-1'>
               <p className='text-xs text-black/40'>Description</p>
-              <Textarea value={task?.description ?? ''} placeholder='Tidak ada deskripsi task.' className='text-xs text-black border min-h-28' readOnly disabled={!task} />
+              <Textarea value={task?.deskripsi ?? ''} placeholder='Tidak ada deskripsi task.' className='text-xs text-black border min-h-28' readOnly disabled={!task} />
             </div>
           </div>
         </div>

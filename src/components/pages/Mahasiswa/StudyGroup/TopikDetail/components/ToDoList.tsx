@@ -101,12 +101,12 @@ const ToDoListContent = ({ threadId, members, filters, tasksQuery, studyGroupId 
   useEffect(() => {
     if (!detailTaskId) return;
 
-    const currentDescription = selectedTask?.description ?? '';
+    const currentDescription = selectedTask?.deskripsi ?? '';
     setDescriptionDraft(currentDescription);
     setSavedDescription(currentDescription);
     setFailedDescription(null);
     setDescriptionSaveState('idle');
-  }, [detailTaskId, selectedTask?.description]);
+  }, [detailTaskId, selectedTask?.deskripsi]);
 
   const isDescriptionSaving = updateDescriptionMutation.isPending;
   const mutateDescription = updateDescriptionMutation.mutate;
@@ -119,7 +119,7 @@ const ToDoListContent = ({ threadId, members, filters, tasksQuery, studyGroupId 
 
     setDescriptionSaveState('saving');
     mutateDescription(
-      { taskId: detailTaskId, description: debouncedDescription },
+      { taskId: detailTaskId, deskripsi: debouncedDescription },
       {
         onSuccess: () => {
           setSavedDescription(debouncedDescription);
