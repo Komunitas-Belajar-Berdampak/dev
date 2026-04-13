@@ -1,4 +1,4 @@
-export const ANNOUNCEMENT_EMAIL = 'studygroup.it.maranatha@gmail.com';
+export const ANNOUNCEMENT_EMAIL = 'studygroup@maranatha.ac.id';
 
 export const ANNOUNCEMENT_LOGIN_SUBJECT = 'Bantuan Login Study Group';
 
