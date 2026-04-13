@@ -22,12 +22,14 @@ const TopikDetailContent = ({ idTopik, namaTopik, idSg }: TopikDetailContentProp
     <TopikDetailContentBase
       idTopik={idTopik}
       namaTopik={namaTopik}
-      renderTabs={({ tab, onTabChange, filters, onFiltersChange, discussionDateFilter, onDiscussionDateFilterChange, tasksQuery, threadDetailQuery }) => (
+      renderTabs={({ tab, onTabChange, filters, onFiltersChange, discussionSearchKeyword, onDiscussionSearchKeywordChange, discussionDateFilter, onDiscussionDateFilterChange, tasksQuery, threadDetailQuery }) => (
         <TopikPembahasanDetailTabs
           tab={tab}
           changeTab={onTabChange}
           filters={filters}
           onFiltersChange={onFiltersChange}
+          discussionSearchKeyword={discussionSearchKeyword}
+          onDiscussionSearchKeywordChange={onDiscussionSearchKeywordChange}
           discussionDateFilter={discussionDateFilter}
           onDiscussionDateFilterChange={onDiscussionDateFilterChange}
           tasksQuery={tasksQuery}

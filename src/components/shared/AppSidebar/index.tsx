@@ -18,7 +18,10 @@ const AppSidebar = () => {
             <SidebarMenuButton asChild size={'lg'}>
               <Link to={'/'} className='flex gap-3'>
                 <img src='/img/logo.png' alt='logo komunitas belajar berdapampak' className='size-8 flex justify-center items-center rounded-md bg-primary' />
-                <span className='font-bold text-[10px] md:group-data-[collapsible=icon]:hidden'>Komunitas Belajar Berdampak</span>
+                <span className='font-bold text-xs leading-tight md:group-data-[collapsible=icon]:hidden'>
+                  <span className='block'>Komunitas</span>
+                  <span className='block'>Belajar Berdampak</span>
+                </span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

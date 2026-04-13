@@ -8,11 +8,11 @@ const Announcement = () => {
       <div className='flex flex-col justify-start gap-2 items-start'>
         <p className='font-semibold text-sm'>Tidak bisa Login?</p>
         <p className='text-xs'>
-          Hubungi admin atau email ke{' '}
+          Silakan hubungi admin atau kirim email dengan mengklik{' '}
           <a href={`mailto:${ANNOUNCEMENT_EMAIL}?subject=${encodeURIComponent(ANNOUNCEMENT_LOGIN_SUBJECT)}&body=${encodeURIComponent(ANNOUNCEMENT_LOGIN_BODY)}`} className='text-blue-600 underline underline-offset-2 hover:text-primary'>
-            {ANNOUNCEMENT_EMAIL}
+            di sini
           </a>{' '}
-          untuk bantuan.
+          untuk mendapatkan bantuan.
         </p>
       </div>
     </div>
