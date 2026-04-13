@@ -54,8 +54,8 @@ const DiscussionContent = ({ threadDetailQuery, discussionSearchKeyword = '' }: 
             const contentSnippet = getContentSnippet(extractDiscussionText(thread.konten), keyword);
 
             return (
-              <Card key={thread.id} className='py-12 px-4 border-accent'>
-                <CardHeader className='flex flex-row gap-6 items-center justify-start w-full px-0'>
+              <Card key={thread.id} className='py-12 px-2 md:px-4 border-accent'>
+                <CardHeader className='flex flex-row gap-4 items-center justify-start  px-0'>
                   {isMobile ? <div></div> : <div></div>}
                   <div>
                     <UserInitialAvatar name={thread.author.nama} />
