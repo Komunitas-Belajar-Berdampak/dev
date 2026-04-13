@@ -4,12 +4,14 @@ export const taskSchema = z.object({
   task: z.string().min(1, 'Task tidak boleh kosong'),
   idMahasiswa: z.array(z.string()).min(1, 'Pilih minimal satu mahasiswa'),
   status: z.enum(['DO', 'IN PROGRESS', 'DONE'], 'Status tidak valid'),
+  deskripsi: z.string().optional(),
 });
 
 export const taskUpdateSchema = z.object({
   task: z.string().min(1, 'Task tidak boleh kosong').optional(),
   idMahasiswa: z.array(z.string()).min(1, 'Pilih minimal satu mahasiswa').optional(),
   status: z.enum(['DO', 'IN PROGRESS', 'DONE'], 'Status tidak valid').optional(),
+  deskripsi: z.string().optional(),
 });
 
 export type TaskUpdateSchemaType = z.infer<typeof taskUpdateSchema>;

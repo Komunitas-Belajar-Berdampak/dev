@@ -11,10 +11,13 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { getTaskStatusLabel, tableHeaders, TASK_FILTER_ALL, TASK_STATUS_OPTIONS } from '../constant';
 import { useTodoTaskMutations } from '../libs/useTodoTaskMutations';
+import TaskDetailDialog from './TaskDetailDialog';
 import TodoListFooter from './TodoListFooter';
 import TodoListTable from './TodoListTable';
 import TodoRowDisplay from './TodoRowDisplay';
 import TodoRowForm from './TodoRowForm';
+
+type DescriptionSaveState = 'idle' | 'saving' | 'saved' | 'error';
 
 type ToDoListContentProps = {
   threadId: string;
@@ -32,6 +35,10 @@ type ToDoListContentProps = {
 const ToDoListContent = ({ threadId, members, filters, tasksQuery, studyGroupId }: ToDoListContentProps) => {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [detailTaskId, setDetailTaskId] = useState<string | null>(null);
+  const [descriptionDraft, setDescriptionDraft] = useState('');
+  const [savedDescription, setSavedDescription] = useState('');
+  const [descriptionSaveState, setDescriptionSaveState] = useState<DescriptionSaveState>('idle');
 
   const addForm = useForm<TaskSchemaType>({
     resolver: zodResolver(taskSchema),
@@ -59,6 +66,7 @@ const ToDoListContent = ({ threadId, members, filters, tasksQuery, studyGroupId 
   useEffect(() => {
     setIsAdding(false);
     setEditingId(null);
+    setDetailTaskId(null);
   }, [filters.memberId, filters.status]);
 
   const tasksView = useMemo(() => {
@@ -75,7 +83,9 @@ const ToDoListContent = ({ threadId, members, filters, tasksQuery, studyGroupId 
     });
   }, [tasksQuery.data, filters.memberId, filters.status]);
 
-  const { addMutation, updateMutation, deleteMutation, isPending } = useTodoTaskMutations(threadId, studyGroupId, {
+  const selectedTask = useMemo(() => tasksQuery.data.find((task) => task.id === detailTaskId) ?? null, [tasksQuery.data, detailTaskId]);
+
+  const { addMutation, updateMutation, updateDescriptionMutation, deleteMutation, isPending } = useTodoTaskMutations(threadId, studyGroupId, {
     onAddSuccess: () => {
       addForm.reset({ task: '', idMahasiswa: [], status: 'DO' });
       setIsAdding(false);
@@ -84,6 +94,45 @@ const ToDoListContent = ({ threadId, members, filters, tasksQuery, studyGroupId 
       setEditingId(null);
     },
   });
+
+  useEffect(() => {
+    if (!detailTaskId) return;
+
+    const currentDescription = selectedTask?.deskripsi ?? '';
+    setDescriptionDraft(currentDescription);
+    setSavedDescription(currentDescription);
+    setDescriptionSaveState('idle');
+  }, [detailTaskId, selectedTask?.deskripsi]);
+
+  const isDescriptionSaving = updateDescriptionMutation.isPending;
+  const mutateDescription = updateDescriptionMutation.mutate;
+
+  const hasDescriptionChanges = descriptionDraft !== savedDescription;
+
+  const handleDescriptionChange = (next: string) => {
+    setDescriptionDraft(next);
+    if (descriptionSaveState !== 'idle') {
+      setDescriptionSaveState('idle');
+    }
+  };
+
+  const handleSaveDescription = () => {
+    if (!detailTaskId || !hasDescriptionChanges || isDescriptionSaving) return;
+
+    setDescriptionSaveState('saving');
+    mutateDescription(
+      { taskId: detailTaskId, deskripsi: descriptionDraft },
+      {
+        onSuccess: () => {
+          setSavedDescription(descriptionDraft);
+          setDescriptionSaveState('saved');
+        },
+        onError: () => {
+          setDescriptionSaveState('error');
+        },
+      },
+    );
+  };
 
   const startEdit = (task: Task) => {
     setIsAdding(false);
@@ -105,53 +154,82 @@ const ToDoListContent = ({ threadId, members, filters, tasksQuery, studyGroupId 
     addForm.reset({ task: '', idMahasiswa: [], status: 'DO' });
   };
 
+  const openDetail = (task: Task) => {
+    setIsAdding(false);
+    setEditingId(null);
+    setDetailTaskId(task.id);
+  };
+
+  const handleDetailOpenChange = (open: boolean) => {
+    if (!open) {
+      setDetailTaskId(null);
+      setDescriptionDraft('');
+      setSavedDescription('');
+      setDescriptionSaveState('idle');
+    }
+  };
+
   if (tasksQuery.isLoading) return <ToDoListSkeleton />;
 
   const disableActions = isPending;
 
   return (
-    <TodoListTable
-      headers={tableHeaders}
-      footer={
-        <TodoListFooter
-          disabled={disableActions}
-          onNew={() => {
-            if (editingId) setEditingId(null);
-            setIsAdding(true);
-          }}
-        />
-      }
-    >
-      {isAdding && <TodoRowForm form={addForm} members={members} disabled={disableActions} statusOptions={TASK_STATUS_OPTIONS} onSubmit={(values) => addMutation.mutate(values)} onCancel={stopAdd} />}
+    <>
+      <TodoListTable
+        headers={tableHeaders}
+        footer={
+          <TodoListFooter
+            disabled={disableActions}
+            onNew={() => {
+              if (editingId) setEditingId(null);
+              setIsAdding(true);
+            }}
+          />
+        }
+      >
+        {isAdding && <TodoRowForm form={addForm} members={members} disabled={disableActions} statusOptions={TASK_STATUS_OPTIONS} onSubmit={(values) => addMutation.mutate(values)} onCancel={stopAdd} />}
 
-      {tasksView.length === 0 && !isAdding ? (
-        <TableRow>
-          <TableCell colSpan={4} className='text-center text-accent py-10'>
-            <NoData message={'Belum ada rencana to do yang dibuat'} />
-          </TableCell>
-        </TableRow>
-      ) : (
-        tasksView.map((task) => {
-          const isEditing = editingId === task.id;
+        {tasksView.length === 0 && !isAdding ? (
+          <TableRow>
+            <TableCell colSpan={4} className='text-center text-accent py-10'>
+              <NoData message={'Belum ada rencana to do yang dibuat'} />
+            </TableCell>
+          </TableRow>
+        ) : (
+          tasksView.map((task) => {
+            const isEditing = editingId === task.id;
 
-          if (isEditing) {
-            return (
-              <TodoRowForm
-                key={task.id}
-                form={editForm}
-                members={members}
-                disabled={disableActions}
-                statusOptions={TASK_STATUS_OPTIONS}
-                onSubmit={(values) => updateMutation.mutate({ taskId: task.id, payload: values })}
-                onCancel={stopEdit}
-              />
-            );
-          }
+            if (isEditing) {
+              return (
+                <TodoRowForm
+                  key={task.id}
+                  form={editForm}
+                  members={members}
+                  disabled={disableActions}
+                  statusOptions={TASK_STATUS_OPTIONS}
+                  onSubmit={(values) => updateMutation.mutate({ taskId: task.id, payload: values })}
+                  onCancel={stopEdit}
+                />
+              );
+            }
 
-          return <TodoRowDisplay key={task.id} task={task} disabled={disableActions} getStatusLabel={getTaskStatusLabel} onEdit={startEdit} onDelete={(taskId) => deleteMutation.mutate(taskId)} />;
-        })
-      )}
-    </TodoListTable>
+            return <TodoRowDisplay key={task.id} task={task} disabled={disableActions} getStatusLabel={getTaskStatusLabel} onView={openDetail} onEdit={startEdit} onDelete={(taskId) => deleteMutation.mutate(taskId)} />;
+          })
+        )}
+      </TodoListTable>
+
+      <TaskDetailDialog
+        open={Boolean(detailTaskId)}
+        task={selectedTask}
+        description={descriptionDraft}
+        saveState={descriptionSaveState}
+        saveDisabled={!detailTaskId || !hasDescriptionChanges || isDescriptionSaving}
+        getStatusLabel={getTaskStatusLabel}
+        onDescriptionChange={handleDescriptionChange}
+        onSave={handleSaveDescription}
+        onOpenChange={handleDetailOpenChange}
+      />
+    </>
   );
 };
 

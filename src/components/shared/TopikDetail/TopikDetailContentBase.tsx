@@ -4,6 +4,7 @@ import TopikPembahasanDetailHeader from '@/components/pages/Dosen/StudyGroup/Top
 import type { TabsType } from '@/components/pages/Dosen/StudyGroup/TopikDetail/types';
 import type { FilterWithInputRangeValue } from '@/components/shared/Filter/FilterWithInputRange';
 import type { TaskFilterValue } from '@/components/shared/Filter/TaskFilterDropdown';
+import { extractDiscussionText } from '@/lib/discussion-search';
 import type { ApiResponse } from '@/types/api';
 import type { Task } from '@/types/task';
 import type { ThreadDetail } from '@/types/thread-post';
@@ -21,6 +22,8 @@ type TopikDetailContentBaseProps = {
     onTabChange: (tab: TabsType) => void;
     filters: TaskFilterValue;
     onFiltersChange: (value: TaskFilterValue) => void;
+    discussionSearchKeyword: string;
+    onDiscussionSearchKeywordChange: (value: string) => void;
     discussionDateFilter: FilterWithInputRangeValue<'all'>;
     onDiscussionDateFilterChange: (value: FilterWithInputRangeValue<'all'>) => void;
     tasksQuery: {
@@ -59,6 +62,7 @@ const TopikDetailContentBase = ({ idTopik, namaTopik, renderTabs }: TopikDetailC
     fromDate: '',
     toDate: '',
   });
+  const [discussionSearchKeyword, setDiscussionSearchKeyword] = useState('');
 
   const handleTabChange = (newTab: TabsType) => {
     setTab(newTab);
@@ -76,6 +80,7 @@ const TopikDetailContentBase = ({ idTopik, namaTopik, renderTabs }: TopikDetailC
   useEffect(() => {
     setFilters({ memberId: TASK_FILTER_ALL, status: TASK_FILTER_ALL });
     setDiscussionDateFilter({ field: 'all', keyword: '', fromDate: '', toDate: '' });
+    setDiscussionSearchKeyword('');
   }, [idTopik]);
 
   useEffect(() => {
@@ -120,20 +125,31 @@ const TopikDetailContentBase = ({ idTopik, namaTopik, renderTabs }: TopikDetailC
 
   const filteredThreads = useMemo(() => {
     const raw = threadDetailData ?? [];
+    const keyword = discussionSearchKeyword.trim().toLowerCase();
+
+    const searchFiltered = keyword
+      ? raw.filter((thread) => {
+          const authorName = thread.author.nama.toLowerCase();
+          const authorNrp = thread.author.nrp.toLowerCase();
+          const contentText = extractDiscussionText(thread.konten).toLowerCase();
+
+          return authorName.includes(keyword) || authorNrp.includes(keyword) || contentText.includes(keyword);
+        })
+      : raw;
 
     const fromDateObj = discussionDateFilter.fromDate ? new Date(`${discussionDateFilter.fromDate}T00:00:00`) : null;
     const toDateObj = discussionDateFilter.toDate ? new Date(`${discussionDateFilter.toDate}T23:59:59.999`) : null;
 
-    if (!fromDateObj && !toDateObj) return raw;
+    if (!fromDateObj && !toDateObj) return searchFiltered;
 
-    return raw.filter((t) => {
+    return searchFiltered.filter((t) => {
       const ts = new Date(t.updatedAt);
       if (Number.isNaN(ts.getTime())) return false;
       if (fromDateObj && ts < fromDateObj) return false;
       if (toDateObj && ts > toDateObj) return false;
       return true;
     });
-  }, [discussionDateFilter.fromDate, discussionDateFilter.toDate, threadDetailData]);
+  }, [discussionDateFilter.fromDate, discussionDateFilter.toDate, discussionSearchKeyword, threadDetailData]);
 
   const threadDetailQuery = {
     data: filteredThreads,
@@ -150,6 +166,8 @@ const TopikDetailContentBase = ({ idTopik, namaTopik, renderTabs }: TopikDetailC
         onTabChange: handleTabChange,
         filters,
         onFiltersChange: setFilters,
+        discussionSearchKeyword,
+        onDiscussionSearchKeywordChange: setDiscussionSearchKeyword,
         discussionDateFilter,
         onDiscussionDateFilterChange: setDiscussionDateFilter,
         tasksQuery,

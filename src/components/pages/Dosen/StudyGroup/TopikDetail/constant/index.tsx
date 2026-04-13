@@ -16,7 +16,7 @@ export const listIcons = [
   },
 ];
 
-export const tableHeaders = ['Task', 'People', 'Status'];
+export const tableHeaders = ['Task', 'People', 'Status', 'Actions'];
 
 export const TASK_FILTER_ALL = 'all' as const;
 

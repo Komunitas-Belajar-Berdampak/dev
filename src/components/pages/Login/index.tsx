@@ -47,7 +47,6 @@ const Login = () => {
 
   const onSubmit = (data: UserSchemaType) => {
     mutate(data);
-    
   };
 
   return (
@@ -73,7 +72,7 @@ const Login = () => {
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor={field.name} className='text-gray-800'>
-                      NRP
+                      Username
                     </FieldLabel>
                     <Input {...field} id={field.name} aria-invalid={fieldState.invalid} type='text' placeholder='Masukkan NRP Anda' className='text-xs md:text-sm text-black' />
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} className='text-xs' />}

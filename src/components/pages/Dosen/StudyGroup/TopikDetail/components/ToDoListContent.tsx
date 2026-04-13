@@ -1,10 +1,13 @@
 import type { TaskFilterValue } from '@/components/shared/Filter/TaskFilterDropdown';
 import NoData from '@/components/shared/NoData';
+import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { Task } from '@/types/task';
-import { useEffect, useMemo } from 'react';
+import { Eye } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { getTaskStatusLabel, tableHeaders, TASK_FILTER_ALL } from '../constant';
+import TaskDetailDialog from './TaskDetailDialog';
 import ToDoListSkeleton from './ToDoListSkeleton';
 
 type ToDoListContentProps = {
@@ -18,6 +21,8 @@ type ToDoListContentProps = {
 };
 
 const ToDoListContent = ({ filters, tasksQuery }: ToDoListContentProps) => {
+  const [detailTaskId, setDetailTaskId] = useState<string | null>(null);
+
   const tasksView = useMemo(() => {
     const memberId = filters.memberId;
     const status = filters.status;
@@ -32,11 +37,17 @@ const ToDoListContent = ({ filters, tasksQuery }: ToDoListContentProps) => {
     });
   }, [tasksQuery.data, filters.memberId, filters.status]);
 
+  const selectedTask = useMemo(() => tasksQuery.data.find((task) => task.id === detailTaskId) ?? null, [tasksQuery.data, detailTaskId]);
+
   useEffect(() => {
     if (!tasksQuery.isError) return;
 
     toast.error(tasksQuery.error?.message || 'Gagal mengambil data To Do List.', { toasterId: 'global' });
   }, [tasksQuery.error?.message, tasksQuery.isError]);
+
+  useEffect(() => {
+    setDetailTaskId(null);
+  }, [filters.memberId, filters.status]);
 
   if (tasksQuery.isLoading) return <ToDoListSkeleton />;
 
@@ -55,7 +66,7 @@ const ToDoListContent = ({ filters, tasksQuery }: ToDoListContentProps) => {
         <TableBody>
           {tasksView.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={3} className='text-center text-accent py-10 '>
+              <TableCell colSpan={4} className='text-center text-accent py-10 '>
                 <NoData message={'Belum ada rencana to do yang dibuat'} />
               </TableCell>
             </TableRow>
@@ -77,12 +88,26 @@ const ToDoListContent = ({ filters, tasksQuery }: ToDoListContentProps) => {
                   <TableCell className='text-black/50'>
                     <span className='text-black/50  text-xs md:text-sm'>{getTaskStatusLabel(task.status)}</span>
                   </TableCell>
+                  <TableCell>
+                    <Button type='button' variant='ghost' size='icon-sm' onClick={() => setDetailTaskId(task.id)} aria-label='Lihat detail task'>
+                      <Eye className='size-4 text-black/50' />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               );
             })
           )}
         </TableBody>
       </Table>
+
+      <TaskDetailDialog
+        open={Boolean(detailTaskId)}
+        task={selectedTask}
+        getStatusLabel={getTaskStatusLabel}
+        onOpenChange={(open) => {
+          if (!open) setDetailTaskId(null);
+        }}
+      />
     </div>
   );
 };

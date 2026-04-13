@@ -11,15 +11,18 @@ type SearchProps = {
   inputClassName?: string;
   buttonClassName?: string;
   onSearch?: () => void;
+  showButton?: boolean;
 };
 
-const Search = ({ value, onChange, placeholder = 'Search...', className, inputClassName, buttonClassName, onSearch }: SearchProps) => {
+const Search = ({ value, onChange, placeholder = 'Search...', className, inputClassName, buttonClassName, onSearch, showButton = true }: SearchProps) => {
   return (
-    <div className={cn('flex w-full sm:w-auto gap-2', className)}>
+    <div className={cn('flex w-full sm:w-auto items-center', showButton ? 'gap-2' : 'gap-0', className)}>
       <Input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={cn('text-xs md:text-sm w-full border border-accent', inputClassName)} />
-      <Button size='icon' className={cn('shadow-sm', buttonClassName)} type='button' onClick={onSearch}>
-        <Icon icon='mdi:magnify' className='text-lg' />
-      </Button>
+      {showButton && (
+        <Button size='icon' className={cn('shadow-sm', buttonClassName)} type='button' onClick={onSearch}>
+          <Icon icon='mdi:magnify' className='text-lg' />
+        </Button>
+      )}
     </div>
   );
 };

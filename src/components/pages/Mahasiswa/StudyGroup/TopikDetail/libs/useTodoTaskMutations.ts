@@ -1,5 +1,5 @@
 import { addTask, deleteTask, updateTask } from '@/api/task';
-import type { TaskSchemaType } from '@/schemas/task';
+import type { TaskSchemaType, TaskUpdateSchemaType } from '@/schemas/task';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -23,7 +23,7 @@ export function useTodoTaskMutations(threadId: string, studygroupId: string, opt
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ taskId, payload }: { taskId: string; payload: TaskSchemaType }) => updateTask(taskId, payload),
+    mutationFn: ({ taskId, payload }: { taskId: string; payload: TaskUpdateSchemaType }) => updateTask(taskId, payload),
     onSuccess: async (res) => {
       toast.success(res.message || 'Berhasil mengubah To Do.', { toasterId: 'global' });
       await invalidateTasks();
@@ -31,6 +31,13 @@ export function useTodoTaskMutations(threadId: string, studygroupId: string, opt
     },
     onError: (err: Error) => {
       toast.error(err.message || 'Gagal mengubah To Do.', { toasterId: 'global' });
+    },
+  });
+
+  const updateDescriptionMutation = useMutation({
+    mutationFn: ({ taskId, deskripsi }: { taskId: string; deskripsi: string }) => updateTask(taskId, { deskripsi }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['tasks', threadId] });
     },
   });
 
@@ -50,6 +57,7 @@ export function useTodoTaskMutations(threadId: string, studygroupId: string, opt
   return {
     addMutation,
     updateMutation,
+    updateDescriptionMutation,
     deleteMutation,
     isPending,
   };

@@ -1,6 +1,7 @@
 import FilterWithInputRange, { type FilterWithInputRangeValue } from '@/components/shared/Filter/FilterWithInputRange';
 import type { TaskFilterValue } from '@/components/shared/Filter/TaskFilterDropdown';
 import TaskFilterDropdown from '@/components/shared/Filter/TaskFilterDropdown';
+import Search from '@/components/shared/Search';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { Task } from '@/types/task';
@@ -16,6 +17,8 @@ type TopikPembahasanDetailTabsProps = {
   onTabChange: (tab: TabsType) => void;
   filters: TaskFilterValue;
   onFiltersChange: (value: TaskFilterValue) => void;
+  discussionSearchKeyword: string;
+  onDiscussionSearchKeywordChange: (value: string) => void;
 
   discussionDateFilter: FilterWithInputRangeValue<'all'>;
   onDiscussionDateFilterChange: (value: FilterWithInputRangeValue<'all'>) => void;
@@ -35,7 +38,18 @@ type TopikPembahasanDetailTabsProps = {
   };
 };
 
-const TopikPembahasanDetailTabs = ({ tab, onTabChange, filters, onFiltersChange, discussionDateFilter, onDiscussionDateFilterChange, tasksQuery, threadDetailQuery }: TopikPembahasanDetailTabsProps) => {
+const TopikPembahasanDetailTabs = ({
+  tab,
+  onTabChange,
+  filters,
+  onFiltersChange,
+  discussionSearchKeyword,
+  onDiscussionSearchKeywordChange,
+  discussionDateFilter,
+  onDiscussionDateFilterChange,
+  tasksQuery,
+  threadDetailQuery,
+}: TopikPembahasanDetailTabsProps) => {
   const memberOptions = Array.from(new Map(tasksQuery.data.flatMap((t) => t.mahasiswa).map((m) => [m.id, { id: m.id, nama: m.nama }])).values());
 
   return (
@@ -54,7 +68,9 @@ const TopikPembahasanDetailTabs = ({ tab, onTabChange, filters, onFiltersChange,
           {tab === 'todolist' ? (
             <TaskFilterDropdown value={filters} onValueChange={onFiltersChange} members={memberOptions} label='Filter by..' />
           ) : (
-            <div className='flex gap-4'>
+            <div className='flex w-full sm:w-auto flex-wrap items-center gap-4'>
+              <Search value={discussionSearchKeyword} onChange={onDiscussionSearchKeywordChange} placeholder='Search discussion...' className='min-w-54' showButton={false} />
+
               <FilterWithInputRange
                 value={discussionDateFilter}
                 onValueChange={onDiscussionDateFilterChange}
@@ -79,7 +95,7 @@ const TopikPembahasanDetailTabs = ({ tab, onTabChange, filters, onFiltersChange,
           <ToDoListContent filters={filters} tasksQuery={tasksQuery} />
         </TabsContent>
         <TabsContent value='discussion'>
-          <DiscussionContent threadDetailQuery={threadDetailQuery} />
+          <DiscussionContent threadDetailQuery={threadDetailQuery} discussionSearchKeyword={discussionSearchKeyword} />
         </TabsContent>
       </Tabs>
     </div>
