@@ -1,4 +1,5 @@
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import type { Task } from '@/types/task';
@@ -10,12 +11,14 @@ type TaskDetailDialogProps = {
   task: Task | null;
   description: string;
   saveState: DescriptionSaveState;
+  saveDisabled: boolean;
   getStatusLabel: (value: Task['status']) => string;
   onDescriptionChange: (next: string) => void;
+  onSave: () => void;
   onOpenChange: (open: boolean) => void;
 };
 
-function TaskDetailDialog({ open, task, description, saveState, getStatusLabel, onDescriptionChange, onOpenChange }: TaskDetailDialogProps) {
+function TaskDetailDialog({ open, task, description, saveState, saveDisabled, getStatusLabel, onDescriptionChange, onSave, onOpenChange }: TaskDetailDialogProps) {
   const members = task?.mahasiswa?.map((m) => m.nama).filter(Boolean) ?? [];
 
   return (
@@ -24,26 +27,29 @@ function TaskDetailDialog({ open, task, description, saveState, getStatusLabel, 
         <div className='space-y-4'>
           <DialogHeader className='gap-1'>
             <DialogTitle className='text-primary text-lg font-bold'>{task?.task || '-'}</DialogTitle>
-            <DialogDescription className='text-xs text-black/40'>Detail task dan deskripsi to do</DialogDescription>
+            <DialogDescription className='text-sm text-black/40'>Detail task dan deskripsi to do</DialogDescription>
           </DialogHeader>
 
           <div className='space-y-3'>
             <div className='space-y-1'>
-              <p className='text-xs text-black/40'>Members</p>
+              <p className='text-sm text-black/40'>Members</p>
               <div className='flex flex-wrap gap-2'>{members.length > 0 ? members.map((member) => <Badge key={member}>{member}</Badge>) : <Badge variant={'outline'}>-</Badge>}</div>
             </div>
 
             <div className='space-y-1'>
-              <p className='text-xs text-black/40'>Status</p>
+              <p className='text-sm text-black/40'>Status</p>
               <Badge variant={'outline'}>{task ? getStatusLabel(task.status) : '-'}</Badge>
             </div>
 
             <div className='space-y-1'>
-              <p className='text-xs text-black/40'>Description</p>
-              <Textarea value={description} onChange={(event) => onDescriptionChange(event.target.value)} placeholder='Tulis deskripsi task...' className='text-xs text-black border min-h-28' disabled={!task} />
-              <p className={`text-xs py-2 ${saveState === 'error' ? 'text-destructive' : 'text-black/40'}`}>
-                {saveState === 'saving' ? 'Menyimpan...' : saveState === 'saved' ? 'Tersimpan' : saveState === 'error' ? 'Gagal menyimpan. Coba lanjut mengetik untuk retry.' : '*Perubahan akan disimpan otomatis.'}
-              </p>
+              <p className='text-sm text-black/40'>Description</p>
+              <Textarea value={description} onChange={(event) => onDescriptionChange(event.target.value)} placeholder='Tulis deskripsi task...' className='text-sm text-black border min-h-28' disabled={!task} />
+
+              <div className='flex justify-end mt-4'>
+                <Button type='button' size='sm' onClick={onSave} disabled={saveDisabled} className='text-sm'>
+                  {saveState === 'saving' ? 'Menyimpan...' : 'Save'}
+                </Button>
+              </div>
             </div>
           </div>
         </div>

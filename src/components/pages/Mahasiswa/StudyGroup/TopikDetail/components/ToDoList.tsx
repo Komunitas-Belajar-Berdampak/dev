@@ -2,7 +2,6 @@ import ToDoListSkeleton from '@/components/pages/Dosen/StudyGroup/TopikDetail/co
 import type { TaskFilterValue } from '@/components/shared/Filter/TaskFilterDropdown';
 import NoData from '@/components/shared/NoData';
 import { TableCell, TableRow } from '@/components/ui/table';
-import { useDebounce } from '@/hooks/use-debounce';
 import { taskSchema, type TaskSchemaType } from '@/schemas/task';
 import type { AnggotaStudyGroup } from '@/types/sg';
 import type { Task } from '@/types/task';
@@ -39,9 +38,7 @@ const ToDoListContent = ({ threadId, members, filters, tasksQuery, studyGroupId 
   const [detailTaskId, setDetailTaskId] = useState<string | null>(null);
   const [descriptionDraft, setDescriptionDraft] = useState('');
   const [savedDescription, setSavedDescription] = useState('');
-  const [failedDescription, setFailedDescription] = useState<string | null>(null);
   const [descriptionSaveState, setDescriptionSaveState] = useState<DescriptionSaveState>('idle');
-  const debouncedDescription = useDebounce(descriptionDraft, 1000);
 
   const addForm = useForm<TaskSchemaType>({
     resolver: zodResolver(taskSchema),
@@ -104,35 +101,38 @@ const ToDoListContent = ({ threadId, members, filters, tasksQuery, studyGroupId 
     const currentDescription = selectedTask?.deskripsi ?? '';
     setDescriptionDraft(currentDescription);
     setSavedDescription(currentDescription);
-    setFailedDescription(null);
     setDescriptionSaveState('idle');
   }, [detailTaskId, selectedTask?.deskripsi]);
 
   const isDescriptionSaving = updateDescriptionMutation.isPending;
   const mutateDescription = updateDescriptionMutation.mutate;
 
-  useEffect(() => {
-    if (!detailTaskId) return;
-    if (debouncedDescription === savedDescription) return;
-    if (failedDescription === debouncedDescription) return;
-    if (isDescriptionSaving) return;
+  const hasDescriptionChanges = descriptionDraft !== savedDescription;
+
+  const handleDescriptionChange = (next: string) => {
+    setDescriptionDraft(next);
+    if (descriptionSaveState !== 'idle') {
+      setDescriptionSaveState('idle');
+    }
+  };
+
+  const handleSaveDescription = () => {
+    if (!detailTaskId || !hasDescriptionChanges || isDescriptionSaving) return;
 
     setDescriptionSaveState('saving');
     mutateDescription(
-      { taskId: detailTaskId, deskripsi: debouncedDescription },
+      { taskId: detailTaskId, deskripsi: descriptionDraft },
       {
         onSuccess: () => {
-          setSavedDescription(debouncedDescription);
-          setFailedDescription(null);
+          setSavedDescription(descriptionDraft);
           setDescriptionSaveState('saved');
         },
         onError: () => {
-          setFailedDescription(debouncedDescription);
           setDescriptionSaveState('error');
         },
       },
     );
-  }, [debouncedDescription, detailTaskId, failedDescription, isDescriptionSaving, mutateDescription, savedDescription]);
+  };
 
   const startEdit = (task: Task) => {
     setIsAdding(false);
@@ -165,7 +165,6 @@ const ToDoListContent = ({ threadId, members, filters, tasksQuery, studyGroupId 
       setDetailTaskId(null);
       setDescriptionDraft('');
       setSavedDescription('');
-      setFailedDescription(null);
       setDescriptionSaveState('idle');
     }
   };
@@ -224,8 +223,10 @@ const ToDoListContent = ({ threadId, members, filters, tasksQuery, studyGroupId 
         task={selectedTask}
         description={descriptionDraft}
         saveState={descriptionSaveState}
+        saveDisabled={!detailTaskId || !hasDescriptionChanges || isDescriptionSaving}
         getStatusLabel={getTaskStatusLabel}
-        onDescriptionChange={setDescriptionDraft}
+        onDescriptionChange={handleDescriptionChange}
+        onSave={handleSaveDescription}
         onOpenChange={handleDetailOpenChange}
       />
     </>
