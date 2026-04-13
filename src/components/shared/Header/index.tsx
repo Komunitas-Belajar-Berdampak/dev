@@ -27,7 +27,7 @@ const Header = () => {
   });
 
   return (
-    <header className='w-full z-10 '>
+    <header className='w-full z-10 sticky top-0 bg-background/90 backdrop-blur-lg'>
       <nav className='w-full py-2.5 px-4 flex border-b border-primary justify-between items-center '>
         <SidebarTrigger className=' text-primary' />
 
