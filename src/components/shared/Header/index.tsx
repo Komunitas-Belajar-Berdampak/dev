@@ -46,7 +46,7 @@ const Header = () => {
             <DropdownMenuContent align='start' className='w-46'>
               <DropdownMenuGroup>
                 {menuItems.map((item, index) => {
-                  const isLast = index === menuItems.length - 1;
+                  const isLast = index === menuItems.length - 2;
                   const isLogout = item.title?.toLowerCase() === 'logout';
 
                   return (

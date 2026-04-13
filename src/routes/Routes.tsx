@@ -1,5 +1,6 @@
 import AuthLayout from '@/components/layouts/Auth';
 import DefaultLayout from '@/components/layouts/Default';
+import About from '@/components/pages/About/About';
 import Dosen from '@/components/pages/Dosen/DosenCourses';
 import AllPertemuanDashboard from '@/components/pages/Dosen/Matakuliah/Dashboard/AllPertemuanDashboard';
 import DashboardPage from '@/components/pages/Dosen/Matakuliah/Dashboard/DashboardPage';
@@ -81,12 +82,17 @@ const routes: RouteObject[] = [
     ],
   },
   {
+    path: '/about',
+    element: <About />,
+  },
+  {
     element: <DefaultLayout />,
     children: [
       {
         index: true,
         element: <RoleRedirect />,
       },
+
       {
         path: '/profile',
         element: <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'DOSEN', 'MAHASISWA']} />,
