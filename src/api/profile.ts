@@ -13,7 +13,9 @@ export const getUserByNrp = async (nrp: string) => {
   return res.data;
 };
 
-export const updateProfile = async (payload: updateProfileType) => {
+export const updateProfile = async (
+  payload: Omit<updateProfileType, "gayaBelajar">,
+) => {
   const res = await api.patch<
     ApiResponse<{
       status: string;

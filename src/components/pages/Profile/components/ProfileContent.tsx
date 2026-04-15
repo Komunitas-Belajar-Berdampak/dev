@@ -18,6 +18,7 @@ import { updateProfileSchema, type updateProfile } from "@/schemas/profile";
 import type { UserProfile } from "@/types/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Icon } from "@iconify/react";
+import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import useEditProfile from "../hooks/useEditProfile";
@@ -83,32 +84,63 @@ const ProfileContent = ({
   const currentUser = getUser();
   const isUser = currentUser?.nrp === data?.nrp;
 
+  const validLearningStyles = learningStyle.map((s) => s.value);
+  const sanitizeGayaBelajar = (values: string[] | undefined): string[] =>
+    (values ?? []).filter((v) => validLearningStyles.includes(v));
+
   const form = useForm<updateProfile>({
     resolver: zodResolver(updateProfileSchema),
+    mode: "onSubmit",
     defaultValues: {
       nama: data?.nama,
       alamat: data?.alamat,
       fotoProfil: data?.fotoProfil,
       passwordLama: "",
       passwordBaru: "",
-      gayaBelajar: data?.gayaBelajar as (string | undefined)[] | undefined,
-    },
-    values: {
-      nama: data?.nama as string,
-      alamat: data?.alamat as string,
-      fotoProfil: data?.fotoProfil as string,
-      passwordLama: "",
-      passwordBaru: "",
-      gayaBelajar: data?.gayaBelajar as string[] | undefined,
+      gayaBelajar: sanitizeGayaBelajar(
+        data?.gayaBelajar as string[] | undefined,
+      ),
     },
   });
 
+  useEffect(() => {
+    if (!data) return;
+    form.reset({
+      nama: data.nama,
+      alamat: data.alamat,
+      fotoProfil: data.fotoProfil as string,
+      passwordLama: "",
+      passwordBaru: "",
+      gayaBelajar: sanitizeGayaBelajar(
+        data.gayaBelajar as string[] | undefined,
+      ),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data?.id]);
+
+  const gayaBelajarValue = form.watch("gayaBelajar");
+  const gayaBelajarEmpty =
+    data?.namaRole !== "DOSEN" &&
+    (!gayaBelajarValue || gayaBelajarValue.length === 0);
+
   function onSubmit(formData: updateProfile) {
+    if (
+      data?.namaRole !== "DOSEN" &&
+      (!formData.gayaBelajar || formData.gayaBelajar.length === 0)
+    ) {
+      form.setError("gayaBelajar", {
+        type: "manual",
+        message: "Pilih minimal satu gaya belajar",
+      });
+      return;
+    }
     mutate({
       payload: formData,
       gayaBelajarExists: !!data?.gayaBelajar?.length,
     });
   }
+
+  console.log("gaya belajar isine opo cok", gayaBelajarValue);
 
   if (isPending) {
     return (
@@ -326,10 +358,13 @@ const ProfileContent = ({
                   <Controller
                     name="gayaBelajar"
                     control={form.control}
-                    render={({ field }) => (
-                      <Field>
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
                         <FieldLabel className="text-gray-400">
                           Learning Style
+                          {isEditing && (
+                            <span className="text-red-500"> *</span>
+                          )}
                         </FieldLabel>
                         <div className="flex items-center gap-4">
                           {isEditing &&
@@ -377,6 +412,9 @@ const ProfileContent = ({
                             </p>
                           )}
                         </div>
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
                       </Field>
                     )}
                   />
@@ -450,10 +488,9 @@ const ProfileContent = ({
             </Button>
             <Button
               type={"submit"}
-              onClick={form.handleSubmit(onSubmit)}
               variant={"default"}
               className="lg:ml-auto shadow-sm"
-              disabled={isPending || isSubmitting}
+              disabled={isPending || isSubmitting || gayaBelajarEmpty}
             >
               {isSubmitting ? "Saving..." : "Save"}
             </Button>
