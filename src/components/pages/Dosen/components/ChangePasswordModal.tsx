@@ -41,7 +41,6 @@ export default function ChangePasswordModal({ open, nrp, userName, onSuccess }: 
 
   const passwordsMatch = confirmPass === '' || newPass === confirmPass;
 
-  // Minimal harus "Kuat" (score >= 3) + cocok + tidak sama dengan NRP
   const canSubmit = !loading && strength >= 3 && newPass === confirmPass && newPass !== nrp;
 
   const handleSubmit = async () => {

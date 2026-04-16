@@ -156,7 +156,7 @@ export default function AddTahunAkademikDanSemesterModal({
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-3xl w-[calc(100%-2rem)] sm:w-full rounded-xl">
         <DialogHeader>
           <DialogTitle>Add Tahun Akademik & Semester</DialogTitle>
         </DialogHeader>

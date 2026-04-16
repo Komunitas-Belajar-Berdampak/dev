@@ -125,7 +125,7 @@ export default function ViewAllSubmissionPage() {
           "
         >
           <Icon icon="mdi:pencil-outline" className="text-base" />
-          Edit Nilai
+          Input Nilai
         </button>
       </div>
     </div>

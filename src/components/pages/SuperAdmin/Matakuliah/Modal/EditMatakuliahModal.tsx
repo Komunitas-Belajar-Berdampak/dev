@@ -106,13 +106,10 @@ export default function EditMatakuliahModal({
   const { updateMatakuliah, loading: saving } = useUpdateMatakuliah();
   const { options: termOptions, loading: loadingTerms } = useAcademicTermsOptions();
 
-  // Hanya tampilkan periode yang aktif
-  // Tapi kalau periode yang sedang dipilih tidak aktif, tetap tampilkan agar tidak hilang dari dropdown
   const [idPeriode, setIdPeriode] = useState("");
 
   const activeTermOptions = useMemo(() => {
     const active = termOptions.filter((t) => t.status.toLowerCase() === "aktif");
-    // Kalau periode yang sedang dipakai matkul ini tidak aktif, tetap include agar tidak blank di dropdown
     const currentPeriode = termOptions.find((t) => t.id === idPeriode);
     if (currentPeriode && currentPeriode.status.toLowerCase() !== "aktif") {
       return [...active, currentPeriode];
@@ -287,7 +284,7 @@ export default function EditMatakuliahModal({
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-3xl w-[calc(100%-2rem)] sm:w-full rounded-xl">
         <DialogHeader>
           <DialogTitle>Edit Matakuliah</DialogTitle>
           <p className="text-sm text-muted-foreground">Kode Matakuliah tidak bisa diubah</p>

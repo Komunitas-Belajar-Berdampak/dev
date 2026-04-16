@@ -31,8 +31,6 @@ export default function AddPengajarModal({
   existingIds?: string[];
 }) {
   const { options: allOptions, loading } = useDosenOptions();
-
-  // Filter out dosen yang sudah terdaftar sebagai pengajar di matkul
   const options = useMemo(
     () => allOptions.filter((o) => !existingIds.includes(o.id)),
     [allOptions, existingIds],
@@ -155,7 +153,7 @@ export default function AddPengajarModal({
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); }}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-3xl w-[calc(100%-2rem)] sm:w-full rounded-xl">
         <DialogHeader>
           <DialogTitle>Tambah Pengajar</DialogTitle>
         </DialogHeader>

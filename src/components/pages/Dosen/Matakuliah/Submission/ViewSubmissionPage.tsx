@@ -34,26 +34,38 @@ export default function ViewSubmissionPage() {
   const tidakTelat = sudah;
   const telat = 0;
 
-  const pieColors = ["hsl(var(--primary))", "#bfdbfe"];
+  const pieColors = ["#0d00c2", "#bfdbfe"];
 
   const sudahBelumChart = {
-    series: belum + sudah === 0 ? [1] : [sudah, belum],
-    options: {
-      chart: { type: "pie" as const, toolbar: { show: false } },
-      labels: belum + sudah === 0 ? ["Tidak ada data"] : ["Sudah", "Belum"],
-      colors: belum + sudah === 0 ? ["#e5e7eb"] : pieColors,
-      legend: { position: "bottom" as const, fontSize: "12px" },
-      dataLabels: { enabled: false },
-      stroke: { width: 0 },
-      tooltip: { enabled: true },
+  series: belum + sudah === 0 ? [1] : [sudah, belum],
+  options: {
+    chart: { type: "pie" as const, toolbar: { show: false } },
+    labels: belum + sudah === 0 ? ["Tidak ada data"] : ["Sudah", "Belum"],
+    colors: belum + sudah === 0 ? ["#e5e7eb"] : pieColors,
+    legend: { position: "bottom" as const, fontSize: "12px" },
+    dataLabels: { enabled: false },
+    stroke: { width: 0 },
+    tooltip: { enabled: true },
+    states: {
+      hover: {
+        filter: {
+          type: "none",
+        },
+      },
+      active: {
+        filter: {
+          type: "none",
+        },
+      },
     },
-  };
+  },
+};
 
   const telatChart = {
     series: tidakTelat + telat === 0 ? [1] : [tidakTelat, telat],
     options: {
       chart: { type: "pie" as const, toolbar: { show: false } },
-      labels: tidakTelat + telat === 0 ? ["Tidak ada data"] : ["Tidak Telat", "Telat"],
+      labels: tidakTelat + telat === 0 ? ["Tidak ada data"] : ["Tidak Terlambat", "Terlambat"],
       colors: tidakTelat + telat === 0 ? ["#e5e7eb"] : pieColors,
       legend: { position: "bottom" as const, fontSize: "12px" },
       dataLabels: { enabled: false },
@@ -126,7 +138,7 @@ export default function ViewSubmissionPage() {
               </div>
               <div className="flex flex-col items-center rounded-2xl border border-gray-200 bg-white p-6">
                 <p className="text-sm font-semibold text-primary mb-4">
-                  Mahasiswa yang telat mengumpulkan tugas
+                  Mahasiswa yang terlambat mengumpulkan tugas
                 </p>
                 <ReactApexChart
                   type="pie"

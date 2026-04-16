@@ -31,9 +31,9 @@ export default function PerPertemuanDashboard() {
 
   const pertemuanList =
     meetings && meetings.length > 0
-      ? meetings.map((_, idx) => ({
-          index: idx + 1,
-          label: `Pertemuan ${idx + 1}`,
+      ? meetings.map((m, idx) => ({
+        index: m.pertemuan ?? idx + 1,
+        label: m.judul,  
         }))
       : dummyPertemuanList;
 
@@ -70,7 +70,7 @@ export default function PerPertemuanDashboard() {
               className="w-full rounded-2xl border border-gray-200 bg-white px-6 py-5 text-left transition hover:bg-gray-50"
             >
               <span className="text-xl font-bold text-primary">
-                View Dashboard {p.label}
+                Pertemuan {p.index} - {p.label}
               </span>
             </button>
           ))}

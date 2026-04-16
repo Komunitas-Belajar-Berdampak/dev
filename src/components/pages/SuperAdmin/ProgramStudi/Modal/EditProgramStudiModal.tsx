@@ -138,7 +138,7 @@ export default function EditProgramStudiModal({
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-3xl w-[calc(100%-2rem)] sm:w-full rounded-xl">
         <DialogHeader>
           <DialogTitle>Edit Program Studi</DialogTitle>
           <p className="text-sm text-muted-foreground">Silahkan ubah data Program Studi!</p>

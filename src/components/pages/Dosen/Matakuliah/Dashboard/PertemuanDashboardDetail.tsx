@@ -9,8 +9,8 @@ import { useMeetingDashboard } from "../hooks/useCourseDashboard";
 function getPrimaryColor() {
   return (
     getComputedStyle(document.documentElement)
-      .getPropertyValue("--color-primary")
-      .trim() || "#2563eb"
+      .getPropertyValue("color--primary")
+      .trim() || "#0d00c2"
   );
 }
 
@@ -74,7 +74,7 @@ export default function PertemuanDashboardDetail() {
 
   const donutOptions: ApexOptions = {
     chart: { type: "donut", toolbar: { show: false } },
-    colors: [primary, primary + "88", "#e2e8f0"],
+    colors: [primary, primary + "88", "#e5e7eb"],
     labels: ["Selesai Tepat Waktu", "Selesai Terlambat", "Belum"],
     dataLabels: { enabled: true, style: { fontSize: "11px" } },
     legend: { position: "bottom", labels: { colors: "#4b5563" } },
