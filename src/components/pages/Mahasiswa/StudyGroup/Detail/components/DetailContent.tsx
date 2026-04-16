@@ -12,7 +12,7 @@ import { Icon } from '@iconify/react';
 import { DialogTrigger } from '@radix-ui/react-dialog';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Settings } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import DialogEditSg from '../../List/components/DialogEditSg';
 import DialogAddThread from './DialogAddThread';
@@ -58,6 +58,11 @@ const DetailContent = ({ idSg, namaSg, idCourse }: DetailContentProps) => {
     if (!isError) return;
     toast.error(error?.message || 'Gagal mengambil detail study group.', { toasterId: 'global' });
   }, [error?.message, isError]);
+
+  const sortedAnggota = useMemo(() => {
+    const members = data?.anggota ?? [];
+    return [...members].sort((a, b) => b.totalKontribusi - a.totalKontribusi);
+  }, [data?.anggota]);
 
   if (isLoading) return <StudyGroupDetailContentSkeleton />;
 
@@ -107,7 +112,7 @@ const DetailContent = ({ idSg, namaSg, idCourse }: DetailContentProps) => {
         </div>
         <TabsContent value='members'>
           {/* dashboard kontribusi */}
-          <DashboardKontribusiContent totalKontribusi={data?.totalKontribusi ?? 0} anggota={data?.anggota ?? []} />
+          <DashboardKontribusiContent totalKontribusi={data?.totalKontribusi ?? 0} anggota={sortedAnggota} />
         </TabsContent>
         <TabsContent value='topik-pembahasan'>
           {/* topik pembahasan */}
