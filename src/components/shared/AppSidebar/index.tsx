@@ -6,7 +6,7 @@ import menuItems from './menu-items';
 
 const AppSidebar = () => {
   const location = useLocation();
-  const { isMobile, setOpen, setOpenMobile } = useSidebar();
+  const { isMobile, setOpenMobile } = useSidebar();
   const previousPathRef = useRef(location.pathname);
 
   const user = getUser();
@@ -20,12 +20,10 @@ const AppSidebar = () => {
 
     if (isMobile) {
       setOpenMobile(false);
-    } else {
-      setOpen(false);
     }
 
     previousPathRef.current = currentPath;
-  }, [isMobile, location.pathname, setOpen, setOpenMobile]);
+  }, [isMobile, location.pathname, setOpenMobile]);
 
   return (
     <Sidebar collapsible='icon' className='border-black/10'>
