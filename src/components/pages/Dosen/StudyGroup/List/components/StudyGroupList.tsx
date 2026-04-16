@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import Circle from '@/components/ui/circle';
 import type { StudyGroupbyCourse } from '@/types/sg';
 import { Edit } from 'lucide-react';
@@ -41,8 +42,10 @@ const StudyGroupList = ({ studygroups }: StudyGroupListProps) => {
                 <p className='text-accent text-xs md:text-sm'>
                   {sg.totalAnggota} / {sg.kapasitas} Anggota ({sg.totalRequest} Requests)
                 </p>
-                <Link to={`${sg.nama}/${sg.id}/edit`} className='text-sm text-blue-500 underline ml-2' onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
-                  <Edit size={15} className='text-primary' />
+                <Link to={`${sg.nama}/${sg.id}/edit`} className='text-sm text-primary  underline ml-2' onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+                  <Button variant={'ghost'} size='icon-sm' className='shadow-none  bg-primary w-7 h-7'>
+                    <Edit size={15} className='text-white size-3.5' />
+                  </Button>
                 </Link>
               </div>
             </div>

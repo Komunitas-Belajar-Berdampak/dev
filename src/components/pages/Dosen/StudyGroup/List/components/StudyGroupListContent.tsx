@@ -34,7 +34,10 @@ const StudyGroupListContent = ({ idMatkul, namaMatkul }: StudyGroupListProps) =>
     placeholderData: keepPreviousData,
   });
 
-  const studyGroups = useMemo(() => response?.data ?? [], [response?.data]);
+  const studyGroups = useMemo(() => {
+    const items = response?.data ?? [];
+    return [...items].sort((a, b) => b.totalKontribusi - a.totalKontribusi);
+  }, [response?.data]);
 
   const visibleStudyGroups = useMemo(() => {
     const q = search.trim().toLowerCase();
