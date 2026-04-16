@@ -43,14 +43,22 @@ const PrivateFileContent = () => {
   const { mutate: remove, isPending: isDeletePending } = useDeletePV();
 
   const files = debouncedSearch
-    ? data?.data.filter(
-        (pv) =>
-          pv.id.includes(debouncedSearch) ||
-          pv.status.toLowerCase().includes(debouncedSearch) ||
-          pv.file.nama.includes(debouncedSearch) ||
-          pv.file.tipe.includes(debouncedSearch),
-      )
-    : data?.data;
+    ? data?.data
+        .map((item) => ({
+          ...item,
+          status: item.status === "VISIBLE" ? "PUBLIC" : item.status,
+        }))
+        .filter(
+          (pv) =>
+            pv.id.includes(debouncedSearch) ||
+            pv.status.toLowerCase().includes(debouncedSearch) ||
+            pv.file.nama.includes(debouncedSearch) ||
+            pv.file.tipe.includes(debouncedSearch),
+        )
+    : data?.data.map((item) => ({
+        ...item,
+        status: item.status === "VISIBLE" ? "PUBLIC" : item.status,
+      }));
   const pagination = debouncedSearch
     ? {
         ...data?.pagination,

@@ -79,7 +79,7 @@ const CreatePVForm = () => {
                   }
                   className="shadow-none"
                 />
-                <p>{field.value === "VISIBLE" ? "Visible" : "Private"}</p>
+                <p>{field.value === "VISIBLE" ? "Public" : "Private"}</p>
               </div>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
