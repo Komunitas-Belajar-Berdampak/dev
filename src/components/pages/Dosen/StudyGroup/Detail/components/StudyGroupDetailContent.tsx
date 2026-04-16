@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { ApiResponse } from '@/types/api';
 import type { StudyGroupDetail } from '@/types/sg';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { toast } from 'sonner';
 import DashboardKontribusiContent from './DashboardKontribusiContent';
 import RequestJoinContent from './RequestJoinContent';
@@ -30,6 +30,11 @@ const StudyGroupDetailContent = ({ idSg, namaSg }: StudyGroupDetailContentProps)
     toast.error(error?.message || 'Gagal mengambil detail study group.', { toasterId: 'global' });
   }, [error?.message, isError]);
 
+  const sortedAnggota = useMemo(() => {
+    const members = data?.anggota ?? [];
+    return [...members].sort((a, b) => b.totalKontribusi - a.totalKontribusi);
+  }, [data?.anggota]);
+
   if (isLoading) return <StudyGroupDetailContentSkeleton />;
 
   return (
@@ -52,7 +57,7 @@ const StudyGroupDetailContent = ({ idSg, namaSg }: StudyGroupDetailContentProps)
         </TabsContent>
         <TabsContent value='members'>
           {/* dashboard kontribusi */}
-          <DashboardKontribusiContent totalKontribusi={data?.totalKontribusi ?? 0} anggota={data?.anggota ?? []} />
+          <DashboardKontribusiContent totalKontribusi={data?.totalKontribusi ?? 0} anggota={sortedAnggota} />
         </TabsContent>
         <TabsContent value='topik-pembahasan'>
           {/* topik pembahasan */}

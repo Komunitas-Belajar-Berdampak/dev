@@ -1,20 +1,20 @@
-import { Clock4, Edit, Mail, XSquareIcon } from 'lucide-react';
+import { Clock4, DoorOpen, Edit, X } from 'lucide-react';
 
 export const listOption = [
   {
     label: 'APPROVED',
-    icon: <Edit size={15} className='text-primary' />,
+    icon: <Edit size={15} className='text-white size-3.5' />,
   },
   {
     label: 'REQUEST',
-    icon: <Mail size={15} className='text-primary' />,
+    icon: <DoorOpen size={15} className='text-white size-3.5' />,
   },
   {
     label: 'PENDING',
-    icon: <Clock4 size={15} className='text-primary' />,
+    icon: <Clock4 size={15} className='text-white size-3.5' />,
   },
   {
     label: 'REJECTED',
-    icon: <XSquareIcon size={15} className='text-primary' />,
+    icon: <X size={15} className='text-white size-3.5' />,
   },
 ];

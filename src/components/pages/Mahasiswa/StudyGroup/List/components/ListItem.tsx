@@ -83,7 +83,7 @@ const ListItem = ({ studygroups, courseId, page }: StudyGroupListProps) => {
                   <Button
                     variant={'ghost'}
                     size={'icon-sm'}
-                    className='text-sm underline ml-2'
+                    className={`bg-primary text-sm underline ml-2 ${action.kind === 'request' && 'opacity-100'} w-7 h-7`}
                     disabled={action.disabled || (action.kind === 'request' && isRequestingJoin)}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -125,18 +125,18 @@ const ListItem = ({ studygroups, courseId, page }: StudyGroupListProps) => {
                       : undefined
                   }
                 >
-                  <div>
+                  <div className={action.kind === 'edit' ? 'opacity-100' : 'opacity-65'}>
                     <Circle theme='study-group' seed={sg.id} />
                   </div>
 
                   <div className='w-full flex flex-col'>
                     <div className='flex flex-row items-center justify-between'>
-                      <p className='text-primary font-bold text-xs md:text-sm'>{sg.nama}</p>
-                      <p className='text-primary font-bold text-xs md:text-sm'>{sg.totalKontribusi} points</p>
+                      <p className={`text-primary font-bold text-xs md:text-sm ${action.kind === 'edit' ? 'opacity-100' : 'opacity-65'}`}>{sg.nama}</p>
+                      <p className={`text-primary font-bold text-xs md:text-sm ${action.kind === 'edit' ? 'opacity-100' : 'opacity-65'}`}>{sg.totalKontribusi} points</p>
                     </div>
 
                     <div className='flex flex-row items-center justify-between'>
-                      <p className='text-accent text-xs md:text-sm'>
+                      <p className={`text-accent text-xs md:text-sm ${action.kind === 'edit' ? 'opacity-100' : 'opacity-65'}`}>
                         {sg.totalAnggota} / {sg.kapasitas} Anggota
                       </p>
 
