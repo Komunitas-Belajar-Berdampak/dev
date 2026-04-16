@@ -1,14 +1,31 @@
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar';
 import { getUser } from '@/lib/authStorage';
+import { useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import menuItems from './menu-items';
 
 const AppSidebar = () => {
   const location = useLocation();
+  const { isMobile, setOpen, setOpenMobile } = useSidebar();
+  const previousPathRef = useRef(location.pathname);
 
   const user = getUser();
 
   const filteredMenuItems = menuItems.filter((item) => user?.namaRole && item.role.includes(user.namaRole));
+
+  useEffect(() => {
+    const previousPath = previousPathRef.current;
+    const currentPath = location.pathname;
+    if (previousPath === currentPath) return;
+
+    if (isMobile) {
+      setOpenMobile(false);
+    } else {
+      setOpen(false);
+    }
+
+    previousPathRef.current = currentPath;
+  }, [isMobile, location.pathname, setOpen, setOpenMobile]);
 
   return (
     <Sidebar collapsible='icon' className='border-black/10'>
