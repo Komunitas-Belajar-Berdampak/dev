@@ -186,7 +186,6 @@ export default function PertemuanDetailPage() {
       const endDate = tenggatDate ? tenggatDate.toISOString().split("T")[0] : "";
       const endTime = tenggatDate ? tenggatDate.toTimeString().slice(0, 5) : "10:30";
 
-      // lampiran dari BE adalah pathLampiran (full R2 URL), ambil nama file-nya saja untuk tampilan
       const lampiranRaw: string = it.lampiran ?? it.pathLampiran ?? "";
       const lampiranNama = lampiranRaw ? lampiranRaw.split("/").pop() : "";
 

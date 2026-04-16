@@ -99,7 +99,6 @@ export default function EditUserModal({
     fotoProfil: "",
   });
 
-  // 1) Isi form dari user detail
   useEffect(() => {
     if (!open) return;
     if (!user) return;
@@ -131,7 +130,6 @@ export default function EditUserModal({
     });
   }, [open, user?.id]);
 
-  // 2) Resolve idRole dari nama kalau masih kosong
   useEffect(() => {
     if (!open || !user || form.idRole) return;
     const roles = (rolesQ.roles ?? []) as any[];
@@ -147,7 +145,6 @@ export default function EditUserModal({
     if (id) setForm((p) => ({ ...p, idRole: id }));
   }, [open, user?.id, rolesQ.roles, form.idRole]);
 
-  // 3) Resolve idProdi dari nama kalau masih kosong
   useEffect(() => {
     if (!open || !user || form.idProdi) return;
     const list = (prodiQ.programStudi ?? []) as any[];
@@ -160,7 +157,7 @@ export default function EditUserModal({
     if (!prodiName) return;
     const match = list.find(
       (p) =>
-        norm(pickName(p.namaProdi ?? p.namaProgramStudi ?? p.nama)) ===
+        norm(pickName(p.prodi ?? p.namaProdi ?? p.namaProgramStudi ?? p.nama)) ===
         prodiName
     );
     const id = match ? pickId(match) : "";
@@ -309,8 +306,7 @@ export default function EditUserModal({
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      {/* ✅ max-w-5xl — sama lebar dengan AddUserModal */}
-      <DialogContent className="max-w-5xl w-full">
+      <DialogContent className="max-w-3xl w-[calc(100%-2rem)] sm:w-full max-h-[90vh] overflow-y-auto rounded-xl">
         <DialogHeader>
           <DialogTitle>Edit User</DialogTitle>
           <p className="text-sm text-muted-foreground">
@@ -362,8 +358,6 @@ export default function EditUserModal({
                 Upload Foto Profil
               </Button>
             </div>
-
-            {/* ✅ Grid 3 kolom — sama seperti AddUserModal */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-4">
               <Field label="NRP">
                 <Input
@@ -524,8 +518,6 @@ export default function EditUserModal({
     </Dialog>
   );
 }
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
 
 function Field({
   label,

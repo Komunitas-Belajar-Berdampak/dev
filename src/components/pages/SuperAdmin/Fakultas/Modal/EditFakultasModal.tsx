@@ -100,7 +100,7 @@ export default function EditFakultasModal({
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-3xl w-[calc(100%-2rem)] sm:w-full rounded-xl">
         <DialogHeader>
           <DialogTitle>Edit Fakultas</DialogTitle>
           <p className="text-sm text-muted-foreground">Silahkan ubah data Fakultas!</p>

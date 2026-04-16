@@ -48,7 +48,7 @@ function MatakuliahTableSkeleton() {
       </div>
 
       <div className="relative -mx-4 sm:mx-0">
-        <div className="overflow-x-auto max-w-[calc(100vw-2rem)] sm:max-w-full">
+        <div className="overflow-x-auto px-4 sm:px-0 max-w-[calc(100vw-2rem)] sm:max-w-full">
           <Table className="min-w-[1100px] text-blue-800">
             <TableHeader>
               <TableRow className="border-b border-black/10">
@@ -191,11 +191,11 @@ export default function MatakuliahTable() {
       </div>
 
       <div className="relative -mx-4 sm:mx-0">
-        <div className="overflow-x-auto max-w-[calc(100vw-2rem)] sm:max-w-full">
+        <div className="overflow-x-auto px-4 sm:px-0 max-w-[calc(100vw-2rem)] sm:max-w-full">
           <Table className="min-w-[1100px] text-blue-800">
             <TableHeader>
               <TableRow className="border-b border-black/10">
-                <TableHead className="font-bold text-blue-900">Kode</TableHead>
+                <TableHead className="font-bold text-blue-900">Kode Matakuliah</TableHead>
                 <TableHead className="font-bold text-blue-900">Nama Matakuliah</TableHead>
                 <TableHead className="font-bold text-blue-900">SKS</TableHead>
                 <TableHead className="font-bold text-blue-900">Kelas</TableHead>

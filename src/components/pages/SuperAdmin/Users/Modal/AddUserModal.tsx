@@ -115,7 +115,6 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
   const [preview, setPreview] = useState<string>(baldAvatarSvg);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
-  // Auto-set first role when roles load
   useEffect(() => {
     if (!open) return;
     if (!form.idRole && roles.length) {
@@ -265,14 +264,13 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
           if (!v) onClose();
         }}
       >
-        {/* ✅ max-w-5xl — lebih lebar, nyaman di laptop M */}
-        <DialogContent className="max-w-5xl w-full">
+        <DialogContent className="max-w-3xl w-[calc(100%-2rem)] sm:w-full max-h-[90vh] overflow-y-auto rounded-xl">
           <DialogHeader>
             <DialogTitle>Tambah User</DialogTitle>
           </DialogHeader>
 
           {/* ── Tab Switcher ── */}
-          <div className="flex gap-1 p-1 bg-gray-100 rounded-lg w-fit">
+          <div className="flex flex-col sm:flex-row gap-1 p-1 bg-gray-100 rounded-lg w-full sm:w-fit">
             <TabButton
               active={activeTab === "manual"}
               icon="mdi:account-plus"
@@ -311,7 +309,6 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
             </Button>
           </div>
 
-          {/* ✅ Grid 3 kolom */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-4">
             <Field label="NRP">
               <Input
@@ -473,8 +470,6 @@ export default function AddUserModal({ open, onClose, onSuccess }: Props) {
   );
 }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
 function TabButton({
   active,
   icon,
@@ -490,7 +485,7 @@ function TabButton({
     <button
       type="button"
       onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+      className={`flex items-center justify-center w-full sm:w-auto gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
         active
           ? "bg-white shadow-sm text-blue-700 border border-blue-100"
           : "text-gray-500 hover:text-gray-700"

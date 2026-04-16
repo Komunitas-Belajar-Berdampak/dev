@@ -194,7 +194,7 @@ export default function AddMatakuliahModal({
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-3xl w-[calc(100%-2rem)] sm:w-full rounded-xl">
         <DialogHeader>
           <DialogTitle>Add Matakuliah</DialogTitle>
         </DialogHeader>

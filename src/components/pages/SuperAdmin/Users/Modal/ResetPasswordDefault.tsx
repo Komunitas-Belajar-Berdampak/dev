@@ -25,7 +25,7 @@ export default function ResetPasswordModal({
   onSuccess,
   userId,
   userName,
-  userNrp,
+  userNrp, 
 }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +36,7 @@ export default function ResetPasswordModal({
     try {
       setLoading(true);
       setError(null);
-      await api.put(`/users/${userId}`, { password: userNrp });
+      await api.put(`/users/${userId}`, { password: userNrp, isDefaultPassword: true, });
       onSuccess();
     } catch (err: any) {
       setError(err?.response?.data?.message ?? "Gagal mereset password.");

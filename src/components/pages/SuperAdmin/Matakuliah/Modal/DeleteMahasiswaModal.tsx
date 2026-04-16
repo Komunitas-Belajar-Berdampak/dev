@@ -71,7 +71,7 @@ export default function DeleteMahasiswaModal({
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-      <DialogContent className="max-w-sm">
+      <DialogContent className="max-w-3xl w-[calc(100%-2rem)] sm:w-full rounded-xl">
         <DialogHeader>
           <DialogTitle>Hapus Mahasiswa</DialogTitle>
         </DialogHeader>

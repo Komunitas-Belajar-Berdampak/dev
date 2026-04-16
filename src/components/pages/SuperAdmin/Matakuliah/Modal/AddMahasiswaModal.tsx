@@ -32,7 +32,6 @@ export default function AddMahasiswaModal({
 }) {
   const { options: allOptions, loading } = useMahasiswaOptions();
 
-  // Filter out mahasiswa yang sudah terdaftar di matkul
   const options = useMemo(
     () => allOptions.filter((o) => !existingIds.includes(o.id)),
     [allOptions, existingIds],
@@ -155,7 +154,7 @@ export default function AddMahasiswaModal({
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); }}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-3xl w-[calc(100%-2rem)] sm:w-full rounded-xl">
         <DialogHeader>
           <DialogTitle>Tambah Mahasiswa</DialogTitle>
         </DialogHeader>

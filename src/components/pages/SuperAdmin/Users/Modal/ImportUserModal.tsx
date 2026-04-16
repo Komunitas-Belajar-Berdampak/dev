@@ -368,7 +368,6 @@ export default function ImportUserModal({ open, onClose, onSuccess }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); }}>
-      {/* ✅ max-w-7xl — lebih lebar dari sebelumnya (max-w-6xl) */}
       <DialogContent className="max-w-7xl w-[95vw] h-[92vh] flex flex-col gap-0 p-0 overflow-hidden rounded-2xl">
 
         {/* ── HEADER ── */}

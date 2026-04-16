@@ -28,7 +28,7 @@ export default function EditTahunAkademikDanSemesterModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-3xl w-[calc(100%-2rem)] sm:w-full rounded-xl">
         <DialogHeader>
           <DialogTitle>Edit Tahun Akademik & Semester</DialogTitle>
         </DialogHeader>

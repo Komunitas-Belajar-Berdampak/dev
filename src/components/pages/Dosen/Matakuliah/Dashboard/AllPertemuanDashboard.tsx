@@ -9,8 +9,8 @@ import { useCourseDashboard } from "../hooks/useCourseDashboard";
 function getPrimaryColor() {
   return (
     getComputedStyle(document.documentElement)
-      .getPropertyValue("--color-primary")
-      .trim() || "#2563eb"
+      .getPropertyValue("color--primary")
+      .trim() || "#0d00c2"
   );
 }
 

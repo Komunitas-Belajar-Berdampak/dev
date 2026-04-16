@@ -44,7 +44,7 @@ function ProgramStudiTableSkeleton() {
       </div>
 
       <div className="relative -mx-4 sm:mx-0">
-        <div className="overflow-x-auto max-w-[calc(100vw-2rem)] sm:max-w-full">
+       <div className="overflow-x-auto px-4 sm:px-0 max-w-[calc(100vw-2rem)] sm:max-w-full">
           <Table className="min-w-[850px] text-blue-800">
             <TableHeader>
               <TableRow className="border-b border-black/10">
@@ -154,7 +154,7 @@ export default function ProgramStudiTable() {
       </div>
 
       <div className="relative -mx-4 sm:mx-0">
-        <div className="overflow-x-auto max-w-[calc(100vw-2rem)] sm:max-w-full">
+        <div className="overflow-x-auto px-4 sm:px-0 max-w-[calc(100vw-2rem)] sm:max-w-full">
           <Table className="min-w-[850px] text-blue-800">
             <TableHeader>
               <TableRow className="border-b border-black/10">
