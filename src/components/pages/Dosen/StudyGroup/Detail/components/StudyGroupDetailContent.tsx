@@ -45,12 +45,20 @@ const StudyGroupDetailContent = ({ idSg, namaSg }: StudyGroupDetailContentProps)
       </ContentHeader>
 
       {/* 3 opsi tabs*/}
-      <Tabs defaultValue='request-join'>
-        <TabsList variant={'line'} className='gap-8'>
-          <TabsTrigger value='request-join'>Request Join</TabsTrigger>
-          <TabsTrigger value='members'>Dashboard Kontribusi</TabsTrigger>
-          <TabsTrigger value='topik-pembahasan'>Topik Pembahasan</TabsTrigger>
-        </TabsList>
+      <Tabs defaultValue='request-join' className='w-full min-w-0'>
+        <div className='w-full max-w-full overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden'>
+          <TabsList variant={'line'} className='min-w-max gap-4 md:gap-8 pr-1'>
+            <TabsTrigger value='request-join' className='shrink-0 snap-start text-xs md:text-sm'>
+              Request Join
+            </TabsTrigger>
+            <TabsTrigger value='members' className='shrink-0 snap-start text-xs md:text-sm'>
+              Dashboard Kontribusi
+            </TabsTrigger>
+            <TabsTrigger value='topik-pembahasan' className='shrink-0 snap-start text-xs md:text-sm'>
+              Topik Pembahasan
+            </TabsTrigger>
+          </TabsList>
+        </div>
         <TabsContent value='request-join'>
           {/* buat request join */}
           <RequestJoinContent idSg={idSg} />
