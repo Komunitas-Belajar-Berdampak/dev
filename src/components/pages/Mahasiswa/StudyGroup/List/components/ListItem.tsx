@@ -83,7 +83,7 @@ const ListItem = ({ studygroups, courseId, page }: StudyGroupListProps) => {
                   <Button
                     variant={'ghost'}
                     size={'icon-sm'}
-                    className={`bg-primary text-sm underline ml-2 ${action.kind === 'request' && 'opacity-100'} w-7 h-7`}
+                    className={`bg-primary text-sm underline ml-2 ${action.kind === 'request' ? 'opacity-100 disabled:opacity-100' : ''} w-7 h-7`}
                     disabled={action.disabled || (action.kind === 'request' && isRequestingJoin)}
                     onClick={(e) => {
                       e.stopPropagation();
