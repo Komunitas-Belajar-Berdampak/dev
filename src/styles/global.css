@@ -189,3 +189,13 @@
     @apply cursor-pointer;
   }
 }
+
+@layer components {
+  .topik-detail-sticky-toolbar {
+    @apply sticky top-16 z-20 flex w-full flex-wrap items-center justify-between gap-4 rounded-xl border border-transparent bg-background/85 p-3 backdrop-blur transition-[border-color,box-shadow] duration-200;
+  }
+
+  .topik-detail-sticky-toolbar[data-stuck='true'] {
+    @apply border-accent shadow-sm;
+  }
+}

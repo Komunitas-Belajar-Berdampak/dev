@@ -2,6 +2,7 @@ import FilterWithInputRange, { type FilterWithInputRangeValue } from '@/componen
 import type { TaskFilterValue } from '@/components/shared/Filter/TaskFilterDropdown';
 import TaskFilterDropdown from '@/components/shared/Filter/TaskFilterDropdown';
 import Search from '@/components/shared/Search';
+import TopikDetailStickyToolbar from '@/components/shared/TopikDetail/components/TopikDetailStickyToolbar';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { Task } from '@/types/task';
@@ -55,7 +56,7 @@ const TopikPembahasanDetailTabs = ({
   return (
     <div className='w-full'>
       <Tabs value={tab} onValueChange={(v) => onTabChange(v as TabsType)} className='w-full'>
-        <div className='flex w-full items-center justify-between gap-4 flex-wrap'>
+        <TopikDetailStickyToolbar>
           <TabsList variant={'line'} className='gap-4 md:gap-8'>
             <TabsTrigger value='todolist' className='text-xs md:text-sm'>
               To Do List
@@ -89,7 +90,7 @@ const TopikPembahasanDetailTabs = ({
               </Link>
             </div>
           )}
-        </div>
+        </TopikDetailStickyToolbar>
 
         <TabsContent value='todolist'>
           <ToDoListContent filters={filters} tasksQuery={tasksQuery} />
