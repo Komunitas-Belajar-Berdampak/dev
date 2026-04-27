@@ -55,3 +55,59 @@ export type StudyGroupMemberDetail = {
     timestamp: string;
   }[];
 };
+
+export type StudyGroupAssignmentDashboardAssignment = {
+  id: string;
+  pertemuan: number;
+  judul: string;
+};
+
+export type StudyGroupAssignmentDashboardGroup = {
+  id: string;
+  nama: string;
+};
+
+export type StudyGroupAssignmentDashboardStudent = {
+  id: string;
+  nrp: string;
+  nama: string;
+  groupId: string;
+  groupName: string;
+};
+
+export type StudyGroupAssignmentDashboardMatrixItem = {
+  studentId: string;
+  assignmentId: string;
+  points: number;
+};
+
+export type StudyGroupAssignmentWeight = {
+  assignmentId: string;
+  weight: number;
+};
+
+export type StudyGroupAssignmentDashboardSummary = {
+  totalKontribusi: number;
+  topContributor: {
+    studentId: string;
+    nama: string;
+    totalPoints: number;
+  } | null;
+  assignmentPalingTimpang: {
+    assignmentId: string;
+    judul: string;
+    studentName: string;
+    dominancePercentage: number;
+  } | null;
+  inactiveStudents: number;
+};
+
+export type StudyGroupAssignmentDashboard = {
+  courseId: string;
+  assignments: StudyGroupAssignmentDashboardAssignment[];
+  groups: StudyGroupAssignmentDashboardGroup[];
+  students: StudyGroupAssignmentDashboardStudent[];
+  matrix: StudyGroupAssignmentDashboardMatrixItem[];
+  weights: StudyGroupAssignmentWeight[];
+  summary: StudyGroupAssignmentDashboardSummary;
+};

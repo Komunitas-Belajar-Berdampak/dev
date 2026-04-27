@@ -8,6 +8,7 @@ import type { ApiResponse } from '@/types/api';
 import type { StudyGroupbyCourse } from '@/types/sg';
 import { Icon } from '@iconify/react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { ChartNoAxesColumn } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -61,12 +62,21 @@ const StudyGroupListContent = ({ idMatkul, namaMatkul }: StudyGroupListProps) =>
         <Search value={search} onChange={setSearch} />
 
         {/* Button */}
-        <Link to={`/dosen/study-groups/${namaMatkul}/${encodeURIComponent(idMatkul)}/add`}>
-          <Button className='shadow text-xs md:text-sm' size={'lg'}>
-            <Icon icon='mdi:plus-box' />
-            Add Study Group
-          </Button>
-        </Link>
+        <div className='flex flex-wrap items-center gap-3'>
+          <Link to={`/dosen/study-groups/${namaMatkul}/${encodeURIComponent(idMatkul)}/assignment-dashboard`}>
+            <Button variant='secondary' className='shadow text-xs md:text-sm border bg-white text-primary hover:bg-secondary' size={'lg'}>
+              <ChartNoAxesColumn className='size-4' />
+              Dashboard Per Assignment
+            </Button>
+          </Link>
+
+          <Link to={`/dosen/study-groups/${namaMatkul}/${encodeURIComponent(idMatkul)}/add`}>
+            <Button className='shadow text-xs md:text-sm' size={'lg'}>
+              <Icon icon='mdi:plus-box' />
+              Add Study Group
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {isLoading && <StudyGroupListSkeleton />}

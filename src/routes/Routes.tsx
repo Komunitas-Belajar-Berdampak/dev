@@ -20,6 +20,7 @@ import ViewSubmissionPage from '@/components/pages/Dosen/Matakuliah/Submission/V
 import StudyGroupLayout from '@/components/pages/Dosen/StudyGroup';
 import AddStudyGroup from '@/components/pages/Dosen/StudyGroup/Add';
 import AddPost from '@/components/pages/Dosen/StudyGroup/AddPost';
+import StudyGroupAssignmentDashboardPage from '@/components/pages/Dosen/StudyGroup/AssignmentDashboard';
 import StudyGroupDetail from '@/components/pages/Dosen/StudyGroup/Detail';
 import EditStudyGroup from '@/components/pages/Dosen/StudyGroup/Edit';
 import EditPost from '@/components/pages/Dosen/StudyGroup/EditPost';
@@ -252,6 +253,10 @@ const routes: RouteObject[] = [
               {
                 path: ':namaMatkul/:idMatkul/add',
                 element: <AddStudyGroup />,
+              },
+              {
+                path: ':namaMatkul/:idMatkul/assignment-dashboard',
+                element: <StudyGroupAssignmentDashboardPage />,
               },
               {
                 path: ':namaMatkul/:idMatkul/:namaSg/:idSg/edit',
