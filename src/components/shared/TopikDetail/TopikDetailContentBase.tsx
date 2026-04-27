@@ -1,5 +1,5 @@
 import { getTaskList } from '@/api/task';
-import { getThreadsById } from '@/api/thread-post';
+import { getThreadLatestUpdate, getThreadsById } from '@/api/thread-post';
 import TopikPembahasanDetailHeader from '@/components/pages/Dosen/StudyGroup/TopikDetail/components/Header';
 import type { TabsType } from '@/components/pages/Dosen/StudyGroup/TopikDetail/types';
 import type { FilterWithInputRangeValue } from '@/components/shared/Filter/FilterWithInputRange';
@@ -7,12 +7,13 @@ import type { TaskFilterValue } from '@/components/shared/Filter/TaskFilterDropd
 import { extractDiscussionText } from '@/lib/discussion-search';
 import type { ApiResponse } from '@/types/api';
 import type { Task } from '@/types/task';
-import type { ThreadDetail } from '@/types/thread-post';
+import type { ThreadDetail, ThreadLatestUpdate } from '@/types/thread-post';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 const TASK_FILTER_ALL = 'all' as const;
+const DISCUSSION_UPDATE_POLL_INTERVAL_MS = 5000;
 
 type TopikDetailContentBaseProps = {
   idTopik: string;
@@ -46,11 +47,15 @@ const getTabFromQuery = (tab: string | null): TabsType => {
   return 'todolist';
 };
 
+const getLatestUpdateFingerprint = (latestUpdate: ThreadLatestUpdate) => `${latestUpdate.latestUpdatedAt ?? 'empty'}:${latestUpdate.totalPosts}`;
+
 const TopikDetailContentBase = ({ idTopik, namaTopik, renderTabs }: TopikDetailContentBaseProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get('tab');
+  const latestUpdateFingerprintRef = useRef<string | null>(null);
 
   const [tab, setTab] = useState<TabsType>(() => getTabFromQuery(tabParam));
+  const [isPageVisible, setIsPageVisible] = useState(() => typeof document === 'undefined' || document.visibilityState === 'visible');
   const [filters, setFilters] = useState<TaskFilterValue>({
     memberId: TASK_FILTER_ALL,
     status: TASK_FILTER_ALL,
@@ -81,12 +86,22 @@ const TopikDetailContentBase = ({ idTopik, namaTopik, renderTabs }: TopikDetailC
     setFilters({ memberId: TASK_FILTER_ALL, status: TASK_FILTER_ALL });
     setDiscussionDateFilter({ field: 'all', keyword: '', fromDate: '', toDate: '' });
     setDiscussionSearchKeyword('');
+    latestUpdateFingerprintRef.current = null;
   }, [idTopik]);
 
   useEffect(() => {
     const nextTab = getTabFromQuery(tabParam);
     setTab((prevTab) => (prevTab === nextTab ? prevTab : nextTab));
   }, [tabParam]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      setIsPageVisible(document.visibilityState === 'visible');
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
 
   const {
     data: toDoListData,
@@ -117,11 +132,38 @@ const TopikDetailContentBase = ({ idTopik, namaTopik, renderTabs }: TopikDetailC
     isLoading: threadDetailIsLoading,
     isError: threadDetailIsError,
     error: threadDetailError,
+    refetch: refetchThreadDetails,
   } = useQuery<ApiResponse<ThreadDetail[]>, Error, ThreadDetail[]>({
     queryKey: ['threads-by-id', idTopik],
     queryFn: () => getThreadsById(idTopik),
     select: (res) => res.data,
   });
+
+  const isDiscussionUpdatePollingEnabled = tab === 'discussion' && !threadDetailIsLoading && !threadDetailIsError && isPageVisible;
+
+  const { data: latestUpdateData } = useQuery<ApiResponse<ThreadLatestUpdate>, Error, ThreadLatestUpdate>({
+    queryKey: ['thread-latest-update', idTopik],
+    queryFn: () => getThreadLatestUpdate(idTopik),
+    select: (res) => res.data,
+    enabled: isDiscussionUpdatePollingEnabled,
+    refetchInterval: DISCUSSION_UPDATE_POLL_INTERVAL_MS,
+    refetchIntervalInBackground: false,
+  });
+
+  useEffect(() => {
+    if (!latestUpdateData) return;
+
+    const nextFingerprint = getLatestUpdateFingerprint(latestUpdateData);
+    if (!latestUpdateFingerprintRef.current) {
+      latestUpdateFingerprintRef.current = nextFingerprint;
+      return;
+    }
+
+    if (latestUpdateFingerprintRef.current === nextFingerprint) return;
+
+    latestUpdateFingerprintRef.current = nextFingerprint;
+    void refetchThreadDetails();
+  }, [latestUpdateData, refetchThreadDetails]);
 
   const filteredThreads = useMemo(() => {
     const raw = threadDetailData ?? [];

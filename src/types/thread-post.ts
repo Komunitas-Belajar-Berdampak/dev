@@ -14,3 +14,8 @@ export type ThreadDetail = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type ThreadLatestUpdate = {
+  latestUpdatedAt: string | null;
+  totalPosts: number;
+};
