@@ -211,10 +211,7 @@ const getContributionReviewsByStudyGroup = async (studyGroupId: string, params: 
   const allReviews = getMockContributionReviews(studyGroupId);
   const filteredReviews = allReviews
     .filter((review) => !params.status || review.status === params.status)
-    .sort((a, b) => {
-      if (a.status !== b.status) return a.status === 'PENDING' ? -1 : 1;
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
+    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
   const totalItems = filteredReviews.length;
   const totalPages = Math.max(Math.ceil(totalItems / limit), 1);
   const safePage = Math.min(page, totalPages);
