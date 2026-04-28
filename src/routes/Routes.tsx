@@ -21,6 +21,7 @@ import StudyGroupLayout from '@/components/pages/Dosen/StudyGroup';
 import AddStudyGroup from '@/components/pages/Dosen/StudyGroup/Add';
 import AddPost from '@/components/pages/Dosen/StudyGroup/AddPost';
 import StudyGroupAssignmentDashboardPage from '@/components/pages/Dosen/StudyGroup/AssignmentDashboard';
+import ContributionReviews from '@/components/pages/Dosen/StudyGroup/ContributionReviews';
 import StudyGroupDetail from '@/components/pages/Dosen/StudyGroup/Detail';
 import EditStudyGroup from '@/components/pages/Dosen/StudyGroup/Edit';
 import EditPost from '@/components/pages/Dosen/StudyGroup/EditPost';
@@ -269,6 +270,10 @@ const routes: RouteObject[] = [
               {
                 path: ':namaMatkul/:idMatkul/:namaSg/:idSg/kontribusi/:namaAnggota/:idAnggota',
                 element: <KontribusiMahasiswaDetail />,
+              },
+              {
+                path: ':namaMatkul/:idMatkul/:namaSg/:idSg/contribution-reviews',
+                element: <ContributionReviews />,
               },
               {
                 path: ':namaMatkul/:idMatkul/:namaSg/:idSg/:namaTopik/:idTopik',
