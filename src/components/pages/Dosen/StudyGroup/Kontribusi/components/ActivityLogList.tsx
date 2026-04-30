@@ -13,7 +13,7 @@ type ActivityLogListProps = {
   onOpenNote: (activity: AktivitasItem) => void;
 };
 
-const getReviewStatus = (activity: AktivitasItem) => activity.statusReview ?? (activity.lecturerNote || activity.finalPoints != null || activity.kontribusi > 0 ? 'REVIEWED' : 'PENDING');
+const getReviewStatus = (activity: AktivitasItem) => activity.statusReview ?? activity.status ?? (activity.lecturerNote || activity.catatan || activity.finalPoints != null || activity.kontribusi > 0 ? 'REVIEWED' : 'PENDING');
 
 const ActivityLogList = ({ grouped, formatDateOnly, formatTimeOnly, onOpenNote }: ActivityLogListProps) => {
   return (

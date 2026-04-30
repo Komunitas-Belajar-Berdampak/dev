@@ -6,7 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { EMPTY_REVIEWS, REVIEW_PAGE_LIMIT } from '../utils/constants';
-import { getReviewSummary, getVisibleReviews } from '../utils/review-calculations';
+import { getVisibleReviews } from '../utils/review-calculations';
 import type { ReviewFilter } from '../utils/types';
 
 export const useContributionReviewPage = (studyGroupId: string) => {
@@ -28,7 +28,6 @@ export const useContributionReviewPage = (studyGroupId: string) => {
     [page, statusFilter],
   );
   const queryKey = useMemo(() => ['contribution-reviews', studyGroupId, queryParams], [queryParams, studyGroupId]);
-  const summaryQueryKey = useMemo(() => ['contribution-reviews', studyGroupId, { summary: true }], [studyGroupId]);
 
   const {
     data: response,
@@ -39,17 +38,31 @@ export const useContributionReviewPage = (studyGroupId: string) => {
     queryKey,
     queryFn: () => getContributionReviewsByStudyGroup(studyGroupId, queryParams),
   });
-  const { data: summaryResponse } = useQuery<ApiResponse<ContributionReview[]>, Error>({
-    queryKey: summaryQueryKey,
-    queryFn: () => getContributionReviewsByStudyGroup(studyGroupId, { page: 1, limit: 100 }),
+  const { data: totalSummaryResponse } = useQuery<ApiResponse<ContributionReview[]>, Error>({
+    queryKey: ['contribution-reviews', studyGroupId, { summary: 'ALL' }],
+    queryFn: () => getContributionReviewsByStudyGroup(studyGroupId, { page: 1, limit: 1 }),
+  });
+  const { data: pendingSummaryResponse } = useQuery<ApiResponse<ContributionReview[]>, Error>({
+    queryKey: ['contribution-reviews', studyGroupId, { summary: 'PENDING' }],
+    queryFn: () => getContributionReviewsByStudyGroup(studyGroupId, { status: 'PENDING', page: 1, limit: 1 }),
+  });
+  const { data: reviewedSummaryResponse } = useQuery<ApiResponse<ContributionReview[]>, Error>({
+    queryKey: ['contribution-reviews', studyGroupId, { summary: 'REVIEWED' }],
+    queryFn: () => getContributionReviewsByStudyGroup(studyGroupId, { status: 'REVIEWED', page: 1, limit: 1 }),
   });
 
   const reviews = response?.data ?? EMPTY_REVIEWS;
-  const summaryReviews = summaryResponse?.data ?? EMPTY_REVIEWS;
   const pagination = response?.pagination;
   const visibleReviews = useMemo(() => getVisibleReviews(reviews, debouncedSearchKeyword), [debouncedSearchKeyword, reviews]);
   const selectedReview = useMemo(() => reviews.find((review) => review.id === selectedReviewId) ?? null, [reviews, selectedReviewId]);
-  const summary = useMemo(() => getReviewSummary(summaryReviews, summaryResponse?.pagination?.total_items), [summaryResponse?.pagination?.total_items, summaryReviews]);
+  const summary = useMemo(
+    () => ({
+      total: totalSummaryResponse?.pagination?.total_items ?? 0,
+      pending: pendingSummaryResponse?.pagination?.total_items ?? 0,
+      reviewed: reviewedSummaryResponse?.pagination?.total_items ?? 0,
+    }),
+    [pendingSummaryResponse?.pagination?.total_items, reviewedSummaryResponse?.pagination?.total_items, totalSummaryResponse?.pagination?.total_items],
+  );
 
   const reviewMutation = useMutation({
     mutationFn: ({ reviewId, points, note }: { reviewId: string; points: number; note: string }) =>
@@ -59,15 +72,8 @@ export const useContributionReviewPage = (studyGroupId: string) => {
         lecturerNote: note,
       }),
     onSuccess: (res) => {
-      queryClient.setQueryData<ApiResponse<ContributionReview[]>>(queryKey, (oldData) => {
-        if (!oldData) return oldData;
-
-        return {
-          ...oldData,
-          data: oldData.data.map((review) => (review.id === res.data.id ? res.data : review)),
-        };
-      });
       queryClient.invalidateQueries({ queryKey: ['contribution-reviews', studyGroupId] });
+      queryClient.invalidateQueries({ queryKey: ['study-group-member-by-id'] });
 
       toast.success(res.message || 'Review kontribusi berhasil disimpan.', { toasterId: 'global' });
       setSelectedReviewId(null);
@@ -91,7 +97,7 @@ export const useContributionReviewPage = (studyGroupId: string) => {
     if (!selectedReview) return;
 
     setFinalPoints(String(selectedReview.aiSuggestedPoints));
-    setLecturerNote('Mengikuti rekomendasi AI karena kontribusi sudah sesuai dengan konteks diskusi.');
+    setLecturerNote(selectedReview.aiReason);
   };
 
   const handleSaveReview = () => {

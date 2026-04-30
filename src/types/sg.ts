@@ -53,6 +53,8 @@ export type StudyGroupMemberDetail = {
     aktivitas: string;
     kontribusi: number;
     timestamp: string;
+    status?: 'PENDING' | 'REVIEWED';
+    catatan?: string | null;
     reviewId?: string;
     statusReview?: 'PENDING' | 'REVIEWED';
     finalPoints?: number | null;
