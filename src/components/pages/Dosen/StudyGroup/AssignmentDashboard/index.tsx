@@ -37,7 +37,7 @@ const StudyGroupAssignmentDashboardPage = () => {
   });
 
   const { isWeightDialogOpen, isWeightEnabled, draftWeightEnabled, weights, draftWeights, setIsWeightDialogOpen, setDraftWeightEnabled, openWeightDialog, handleDraftWeightChange, resetWeights, saveWeights } =
-    useAssignmentDashboardWeights(data);
+    useAssignmentDashboardWeights(String(idMatkul ?? ''), data);
 
   const { assignments, rows, visibleRows, summary, maxCellPoints, heatmapSeries, heatmapHeight, heatmapOptions, topContributorSeries, topContributorOptions } = useAssignmentDashboardView({
     data,
