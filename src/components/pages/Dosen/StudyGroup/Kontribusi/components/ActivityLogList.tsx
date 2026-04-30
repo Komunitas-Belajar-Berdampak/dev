@@ -1,6 +1,8 @@
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemHeader, ItemSeparator, ItemTitle } from '@/components/ui/item';
 import type { StudyGroupMemberDetail } from '@/types/sg';
+import { FileText } from 'lucide-react';
 
 type AktivitasItem = StudyGroupMemberDetail['aktivitas'][number];
 
@@ -8,9 +10,12 @@ type ActivityLogListProps = {
   grouped: Array<[number, AktivitasItem[]]>;
   formatDateOnly: (value: number | string | Date) => string;
   formatTimeOnly: (value: number | string | Date) => string;
+  onOpenNote: (activity: AktivitasItem) => void;
 };
 
-const ActivityLogList = ({ grouped, formatDateOnly, formatTimeOnly }: ActivityLogListProps) => {
+const getReviewStatus = (activity: AktivitasItem) => activity.statusReview ?? activity.status;
+
+const ActivityLogList = ({ grouped, formatDateOnly, formatTimeOnly, onOpenNote }: ActivityLogListProps) => {
   return (
     <>
       <p className='text-xs md:text-sm uppercase tracking-wider font-semibold text-primary'>Log Aktivitas</p>
@@ -23,27 +28,42 @@ const ActivityLogList = ({ grouped, formatDateOnly, formatTimeOnly }: ActivityLo
             </Badge>
 
             <ItemGroup className='rounded-lg border border-accent/70 bg-white shadow-sm'>
-              {items.map((a, idx) => (
-                <div key={`${a.thread}-${a.timestamp}-${idx}`}>
-                  <Item size='sm' className='rounded-none border-none'>
-                    <ItemContent>
-                      <ItemHeader>
-                        <ItemTitle className='text-primary'>{a.aktivitas}</ItemTitle>
-                      </ItemHeader>
-                      <ItemDescription className='text-xs text-accent'>{a.thread}</ItemDescription>
-                    </ItemContent>
-                    <ItemActions>
-                      <Badge className='shadow-sm' variant={a.kontribusi > 0 ? 'default' : a.kontribusi < 0 ? 'danger' : 'outline'}>
-                        {a.kontribusi > 0 ? `+${a.kontribusi}` : a.kontribusi === 0 ? '0' : a.kontribusi} points
-                      </Badge>
-                      <Badge variant='outline' className='text-xs text-primary/80 font-semibold shadow-sm'>
-                        {formatTimeOnly(a.timestamp)}
-                      </Badge>
-                    </ItemActions>
-                  </Item>
-                  {idx < items.length - 1 ? <ItemSeparator className='bg-accent/70' /> : null}
-                </div>
-              ))}
+              {items.map((a, idx) => {
+                const reviewStatus = getReviewStatus(a);
+
+                return (
+                  <div key={`${a.thread}-${a.timestamp}-${idx}`}>
+                    <Item size='sm' className='rounded-none border-none'>
+                      <ItemContent>
+                        <ItemHeader>
+                          <ItemTitle className='text-primary'>{a.aktivitas}</ItemTitle>
+                        </ItemHeader>
+                        <ItemDescription className='text-xs text-accent'>{a.thread}</ItemDescription>
+                      </ItemContent>
+                      <ItemActions className='flex-wrap justify-end'>
+                        {reviewStatus ? (
+                          <Badge variant={reviewStatus === 'REVIEWED' ? 'success' : 'outline'} className='shadow-sm'>
+                            {reviewStatus === 'REVIEWED' ? 'Reviewed' : 'Pending'}
+                          </Badge>
+                        ) : null}
+                        <Badge className='shadow-sm' variant={a.kontribusi > 0 ? 'default' : a.kontribusi < 0 ? 'danger' : 'outline'}>
+                          {a.kontribusi > 0 ? `+${a.kontribusi}` : a.kontribusi === 0 ? '0' : a.kontribusi} points
+                        </Badge>
+                        <Badge variant='outline' className='text-xs text-primary/80 font-semibold shadow-sm'>
+                          {formatTimeOnly(a.timestamp)}
+                        </Badge>
+                        {reviewStatus ? (
+                          <Button type='button' size='sm' variant='outline' className='border-accent text-primary shadow-sm' aria-label='Lihat catatan dosen' onClick={() => onOpenNote(a)}>
+                            <FileText className='size-4' />
+                            <span className='hidden sm:inline'>Lihat Catatan</span>
+                          </Button>
+                        ) : null}
+                      </ItemActions>
+                    </Item>
+                    {idx < items.length - 1 ? <ItemSeparator className='bg-accent/70' /> : null}
+                  </div>
+                );
+              })}
             </ItemGroup>
           </div>
         ))}

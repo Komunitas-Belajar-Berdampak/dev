@@ -7,6 +7,7 @@ import type { StudyGroupMemberDetail } from '@/types/sg';
 import { ListX } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import ActivityLogList from './ActivityLogList';
+import ContributionNoteDialog from './ContributionNoteDialog';
 import OverviewPanel from './OverviewPanel';
 
 type KontribusiBodyProps = {
@@ -14,6 +15,7 @@ type KontribusiBodyProps = {
 };
 
 const KontribusiBody = ({ data }: KontribusiBodyProps) => {
+  const [selectedActivity, setSelectedActivity] = useState<StudyGroupMemberDetail['aktivitas'][number] | null>(null);
   const [filter, setFilter] = useState<FilterWithInputRangeValue<string>>({
     field: KONTRIBUSI_ALL_THREAD_VALUE,
     keyword: '',
@@ -45,6 +47,7 @@ const KontribusiBody = ({ data }: KontribusiBodyProps) => {
   const mostActiveDay = useMemo(() => getMostActiveDay(dailyTrend), [dailyTrend]);
   const trendSeries = useMemo(() => buildTrendSeries(dailyTrend), [dailyTrend]);
   const trendOptions = useMemo(() => getTrendOptions(), []);
+  const formatDateTime = (value: number | string | Date) => `${formatDateOnly(value)} ${formatTimeOnly(value)}`;
 
   return (
     <>
@@ -70,10 +73,12 @@ const KontribusiBody = ({ data }: KontribusiBodyProps) => {
           <>
             <OverviewPanel totalAktivitas={totalAktivitas} totalPoin={totalPoin} mostActiveDay={mostActiveDay} trendOptions={trendOptions} trendSeries={trendSeries} />
 
-            <ActivityLogList grouped={aktivitasGroupedByDate} formatDateOnly={formatDateOnly} formatTimeOnly={formatTimeOnly} />
+            <ActivityLogList grouped={aktivitasGroupedByDate} formatDateOnly={formatDateOnly} formatTimeOnly={formatTimeOnly} onOpenNote={setSelectedActivity} />
           </>
         )}
       </div>
+
+      <ContributionNoteDialog activity={selectedActivity} open={Boolean(selectedActivity)} onOpenChange={(open) => !open && setSelectedActivity(null)} formatTime={formatDateTime} />
     </>
   );
 };

@@ -4,12 +4,13 @@ import TopikPembahasanDetailHeader from '@/components/pages/Dosen/StudyGroup/Top
 import type { TabsType } from '@/components/pages/Dosen/StudyGroup/TopikDetail/types';
 import type { FilterWithInputRangeValue } from '@/components/shared/Filter/FilterWithInputRange';
 import type { TaskFilterValue } from '@/components/shared/Filter/TaskFilterDropdown';
+import { useDiscussionLatestUpdatePolling } from '@/components/shared/TopikDetail/hooks/useDiscussionLatestUpdatePolling';
 import { extractDiscussionText } from '@/lib/discussion-search';
 import type { ApiResponse } from '@/types/api';
 import type { Task } from '@/types/task';
 import type { ThreadDetail } from '@/types/thread-post';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 const TASK_FILTER_ALL = 'all' as const;
@@ -117,10 +118,21 @@ const TopikDetailContentBase = ({ idTopik, namaTopik, renderTabs }: TopikDetailC
     isLoading: threadDetailIsLoading,
     isError: threadDetailIsError,
     error: threadDetailError,
+    refetch: refetchThreadDetails,
   } = useQuery<ApiResponse<ThreadDetail[]>, Error, ThreadDetail[]>({
     queryKey: ['threads-by-id', idTopik],
     queryFn: () => getThreadsById(idTopik),
     select: (res) => res.data,
+  });
+
+  const handleDiscussionHasUpdate = useCallback(() => {
+    void refetchThreadDetails();
+  }, [refetchThreadDetails]);
+
+  useDiscussionLatestUpdatePolling({
+    threadId: idTopik,
+    enabled: tab === 'discussion' && !threadDetailIsLoading && !threadDetailIsError,
+    onHasUpdate: handleDiscussionHasUpdate,
   });
 
   const filteredThreads = useMemo(() => {

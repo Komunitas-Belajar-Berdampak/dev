@@ -1,7 +1,7 @@
 import { api } from '@/lib/axios';
 import type { StudyGroupQuickEditSchemaType, StudyGroupSchemaType } from '@/schemas/sg';
 import type { ApiResponse } from '@/types/api';
-import type { StudyGroupbyCourse, StudyGroupByMembership, StudyGroupDetail, StudyGroupMemberDetail } from '@/types/sg';
+import type { StudyGroupAssignmentDashboard, StudyGroupbyCourse, StudyGroupByMembership, StudyGroupDetail, StudyGroupMemberDetail } from '@/types/sg';
 
 const getStudyGroupsByCourse = async (courseId: string, page: number = 1, limit: number = 20): Promise<ApiResponse<StudyGroupbyCourse[]>> => {
   const res = await api.get<ApiResponse<StudyGroupbyCourse[]>>(`/sg/course/${courseId}?page=${page}&limit=${limit}`);
@@ -37,8 +37,12 @@ const getStudyGroupMemberById = async (studyGroupId: string, userId: string): Pr
 
 const getStudyGroupsByMembership = async (courseId: string, page: number = 1, limit: number = 10): Promise<ApiResponse<StudyGroupByMembership[]>> => {
   const res = await api.get<ApiResponse<StudyGroupByMembership[]>>(`/sg/course-membership/${courseId}?page=${page}&limit=${limit}`);
-
   return res.data;
 };
 
-export { addStudyGroupByCourse, editStudyGroupById, getStudyGroupById, getStudyGroupMemberById, getStudyGroupsByCourse, getStudyGroupsByMembership, quickEditStudyGroupById };
+const getStudyGroupAssignmentDashboard = async (courseId: string): Promise<ApiResponse<StudyGroupAssignmentDashboard>> => {
+  const res = await api.get<ApiResponse<StudyGroupAssignmentDashboard>>(`/sg/course/${courseId}/assignment-dashboard`);
+  return res.data;
+};
+
+export { addStudyGroupByCourse, editStudyGroupById, getStudyGroupAssignmentDashboard, getStudyGroupById, getStudyGroupMemberById, getStudyGroupsByCourse, getStudyGroupsByMembership, quickEditStudyGroupById };

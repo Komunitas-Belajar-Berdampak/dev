@@ -1,6 +1,6 @@
 import { api } from '@/lib/axios';
 import type { ApiResponse } from '@/types/api';
-import type { Thread, ThreadDetail } from '@/types/thread-post';
+import type { Thread, ThreadDetail, ThreadLatestUpdate } from '@/types/thread-post';
 
 const getThreadsByStudyGroup = async (studyGroupId: string, page: number = 1, limit: number = 20): Promise<ApiResponse<Thread[]>> => {
   const res = await api.get<ApiResponse<Thread[]>>(`/threads/sg/${studyGroupId}?page=${page}&limit=${limit}`);
@@ -17,6 +17,11 @@ const createThreadByStudyGroup = async (studyGroupId: string, payload: { judul: 
 const getThreadsById = async (threadId: string): Promise<ApiResponse<ThreadDetail[]>> => {
   const res = await api.get<ApiResponse<ThreadDetail[]>>(`/threads/${threadId}?page=1&limit=100`);
 
+  return res.data;
+};
+
+const getThreadLatestUpdate = async (threadId: string): Promise<ApiResponse<ThreadLatestUpdate>> => {
+  const res = await api.get<ApiResponse<ThreadLatestUpdate>>(`/threads/${threadId}/latest-update`);
   return res.data;
 };
 
@@ -43,4 +48,4 @@ const deletePost = async (postId: string): Promise<ApiResponse<null>> => {
   return res.data;
 };
 
-export { addPost, createThreadByStudyGroup, deletePost, editPost, getPostById, getThreadsById, getThreadsByStudyGroup };
+export { addPost, createThreadByStudyGroup, deletePost, editPost, getPostById, getThreadLatestUpdate, getThreadsById, getThreadsByStudyGroup };
