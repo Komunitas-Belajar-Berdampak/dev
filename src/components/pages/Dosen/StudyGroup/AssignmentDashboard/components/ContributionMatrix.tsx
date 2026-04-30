@@ -30,44 +30,46 @@ const ContributionMatrix = ({ mode, assignments, rows, visibleRows, maxCellPoint
         {visibleRows.length === 0 ? (
           <NoData message='Tidak ada mahasiswa pada filter ini.' />
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className='min-w-52 text-xs font-semibold text-primary md:text-sm'>Mahasiswa</TableHead>
-                {mode === 'all' && <TableHead className='min-w-44 text-xs font-semibold text-primary md:text-sm'>Study Group</TableHead>}
-                {assignments.map((assignment) => (
-                  <TableHead key={assignment.id} className='min-w-44 text-xs font-semibold text-primary md:text-sm'>
-                    {formatAssignmentLabel(assignment)}
-                  </TableHead>
-                ))}
-                <TableHead className='text-xs font-semibold text-primary md:text-sm'>Total</TableHead>
-                {isWeightEnabled && <TableHead className='min-w-36 text-xs font-semibold text-primary md:text-sm'>Score Berbobot</TableHead>}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {visibleRows.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell className='font-medium text-primary'>
-                    <div className='flex flex-col'>
-                      <span className='text-xs font-bold md:text-sm'>{row.nama}</span>
-                      <span className='text-xs text-accent'>{row.nrp}</span>
-                    </div>
-                  </TableCell>
-                  {mode === 'all' && <TableCell className='text-xs text-black/50 md:text-sm'>{row.groupName}</TableCell>}
-                  {assignments.map((assignment) => {
-                    const points = row.pointsByAssignment[assignment.id] ?? 0;
-                    return (
-                      <TableCell key={assignment.id} className='text-xs font-semibold text-primary md:text-sm' style={{ backgroundColor: getCellBackground(points, maxCellPoints) }}>
-                        {points}
-                      </TableCell>
-                    );
-                  })}
-                  <TableCell className='text-xs font-bold text-primary md:text-sm'>{row.totalPoints}</TableCell>
-                  {isWeightEnabled && <TableCell className='text-xs font-bold text-primary md:text-sm'>{formatScore(row.weightedScore)}</TableCell>}
+          <div className='w-full overflow-x-auto'>
+            <Table className='min-w-max'>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className='min-w-52 text-xs font-semibold text-primary md:text-sm'>Mahasiswa</TableHead>
+                  {mode === 'all' && <TableHead className='min-w-44 text-xs font-semibold text-primary md:text-sm'>Study Group</TableHead>}
+                  {assignments.map((assignment) => (
+                    <TableHead key={assignment.id} className='min-w-44 text-xs font-semibold text-primary md:text-sm'>
+                      {formatAssignmentLabel(assignment)}
+                    </TableHead>
+                  ))}
+                  <TableHead className='text-xs font-semibold text-primary md:text-sm'>Total</TableHead>
+                  {isWeightEnabled && <TableHead className='min-w-36 text-xs font-semibold text-primary md:text-sm'>Score Berbobot</TableHead>}
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {visibleRows.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell className='font-medium text-primary'>
+                      <div className='flex flex-col'>
+                        <span className='text-xs font-bold md:text-sm'>{row.nama}</span>
+                        <span className='text-xs text-accent'>{row.nrp}</span>
+                      </div>
+                    </TableCell>
+                    {mode === 'all' && <TableCell className='text-xs text-black/50 md:text-sm'>{row.groupName}</TableCell>}
+                    {assignments.map((assignment) => {
+                      const points = row.pointsByAssignment[assignment.id] ?? 0;
+                      return (
+                        <TableCell key={assignment.id} className='text-xs font-semibold text-primary md:text-sm' style={{ backgroundColor: getCellBackground(points, maxCellPoints) }}>
+                          {points}
+                        </TableCell>
+                      );
+                    })}
+                    <TableCell className='text-xs font-bold text-primary md:text-sm'>{row.totalPoints}</TableCell>
+                    {isWeightEnabled && <TableCell className='text-xs font-bold text-primary md:text-sm'>{formatScore(row.weightedScore)}</TableCell>}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </CardContent>
     </Card>
