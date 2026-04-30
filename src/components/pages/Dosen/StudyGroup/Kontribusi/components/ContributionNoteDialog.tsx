@@ -12,10 +12,10 @@ type ContributionNoteDialogProps = {
   formatTime: (value: number | string | Date) => string;
 };
 
-const getReviewStatus = (activity: AktivitasItem) => activity.statusReview ?? activity.status ?? (activity.lecturerNote || activity.catatan || activity.finalPoints != null || activity.kontribusi > 0 ? 'REVIEWED' : 'PENDING');
+const getReviewStatus = (activity: AktivitasItem) => activity.statusReview ?? activity.status;
 
 const ContributionNoteDialog = ({ activity, open, onOpenChange, formatTime }: ContributionNoteDialogProps) => {
-  const status = activity ? getReviewStatus(activity) : 'PENDING';
+  const status = activity ? getReviewStatus(activity) : null;
   const isReviewed = status === 'REVIEWED';
   const finalPoints = activity?.finalPoints ?? activity?.kontribusi ?? 0;
   const lecturerNote = isReviewed ? activity?.lecturerNote || activity?.catatan || 'Catatan dosen belum tersedia untuk aktivitas ini.' : 'Catatan dosen belum tersedia karena kontribusi ini masih menunggu review.';
