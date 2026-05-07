@@ -1,7 +1,7 @@
 import { addPost } from '@/api/thread-post';
 import { Button } from '@/components/ui/button';
 import { Field, FieldContent, FieldError, FieldGroup, FieldSet } from '@/components/ui/field';
-import { postSchema, type PostSchemaType } from '@/schemas/post';
+import { hasPendingImageUpload, postSchema, type PostSchemaType } from '@/schemas/post';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { JSONContent } from '@tiptap/react';
@@ -47,6 +47,8 @@ const AddPostContent = ({ idTopik, idSg }: AddPostContentProps) => {
       } satisfies JSONContent,
     },
   });
+  const konten = form.watch('konten') as JSONContent;
+  const isImageUploading = hasPendingImageUpload(konten);
 
   const onSubmit = (data: PostSchemaType) => {
     mutate(data);
@@ -72,8 +74,8 @@ const AddPostContent = ({ idTopik, idSg }: AddPostContentProps) => {
           </FieldGroup>
 
           <Field orientation={'horizontal'} className='flex w-full justify-end gap-4'>
-            <Button type='submit' size={'lg'} className='mt-6 shadow-sm' disabled={isPending}>
-              {isPending ? 'Posting...' : 'Post Discussion'}
+            <Button type='submit' size={'lg'} className='mt-6 shadow-sm' disabled={isPending || isImageUploading}>
+              {isPending ? 'Posting...' : isImageUploading ? 'Uploading image...' : 'Post Discussion'}
             </Button>
 
             <Button variant={'secondary'} size={'lg'} type='button' className='mt-6 shadow-sm border bg-accent hover:opacity-85' onClick={() => navigate(-1)} disabled={isPending}>

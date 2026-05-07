@@ -3,7 +3,7 @@ import PostEditor from '@/components/pages/Dosen/StudyGroup/AddPost/components/P
 import { Button } from '@/components/ui/button';
 import { Field, FieldContent, FieldError, FieldGroup, FieldSet } from '@/components/ui/field';
 import { Skeleton } from '@/components/ui/skeleton';
-import { postSchema, type PostSchemaType } from '@/schemas/post';
+import { hasPendingImageUpload, postSchema, type PostSchemaType } from '@/schemas/post';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { JSONContent } from '@tiptap/react';
@@ -42,6 +42,8 @@ const EditPostContent = ({ idPost, idTopik }: EditPostContentProps) => {
       } satisfies JSONContent,
     },
   });
+  const konten = form.watch('konten') as JSONContent;
+  const isImageUploading = hasPendingImageUpload(konten);
 
   useEffect(() => {
     const konten = post?.konten;
@@ -99,8 +101,8 @@ const EditPostContent = ({ idPost, idTopik }: EditPostContentProps) => {
           </FieldGroup>
 
           <Field orientation={'horizontal'} className='flex w-full justify-end gap-4'>
-            <Button type='submit' size={'lg'} className='mt-6 shadow-sm' disabled={isPending}>
-              {isPending ? 'Saving...' : 'Save'}
+            <Button type='submit' size={'lg'} className='mt-6 shadow-sm' disabled={isPending || isImageUploading}>
+              {isPending ? 'Saving...' : isImageUploading ? 'Uploading image...' : 'Save'}
             </Button>
 
             <Button variant={'secondary'} size={'lg'} type='button' className='mt-6 shadow-sm border bg-accent hover:opacity-85' onClick={() => navigate(-1)} disabled={isPending}>

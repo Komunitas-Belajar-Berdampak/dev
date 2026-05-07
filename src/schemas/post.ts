@@ -15,6 +15,13 @@ const hasMeaningfulContent = (node: JSONContent | undefined): boolean => {
   return (node.content ?? []).some((child) => hasMeaningfulContent(child));
 };
 
+export const hasPendingImageUpload = (node: JSONContent | undefined): boolean => {
+  if (!node) return false;
+  if (node.type === 'imageUpload') return true;
+
+  return (node.content ?? []).some((child) => hasPendingImageUpload(child));
+};
+
 export const postSchema = z.object({
   konten: z
     .custom<JSONContent>((value) => typeof value === 'object' && value !== null, {
@@ -25,6 +32,9 @@ export const postSchema = z.object({
     })
     .refine((value) => hasMeaningfulContent(value as JSONContent), {
       message: '*Konten tidak boleh kosong.',
+    })
+    .refine((value) => !hasPendingImageUpload(value as JSONContent), {
+      message: 'Tunggu upload gambar selesai sebelum menyimpan discussion.',
     }),
 });
 
