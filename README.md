@@ -2,7 +2,7 @@
 
 ## Release Version
 
-Alpha (v0.1.0-alpha)
+Beta (v1.0.0-beta)
 
 ## Tujuan
 
@@ -25,6 +25,7 @@ Platform manajemen pembelajaran kolaboratif untuk tiga peran utama: Super Admin,
 - Manajemen data akademik oleh Super Admin: user, fakultas, program studi, tahun akademik/semester, mata kuliah
 - Fitur Dosen: kelola pertemuan, materi/tugas, penilaian submission, dashboard perkuliahan, dan study group
 - Fitur Mahasiswa: akses mata kuliah, upload submission, kelola private file, dan ikut diskusi study group
+- Study Group: diskusi per topik, polling update diskusi, dashboard kontribusi, review poin kontribusi dosen, dan dashboard assignment dengan simulasi bobot lokal
 - Manajemen profil pengguna
 
 ## Directory Utama
