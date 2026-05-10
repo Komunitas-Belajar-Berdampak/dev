@@ -1,6 +1,8 @@
 import Title from '@/components/shared/Title';
+import { getUser } from '@/lib/authStorage';
 import type { UserProfile } from '@/types/profile';
-import { useParams } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import ProfileContent from './components/ProfileContent';
 import PublicFiles from './components/PublicFiles';
 import { useFetchProfile } from './hooks/useFetchProfile';
@@ -14,6 +16,19 @@ const ProfilePage = () => {
   ];
   const { id } = useParams();
   const { data, isPending } = useFetchProfile(id);
+  const navigate = useNavigate();
+  const currentUser = getUser();
+
+  const isOwnProfile = !id || id === currentUser?.nrp;
+  const isMahasiswa = currentUser?.namaRole === 'MAHASISWA';
+
+  useEffect(() => {
+    if (isPending || !isOwnProfile || !isMahasiswa) return;
+    if (data && (!data.gayaBelajar || data.gayaBelajar.length === 0)) {
+      navigate('/survey', { replace: true });
+    }
+  }, [isPending, data, isOwnProfile, isMahasiswa, navigate]);
+
   return (
     <section
       className=' w-full
