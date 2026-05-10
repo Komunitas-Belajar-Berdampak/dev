@@ -53,6 +53,7 @@ import StudyGroupMainMhs from '@/components/pages/Mahasiswa/StudyGroup/Main';
 import TopikPembahasanDetailMhs from '@/components/pages/Mahasiswa/StudyGroup/TopikDetail';
 import ProfilePage from '@/components/pages/Profile';
 import EditProfilePage from '@/components/pages/Profile/Edit';
+import SurveyPage from '@/components/pages/Survey';
 import FakultasPage from '@/components/pages/SuperAdmin/Fakultas/FakultasPage';
 import MatakuliahDetailPage from '@/components/pages/SuperAdmin/Matakuliah/MatakuliahDetailPage';
 import MatakuliahPage from '@/components/pages/SuperAdmin/Matakuliah/MatakuliahPage';
@@ -67,6 +68,7 @@ import { type RouteObject } from 'react-router-dom';
 import GuestRoute from './GuestRoute';
 import ProtectedRoute from './ProtectedRoute';
 import RoleRedirect from './RoleRedirect';
+import VarkSurveyGuard from './VarkSurveyGuard';
 
 const routes: RouteObject[] = [
   {
@@ -95,6 +97,16 @@ const routes: RouteObject[] = [
         element: <RoleRedirect />,
       },
 
+      {
+        path: '/survey',
+        element: <ProtectedRoute allowedRoles={['MAHASISWA']} />,
+        children: [
+          {
+            index: true,
+            element: <SurveyPage />,
+          },
+        ],
+      },
       {
         path: '/profile',
         element: <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'DOSEN', 'MAHASISWA']} />,
@@ -296,6 +308,9 @@ const routes: RouteObject[] = [
         path: '/mahasiswa',
         children: [
           {
+            element: <VarkSurveyGuard />,
+            children: [
+          {
             path: '',
             index: true,
             element: <MhsDashboard />,
@@ -386,6 +401,8 @@ const routes: RouteObject[] = [
                 path: 'courses/:id',
                 element: <MhsGradeDetail />,
               },
+            ],
+          },
             ],
           },
         ],

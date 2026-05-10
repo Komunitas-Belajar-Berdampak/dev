@@ -1,7 +1,6 @@
 import AvatarUpload from "@/components/shared/AvatarUpload";
 import PasswordInput from "@/components/shared/PasswordInput";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldError, FieldLabel, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
@@ -46,25 +45,6 @@ const status = [
   },
 ];
 
-const learningStyle = [
-  {
-    value: "visual",
-    label: "Visual",
-  },
-  {
-    value: "auditory",
-    label: "Auditory",
-  },
-  {
-    value: "reading/writing",
-    label: "Reading/Writing",
-  },
-  {
-    value: "kinesthetic",
-    label: "Kinesthetic",
-  },
-];
-
 const ProfileContent = ({
   isEditing,
   data,
@@ -84,10 +64,6 @@ const ProfileContent = ({
   const currentUser = getUser();
   const isUser = currentUser?.nrp === data?.nrp;
 
-  const validLearningStyles = learningStyle.map((s) => s.value);
-  const sanitizeGayaBelajar = (values: string[] | undefined): string[] =>
-    (values ?? []).filter((v) => validLearningStyles.includes(v));
-
   const form = useForm<updateProfile>({
     resolver: zodResolver(updateProfileSchema),
     mode: "onSubmit",
@@ -97,9 +73,7 @@ const ProfileContent = ({
       fotoProfil: data?.fotoProfil,
       passwordLama: "",
       passwordBaru: "",
-      gayaBelajar: sanitizeGayaBelajar(
-        data?.gayaBelajar as string[] | undefined,
-      ),
+      gayaBelajar: data?.gayaBelajar ?? [],
     },
   });
 
@@ -111,36 +85,17 @@ const ProfileContent = ({
       fotoProfil: data.fotoProfil as string,
       passwordLama: "",
       passwordBaru: "",
-      gayaBelajar: sanitizeGayaBelajar(
-        data.gayaBelajar as string[] | undefined,
-      ),
+      gayaBelajar: data.gayaBelajar ?? [],
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.id]);
 
-  const gayaBelajarValue = form.watch("gayaBelajar");
-  const gayaBelajarEmpty =
-    data?.namaRole !== "DOSEN" &&
-    (!gayaBelajarValue || gayaBelajarValue.length === 0);
-
   function onSubmit(formData: updateProfile) {
-    if (
-      data?.namaRole !== "DOSEN" &&
-      (!formData.gayaBelajar || formData.gayaBelajar.length === 0)
-    ) {
-      form.setError("gayaBelajar", {
-        type: "manual",
-        message: "Pilih minimal satu gaya belajar",
-      });
-      return;
-    }
     mutate({
       payload: formData,
       gayaBelajarExists: !!data?.gayaBelajar?.length,
     });
   }
-
-  console.log("gaya belajar isine opo cok", gayaBelajarValue);
 
   if (isPending) {
     return (
@@ -355,69 +310,24 @@ const ProfileContent = ({
                   )}
                 </Field>
                 {data?.namaRole !== "DOSEN" && (
-                  <Controller
-                    name="gayaBelajar"
-                    control={form.control}
-                    render={({ field, fieldState }) => (
-                      <Field data-invalid={fieldState.invalid}>
-                        <FieldLabel className="text-gray-400">
-                          Learning Style
-                          {isEditing && (
-                            <span className="text-red-500"> *</span>
-                          )}
-                        </FieldLabel>
-                        <div className="flex items-center gap-4">
-                          {isEditing &&
-                            learningStyle.map((item) => (
-                              <div
-                                key={item.value}
-                                className="flex items-center gap-2"
-                              >
-                                <Checkbox
-                                  className="shadow-xs"
-                                  id={item.value}
-                                  disabled={!isEditing || isSubmitting}
-                                  checked={
-                                    field.value?.includes(item.value) ?? false
-                                  }
-                                  onCheckedChange={(checked) => {
-                                    const current = field.value ?? [];
-                                    if (checked) {
-                                      field.onChange([...current, item.value]);
-                                    } else {
-                                      field.onChange(
-                                        current.filter((v) => v !== item.value),
-                                      );
-                                    }
-                                  }}
-                                />
-                                <label
-                                  htmlFor={item.value}
-                                  className="text-sm cursor-pointer"
-                                >
-                                  {item.label}
-                                </label>
-                              </div>
-                            ))}
-
-                          {!isEditing && (
-                            <p>
-                              {data?.gayaBelajar
-                                ?.map(
-                                  (item) =>
-                                    item.slice(0, 1).toUpperCase() +
-                                    item.slice(1),
-                                )
-                                .join(", ") ?? "-"}
-                            </p>
-                          )}
-                        </div>
-                        {fieldState.invalid && (
-                          <FieldError errors={[fieldState.error]} />
-                        )}
-                      </Field>
+                  <Field>
+                    <FieldLabel className="text-gray-400">
+                      Learning Style
+                    </FieldLabel>
+                    <p>
+                      {data?.gayaBelajar
+                        ?.map(
+                          (item) =>
+                            item.slice(0, 1).toUpperCase() + item.slice(1),
+                        )
+                        .join(", ") || "-"}
+                    </p>
+                    {isEditing && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Gaya belajar ditentukan melalui Kuesioner VARK dan tidak dapat diubah secara manual.
+                      </p>
                     )}
-                  />
+                  </Field>
                 )}
               </div>
             </FieldSet>
@@ -490,7 +400,7 @@ const ProfileContent = ({
               type={"submit"}
               variant={"default"}
               className="lg:ml-auto shadow-sm"
-              disabled={isPending || isSubmitting || gayaBelajarEmpty}
+              disabled={isPending || isSubmitting}
             >
               {isSubmitting ? "Saving..." : "Save"}
             </Button>
