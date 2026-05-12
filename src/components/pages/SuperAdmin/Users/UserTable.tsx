@@ -114,8 +114,8 @@ export default function UserTable() {
   const [page, setPage] = useState(1);
   const limit = 10;
 
-  const { programStudi, loading: loadingProdi } = useProgramStudi();
-  const { roles, loading: loadingRoles } = useRoles();
+  const { programStudi } = useProgramStudi();
+  const { roles } = useRoles();
 
   const programStudiOptions = useMemo(
     () => (programStudi ?? []).map((p: any) => ({ id: String(p._id ?? p.id), nama: String(p.namaProdi ?? p.namaProgramStudi ?? p.nama) })),
@@ -146,7 +146,7 @@ export default function UserTable() {
       const matchesFilter = (() => {
         switch (userFilter.field) {
           case 'nama':
-            return u.nama.toLowerCase().includes(userFilter.keyword.toLowerCase());
+            return u.nama.toLowerCase().includes(keywordLower);
           case 'nrp':
             return userFilter.keyword.trim().length > 0 ? u.nrp.includes(userFilter.keyword) : true;
           case 'prodi': {
