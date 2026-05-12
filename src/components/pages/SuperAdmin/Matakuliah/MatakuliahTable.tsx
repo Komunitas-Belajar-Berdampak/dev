@@ -242,7 +242,7 @@ export default function MatakuliahTable() {
                         {item.status === "Aktif" ? (
                           <Badge variant="success">Aktif</Badge>
                         ) : (
-                          <Badge variant="secondary">Tidak Aktif</Badge>
+                          <Badge variant="danger">Tidak Aktif</Badge>
                         )}
                       </TableCell>
                       <TableCell

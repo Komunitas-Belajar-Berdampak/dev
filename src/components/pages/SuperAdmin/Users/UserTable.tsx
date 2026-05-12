@@ -30,6 +30,10 @@ import {
 } from "@/components/ui/pagination";
 import { useUsers } from "./hooks/useUsers";
 import type { UserEntity, UserTableRow } from "./types/user";
+import FilterUserBy, { type UserFilterValue } from "@/components/shared/Filter/FilterUserBy";
+import { useProgramStudi } from "../ProgramStudi/hooks/useProgramStudi";
+import { useRoles } from "./hooks/useRoles";
+
 
 function mapUserToTable(user: UserEntity): UserTableRow {
   return {
@@ -110,14 +114,70 @@ export default function UserTable() {
   const [page, setPage] = useState(1);
   const limit = 10;
 
+  const { programStudi, loading: loadingProdi } = useProgramStudi();
+  const { roles, loading: loadingRoles } = useRoles();
+
+  const programStudiOptions = useMemo(
+    () => (programStudi ?? []).map((p: any) => ({ id: String(p._id ?? p.id), nama: String(p.namaProdi ?? p.namaProgramStudi ?? p.nama) })),
+    [programStudi],
+  );
+
+  const roleOptions = useMemo(
+    () => (roles ?? []).map((r: any) => ({ id: String(r.id ?? r._id), nama: String(r.nama ?? r.name) })),
+    [roles],
+  );
+
+  const [userFilter, setUserFilter] = useState<UserFilterValue>({
+    field: 'nama',
+    keyword: '',
+    selectedId: 'all',
+  });
+
   const filteredUsers = useMemo(() => {
-    const q = search.toLowerCase();
-    return USERS.filter(
-      (u) =>
-        u.nama.toLowerCase().includes(q) ||
-        u.nrp.includes(search),
-    );
-  }, [USERS, search]);
+    const searchLower = search.toLowerCase();
+    const keywordLower = userFilter.keyword.toLowerCase();
+
+    return USERS.filter((u) => {
+      // existing search
+      const matchesSearch =
+        u.nama.toLowerCase().includes(searchLower) || u.nrp.includes(search);
+
+      // filter by dropdown
+      const matchesFilter = (() => {
+        switch (userFilter.field) {
+          case 'nama':
+            return u.nama.toLowerCase().includes(userFilter.keyword.toLowerCase());
+          case 'nrp':
+            return userFilter.keyword.trim().length > 0 ? u.nrp.includes(userFilter.keyword) : true;
+          case 'prodi': {
+            if (userFilter.selectedId === 'all') return true;
+            const prodiName = programStudiOptions.find((p) => p.id === userFilter.selectedId)?.nama;
+            return prodiName ? u.prodi === prodiName : false;
+          }
+          case 'role': {
+            if (userFilter.selectedId === 'all') return true;
+            const roleName = roleOptions.find((r) => r.id === userFilter.selectedId)?.nama;
+            return roleName ? u.role === roleName : false;
+          }
+          case 'status': {
+            if (userFilter.selectedId === 'all') return true;
+            return u.status === (userFilter.selectedId === 'aktif' ? 'Aktif' : 'Non Aktif');
+          }
+          default:
+            return true;
+        }
+      })();
+
+      const isFilterActive =
+        userFilter.field === 'status'
+          ? userFilter.selectedId !== 'all'
+          : userFilter.field === 'prodi' || userFilter.field === 'role'
+            ? userFilter.selectedId !== 'all'
+            : userFilter.keyword.trim().length > 0;
+
+      return matchesSearch && (!isFilterActive || matchesFilter);
+    });
+  }, [USERS, search, userFilter, programStudiOptions, roleOptions]);
 
   const totalPages = Math.ceil(filteredUsers.length / limit);
   const paginatedUsers = filteredUsers.slice((page - 1) * limit, page * limit);
@@ -164,13 +224,29 @@ export default function UserTable() {
           </Button>
         </div>
 
-        <Button
-          onClick={() => setOpenAdd(true)}
-          className="w-full sm:w-auto border-2 border-black shadow-[3px_3px_0_0_#000]"
-        >
-          <Icon icon="icon-park-solid:add" className="mr-2" />
-          Add User
-        </Button>
+        <div className="flex w-full sm:w-auto gap-2">
+          <FilterUserBy
+            value={userFilter}
+            onValueChange={(v) => {
+              setUserFilter(v);
+              setPage(1);
+            }}
+            programStudiOptions={programStudiOptions}
+            roleOptions={roleOptions}
+            label="Filter by.."
+            buttonClassName="w-full sm:w-auto border-1 border-black shadow-[3px_3px_0_0_#000]"
+            contentClassName="border-2 border-black"
+            widthClassName="w-80"
+          />
+
+          <Button
+            onClick={() => setOpenAdd(true)}
+            className="w-full sm:w-auto border-2 border-black shadow-[3px_3px_0_0_#000]"
+          >
+            <Icon icon="icon-park-solid:add" className="mr-2" />
+            Add User
+          </Button>
+        </div>
       </div>
 
       <div className="relative -mx-4 sm:mx-0">
