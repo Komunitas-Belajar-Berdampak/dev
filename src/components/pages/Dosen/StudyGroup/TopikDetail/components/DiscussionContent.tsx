@@ -67,7 +67,7 @@ const DiscussionContent = ({ threadDetailQuery, discussionSearchKeyword = '' }: 
                   </div>
 
                   <div className='w-full flex justify-end items-center gap-2 md:gap-4'>
-                    <p className='text-xs md:text-sm text-accent'>
+                    <p className='text-xs md:text-sm text-primary/60 font-medium'>
                       {isEditedPost(thread) ? 'edited - ' : ''}
                       {formatDateTime(thread.updatedAt, { dateLocale: 'en-GB', timeLocale: 'en-GB', hour12: false })}
                     </p>
