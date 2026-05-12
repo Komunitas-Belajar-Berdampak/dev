@@ -35,7 +35,7 @@ const getStudyGroupMemberById = async (studyGroupId: string, userId: string): Pr
   return res.data;
 };
 
-const getStudyGroupsByMembership = async (courseId: string, page: number = 1, limit: number = 10): Promise<ApiResponse<StudyGroupByMembership[]>> => {
+const getStudyGroupsByMembership = async (courseId: string, page: number = 1, limit: number = 20): Promise<ApiResponse<StudyGroupByMembership[]>> => {
   const res = await api.get<ApiResponse<StudyGroupByMembership[]>>(`/sg/course-membership/${courseId}?page=${page}&limit=${limit}`);
   return res.data;
 };
