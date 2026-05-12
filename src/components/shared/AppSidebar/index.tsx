@@ -4,6 +4,21 @@ import { useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import menuItems from './menu-items';
 
+const exactOnlyPaths = new Set(['/admin', '/dosen', '/mahasiswa']);
+
+const isPathActive = (pathname: string, targetPath: string, exactOnly = false) => {
+  if (pathname === targetPath) return true;
+  if (exactOnly) return false;
+
+  return pathname.startsWith(`${targetPath}/`);
+};
+
+const isMenuItemActive = (pathname: string, item: (typeof menuItems)[number]) => {
+  if (isPathActive(pathname, item.path, exactOnlyPaths.has(item.path))) return true;
+
+  return item.activePaths?.some((activePath) => isPathActive(pathname, activePath)) ?? false;
+};
+
 const AppSidebar = () => {
   const location = useLocation();
   const { isMobile, setOpenMobile } = useSidebar();
@@ -46,7 +61,7 @@ const AppSidebar = () => {
         <SidebarGroup>
           <SidebarMenu>
             {filteredMenuItems.map((item) => {
-              const isActive = location.pathname === item.path;
+              const isActive = isMenuItemActive(location.pathname, item);
               return (
                 <SidebarMenuItem key={item.title} className='py-1'>
                   <SidebarMenuButton asChild isActive={isActive}>

@@ -5,6 +5,7 @@ import type { ReactElement } from 'react';
 type MenuItem = {
   title: string;
   path: string;
+  activePaths?: string[];
   icon: ReactElement;
   role: Role[];
 };
@@ -52,6 +53,7 @@ const menuItems: MenuItem[] = [
   {
     title: 'Courses',
     path: '/dosen',
+    activePaths: ['/dosen/courses'],
     icon: <Icon icon='akar-icons:dashboard' />,
     role: ['DOSEN'],
   },
