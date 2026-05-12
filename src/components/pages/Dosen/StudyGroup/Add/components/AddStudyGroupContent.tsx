@@ -58,7 +58,7 @@ const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
   const mahasiswaCourse = data?.data.mahasiswa;
 
   const idItems = useMemo(() => mahasiswaCourse?.map((m) => m.id).filter((id) => !blockedMemberIds.has(id)) ?? [], [mahasiswaCourse, blockedMemberIds]);
-  const namaById = useMemo(() => new Map(mahasiswaCourse?.map((m) => [m.id, m.nama])), [mahasiswaCourse]);
+  const memberById = useMemo(() => new Map(mahasiswaCourse?.map((m) => [m.id, { nama: m.nama, nrp: m.nrp }])), [mahasiswaCourse]);
   const isLoadingEligibleMembers = isLoadingSgByCourse || sgDetails.some((q) => q.isLoading);
 
   // kirim data ke api
@@ -160,7 +160,7 @@ const AddStudyGroupContent = ({ idMatkul }: AddStudyGroupContentProps) => {
                   )}
                 />
 
-                <StudyGroupMembersField control={form.control} name='idMahasiswa' items={idItems} namaById={namaById} kapasitas={kapasitas} isLoading={isLoading || isLoadingEligibleMembers} />
+                <StudyGroupMembersField control={form.control} name='idMahasiswa' items={idItems} memberById={memberById} kapasitas={kapasitas} isLoading={isLoading || isLoadingEligibleMembers} />
               </div>
 
               <Controller

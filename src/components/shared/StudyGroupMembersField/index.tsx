@@ -2,18 +2,19 @@ import { Combobox, ComboboxChip, ComboboxChips, ComboboxChipsInput, ComboboxCont
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Controller, type Control, type FieldValues, type Path } from 'react-hook-form';
 import { toast } from 'sonner';
+import { getStudyGroupMemberName, isStudyGroupMemberMatch, type StudyGroupMemberOption } from './utils';
 
 type StudyGroupMembersFieldProps<TFieldValues extends FieldValues> = {
   control: Control<TFieldValues>;
   name: Path<TFieldValues>;
   items: string[];
-  namaById: Map<string, string>;
+  memberById: Map<string, StudyGroupMemberOption>;
   kapasitas: number;
   isLoading?: boolean;
   label?: string;
 };
 
-export function StudyGroupMembersField<TFieldValues extends FieldValues>({ control, name, items, namaById, kapasitas, isLoading, label = 'Masukkan Anggota (Optional)' }: StudyGroupMembersFieldProps<TFieldValues>) {
+export function StudyGroupMembersField<TFieldValues extends FieldValues>({ control, name, items, memberById, kapasitas, isLoading, label = 'Masukkan Anggota (Optional)' }: StudyGroupMembersFieldProps<TFieldValues>) {
   const anchor = useComboboxAnchor();
 
   return (
@@ -31,6 +32,7 @@ export function StudyGroupMembersField<TFieldValues extends FieldValues>({ contr
             autoHighlight
             items={[...new Set([...(items ?? []), ...(((field.value as string[]) ?? []) as string[])])]}
             value={(field.value as string[]) ?? []}
+            filter={(id, query) => isStudyGroupMemberMatch(String(id), query, memberById)}
             onValueChange={(nextValue) => {
               if (nextValue == null) {
                 field.onChange([]);
@@ -67,7 +69,7 @@ export function StudyGroupMembersField<TFieldValues extends FieldValues>({ contr
                 {(values) => (
                   <>
                     {(values as string[]).map((id: string) => (
-                      <ComboboxChip key={`${id}`}>{namaById.get(id) ?? id}</ComboboxChip>
+                      <ComboboxChip key={`${id}`}>{getStudyGroupMemberName(id, memberById)}</ComboboxChip>
                     ))}
 
                     <ComboboxChipsInput />
@@ -83,7 +85,10 @@ export function StudyGroupMembersField<TFieldValues extends FieldValues>({ contr
                 ) : (
                   (id) => (
                     <ComboboxItem key={id} value={id}>
-                      {namaById.get(id) ?? id}
+                      <div className='flex min-w-0 flex-col'>
+                        <span className='truncate'>{getStudyGroupMemberName(String(id), memberById)}</span>
+                        {memberById.get(String(id))?.nrp && <span className='text-xs text-accent'>{memberById.get(String(id))?.nrp}</span>}
+                      </div>
                     </ComboboxItem>
                   )
                 )}

@@ -41,11 +41,11 @@ const EditStudyGroupForm = ({ idMatkul, idSg, courseData, studyGroupData, blocke
     return allMahasiswaIds.filter((id) => !blockedSet.has(id) || anggotaSgIds.includes(id));
   }, [allMahasiswaIds, blockedMemberIds, anggotaSgIds]);
 
-  // Map id → nama dari kedua sumber supaya chips & dropdown selalu punya label
-  const namaById = useMemo(() => {
-    const map = new Map<string, string>();
-    mahasiswaCourse.forEach((m) => map.set(m.id, m.nama));
-    anggotaSg.forEach((a) => map.set(a.id, a.nama));
+  // Map id -> data member dari kedua sumber supaya chips, dropdown, dan search selalu punya label
+  const memberById = useMemo(() => {
+    const map = new Map<string, { nama: string; nrp?: string | null }>();
+    mahasiswaCourse.forEach((m) => map.set(m.id, { nama: m.nama, nrp: m.nrp }));
+    anggotaSg.forEach((a) => map.set(a.id, { nama: a.nama, nrp: a.nrp }));
     return map;
   }, [mahasiswaCourse, anggotaSg]);
 
@@ -149,7 +149,7 @@ const EditStudyGroupForm = ({ idMatkul, idSg, courseData, studyGroupData, blocke
                   )}
                 />
 
-                <EditStudyGroupMembersField control={form.control} allMahasiswaIds={selectableMahasiswaIds} namaById={namaById} />
+                <EditStudyGroupMembersField control={form.control} allMahasiswaIds={selectableMahasiswaIds} memberById={memberById} />
               </div>
 
               <Controller

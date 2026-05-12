@@ -1,5 +1,6 @@
 import { Combobox, ComboboxChip, ComboboxChips, ComboboxChipsInput, ComboboxContent, ComboboxEmpty, ComboboxItem, ComboboxList, ComboboxValue, useComboboxAnchor } from '@/components/ui/combobox';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { getStudyGroupMemberName, isStudyGroupMemberMatch, type StudyGroupMemberOption } from '@/components/shared/StudyGroupMembersField/utils';
 import type { StudyGroupSchemaType } from '@/schemas/sg';
 import { Controller, useWatch, type Control } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -7,10 +8,10 @@ import { toast } from 'sonner';
 type EditStudyGroupMembersFieldProps = {
   control: Control<StudyGroupSchemaType>;
   allMahasiswaIds: string[];
-  namaById: Map<string, string>;
+  memberById: Map<string, StudyGroupMemberOption>;
 };
 
-const EditStudyGroupMembersField = ({ control, allMahasiswaIds, namaById }: EditStudyGroupMembersFieldProps) => {
+const EditStudyGroupMembersField = ({ control, allMahasiswaIds, memberById }: EditStudyGroupMembersFieldProps) => {
   const anchor = useComboboxAnchor();
 
   // Baca kapasitas langsung dari form supaya selalu sinkron
@@ -37,6 +38,7 @@ const EditStudyGroupMembersField = ({ control, allMahasiswaIds, namaById }: Edit
               autoHighlight
               items={comboboxItems}
               value={selected}
+              filter={(id, query) => isStudyGroupMemberMatch(String(id), query, memberById)}
               onValueChange={(nextValue) => {
                 if (nextValue == null) {
                   field.onChange([]);
@@ -73,7 +75,7 @@ const EditStudyGroupMembersField = ({ control, allMahasiswaIds, namaById }: Edit
                   {(values) => (
                     <>
                       {(values as string[]).map((id: string) => (
-                        <ComboboxChip key={id}>{namaById.get(id) ?? id}</ComboboxChip>
+                        <ComboboxChip key={id}>{getStudyGroupMemberName(id, memberById)}</ComboboxChip>
                       ))}
                       <ComboboxChipsInput />
                     </>
@@ -85,7 +87,10 @@ const EditStudyGroupMembersField = ({ control, allMahasiswaIds, namaById }: Edit
                 <ComboboxList>
                   {(id) => (
                     <ComboboxItem key={id} value={id}>
-                      {namaById.get(id) ?? id}
+                      <div className='flex min-w-0 flex-col'>
+                        <span className='truncate'>{getStudyGroupMemberName(String(id), memberById)}</span>
+                        {memberById.get(String(id))?.nrp && <span className='text-xs text-accent'>{memberById.get(String(id))?.nrp}</span>}
+                      </div>
                     </ComboboxItem>
                   )}
                 </ComboboxList>
