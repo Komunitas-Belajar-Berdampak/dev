@@ -258,7 +258,7 @@ function PengajarTab({
         onClose={() => setOpenAdd(false)}
         existingIds={pengajar.map((p) => p.id)}
         onSubmit={async (payload) => {
-          await addMutation.mutateAsync([payload.id]);
+          await addMutation.mutateAsync(payload.ids);
           setPage(1);
         }}
       />
@@ -424,7 +424,7 @@ function MahasiswaTab({
         onClose={() => setOpenAdd(false)}
         existingIds={mahasiswa.map((m) => m.id)}
         onSubmit={async (payload) => {
-          await addMutation.mutateAsync([payload.id]);
+          await addMutation.mutateAsync(payload.ids);
           setPage(1);
         }}
       />

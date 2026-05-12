@@ -247,12 +247,17 @@ export default function DeskripsiPage() {
     },
   });
 
+  // Simpan & render konsisten sebagai HTML string.
+  // Di API sekarang updateDeskripsi mengirim deskripsi: { content: htmlString }, jadi load harusnya juga HTML.
   const deskripsiContent =
-    typeof data?.deskripsi === "object" && data?.deskripsi !== null
-      ? (data.deskripsi as any).content ?? ""
-      : (data?.deskripsi as string) ?? "";
+    typeof data?.deskripsi === "string"
+      ? data.deskripsi
+      : typeof data?.deskripsi === "object" && data?.deskripsi !== null
+        ? (data.deskripsi as any).content ?? ""
+        : "";
 
   useEffect(() => {
+
     if (!isLoading && editor && deskripsiContent) {
       editor.commands.setContent(deskripsiContent);
     }
