@@ -1,4 +1,3 @@
-import { getAssignmentsByCourse } from '@/api/assignment';
 import { createThreadByStudyGroup } from '@/api/thread-post';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -6,10 +5,9 @@ import { Field, FieldError, FieldGroup, FieldLabel, FieldSet } from '@/component
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { threadSchema, type ThreadSchemaType } from '@/schemas/thread';
-import type { ApiResponse } from '@/types/api';
 import type { Assignment } from '@/types/assignment';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -18,10 +16,11 @@ type DialogAddThreadProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   idSg: string;
-  idCourse: string;
+  assignments: Assignment[];
+  isAssignmentsLoading: boolean;
 };
 
-const DialogAddThread = ({ open, onOpenChange, idSg, idCourse }: DialogAddThreadProps) => {
+const DialogAddThread = ({ open, onOpenChange, idSg, assignments, isAssignmentsLoading }: DialogAddThreadProps) => {
   const queryClient = useQueryClient();
 
   const form = useForm<ThreadSchemaType>({
@@ -31,23 +30,6 @@ const DialogAddThread = ({ open, onOpenChange, idSg, idCourse }: DialogAddThread
       idAssignment: '',
     },
   });
-
-  const {
-    data: assignments,
-    isLoading: isAssignmentsLoading,
-    isError: isAssignmentsError,
-    error: assignmentsError,
-  } = useQuery<ApiResponse<Assignment[]>, Error, Assignment[]>({
-    queryKey: ['assignments-by-course', idCourse],
-    queryFn: () => getAssignmentsByCourse(idCourse),
-    select: (res) => res.data,
-    enabled: open,
-  });
-
-  useEffect(() => {
-    if (!isAssignmentsError) return;
-    toast.error(assignmentsError?.message || 'Gagal mengambil daftar assignment.', { toasterId: 'global' });
-  }, [assignmentsError?.message, isAssignmentsError]);
 
   const { mutate, isPending } = useMutation({
     mutationFn: (values: ThreadSchemaType) => createThreadByStudyGroup(idSg, { judul: values.judul, idAssignment: values.idAssignment }),
@@ -73,7 +55,7 @@ const DialogAddThread = ({ open, onOpenChange, idSg, idCourse }: DialogAddThread
     mutate(values);
   };
 
-  const hasAssignments = (assignments?.length ?? 0) > 0;
+  const hasAssignments = assignments.length > 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -115,7 +97,7 @@ const DialogAddThread = ({ open, onOpenChange, idSg, idCourse }: DialogAddThread
                         </SelectTrigger>
                         <SelectContent>
                           {hasAssignments ? (
-                            assignments?.map((a) => (
+                            assignments.map((a) => (
                               <SelectItem key={a.id} value={a.id}>
                                 Pertemuan {a.pertemuan} - {a.judul}
                               </SelectItem>

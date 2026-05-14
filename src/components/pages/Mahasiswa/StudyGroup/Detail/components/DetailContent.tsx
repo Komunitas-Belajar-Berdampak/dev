@@ -1,3 +1,4 @@
+import { getAssignmentsByCourse } from '@/api/assignment';
 import { getStudyGroupById, quickEditStudyGroupById } from '@/api/study-group';
 import DashboardKontribusiContent from '@/components/pages/Dosen/StudyGroup/Detail/components/DashboardKontribusiContent';
 import StudyGroupDetailContentSkeleton from '@/components/pages/Dosen/StudyGroup/Detail/components/StudyGroupDetailContentSkeleton';
@@ -7,6 +8,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { StudyGroupQuickEditSchemaType } from '@/schemas/sg';
 import type { ApiResponse } from '@/types/api';
+import type { Assignment } from '@/types/assignment';
 import type { StudyGroupDetail } from '@/types/sg';
 import { Icon } from '@iconify/react';
 import { DialogTrigger } from '@radix-ui/react-dialog';
@@ -38,6 +40,18 @@ const DetailContent = ({ idSg, namaSg, idCourse }: DetailContentProps) => {
     refetchOnMount: 'always',
   });
 
+  const {
+    data: assignments,
+    isLoading: isAssignmentsLoading,
+    isError: isAssignmentsError,
+    error: assignmentsError,
+  } = useQuery<ApiResponse<Assignment[]>, Error, Assignment[]>({
+    queryKey: ['assignments-by-course', idCourse],
+    queryFn: () => getAssignmentsByCourse(idCourse),
+    select: (res) => res.data,
+    enabled: tab === 'topik-pembahasan' && Boolean(idCourse),
+  });
+
   const { mutate: saveEdit, isPending: isSavingEdit } = useMutation({
     mutationFn: async (values: StudyGroupQuickEditSchemaType) => quickEditStudyGroupById(idSg, values),
     onSuccess: async (res) => {
@@ -58,6 +72,11 @@ const DetailContent = ({ idSg, namaSg, idCourse }: DetailContentProps) => {
     if (!isError) return;
     toast.error(error?.message || 'Gagal mengambil detail study group.', { toasterId: 'global' });
   }, [error?.message, isError]);
+
+  useEffect(() => {
+    if (!isAssignmentsError) return;
+    toast.error(assignmentsError?.message || 'Gagal mengambil daftar assignment.', { toasterId: 'global' });
+  }, [assignmentsError?.message, isAssignmentsError]);
 
   const sortedAnggota = useMemo(() => {
     const members = data?.anggota ?? [];
@@ -116,7 +135,7 @@ const DetailContent = ({ idSg, namaSg, idCourse }: DetailContentProps) => {
         </TabsContent>
         <TabsContent value='topik-pembahasan'>
           {/* topik pembahasan */}
-          <DialogAddThread open={isAddThreadOpen} onOpenChange={setIsAddThreadOpen} idSg={idSg} idCourse={idCourse} />
+          <DialogAddThread open={isAddThreadOpen} onOpenChange={setIsAddThreadOpen} idSg={idSg} assignments={assignments ?? []} isAssignmentsLoading={isAssignmentsLoading} />
           <TopikPembahasanContent idSg={idSg} />
         </TabsContent>
       </Tabs>
