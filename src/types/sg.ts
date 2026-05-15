@@ -5,6 +5,7 @@ export type StudyGroupbyCourse = {
   totalAnggota: number;
   status: boolean;
   totalRequest: number;
+  totalReview?: number;
   totalKontribusi: number;
 };
 
