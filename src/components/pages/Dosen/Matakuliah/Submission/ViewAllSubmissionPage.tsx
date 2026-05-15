@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useSubmissions } from "../hooks/useSubmissions";
 import { useAssignmentsByCourse } from "../hooks/useAssignmentsByCourse";
+import { useDownloadSubmissions } from "../hooks/useDownloadSubmission";
 import Title from "@/components/shared/Title";
 import { Icon } from "@iconify/react";
 
@@ -84,6 +85,102 @@ function Pagination({
       >
         <Icon icon="mdi:chevron-right" className="text-base" />
       </button>
+    </div>
+  );
+}
+
+function DownloadButton({
+  assignmentId,
+  zipName,
+}: {
+  assignmentId: string;
+  zipName: string;
+}) {
+  const { state, download, isLoading } = useDownloadSubmissions();
+
+  const getLabel = () => {
+    switch (state.status) {
+      case "fetching":
+        return state.message;
+      case "downloading":
+        return `Mengunduh file... (${state.current}/${state.total})`;
+      case "zipping":
+        return state.message;
+      case "done":
+        return "Selesai!";
+      case "error":
+        return "Gagal, coba lagi";
+      default:
+        return "Download Semua";
+    }
+  };
+
+  const getIcon = () => {
+    switch (state.status) {
+      case "done":
+        return "mdi:check-circle-outline";
+      case "error":
+        return "mdi:alert-circle-outline";
+      default:
+        return isLoading ? "mdi:loading" : "mdi:download-outline";
+    }
+  };
+
+  const progressPercent =
+    state.status === "downloading" && state.total > 0
+      ? Math.round((state.current / state.total) * 100)
+      : null;
+
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <button
+        onClick={() => download(assignmentId, zipName)}
+        disabled={isLoading}
+        className="
+          relative overflow-hidden
+          inline-flex items-center gap-2
+          px-6 py-3 rounded-xl
+          bg-white text-primary
+          font-semibold text-sm
+          border-2 border-black
+          shadow-[4px_4px_0_0_#000]
+          transition-all duration-150
+          hover:translate-x-[2px] hover:translate-y-[2px]
+          hover:shadow-[2px_2px_0_0_#000]
+          active:translate-x-[4px] active:translate-y-[4px]
+          active:shadow-none
+          disabled:opacity-70 disabled:pointer-events-none
+        "
+      >
+        {/* Progress fill background */}
+        {progressPercent !== null && (
+          <span
+            className="absolute inset-0 bg-primary/10 transition-all duration-300"
+            style={{ width: `${progressPercent}%` }}
+          />
+        )}
+        <Icon
+          icon={getIcon()}
+          className={`text-base relative z-10 ${isLoading && state.status !== "done" ? "animate-spin" : ""}`}
+        />
+        <span className="relative z-10">{getLabel()}</span>
+      </button>
+
+      {/* Progress bar for downloading stage */}
+      {state.status === "downloading" && state.total > 0 && (
+        <div className="w-48 h-1.5 rounded-full bg-gray-200 overflow-hidden">
+          <div
+            className="h-full bg-primary rounded-full transition-all duration-300"
+            style={{
+              width: `${Math.round((state.current / state.total) * 100)}%`,
+            }}
+          />
+        </div>
+      )}
+
+      {state.status === "error" && (
+        <p className="text-xs text-red-500">{state.message}</p>
+      )}
     </div>
   );
 }
@@ -222,7 +319,15 @@ export default function ViewAllSubmissionPage() {
         </>
       )}
 
-      <div className="flex justify-center pt-2">
+      {/* Action buttons */}
+      <div className="flex flex-wrap justify-center gap-4 pt-2">
+        {assignmentId && (
+          <DownloadButton
+            assignmentId={assignmentId}
+            zipName={judulTugas.replace(/\s+/g, "_")}
+          />
+        )}
+
         <button
           onClick={() =>
             navigate(
