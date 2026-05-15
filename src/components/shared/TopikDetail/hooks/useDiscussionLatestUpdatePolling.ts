@@ -4,12 +4,12 @@ import type { ThreadLatestUpdate } from '@/types/thread-post';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 
-const DISCUSSION_UPDATE_POLL_INTERVAL_MS = 5000;
+const DISCUSSION_UPDATE_POLL_INTERVAL_MS = 500;
 
 type UseDiscussionLatestUpdatePollingParams = {
   threadId: string;
   enabled: boolean;
-  onHasUpdate: () => void;
+  onHasUpdate: () => void | Promise<void>;
 };
 
 const getLatestUpdateFingerprint = (latestUpdate: ThreadLatestUpdate) => `${latestUpdate.latestUpdatedAt ?? 'empty'}:${latestUpdate.totalPosts}`;
@@ -59,6 +59,6 @@ export const useDiscussionLatestUpdatePolling = ({ threadId, enabled, onHasUpdat
     if (latestUpdateFingerprintRef.current === nextFingerprint) return;
 
     latestUpdateFingerprintRef.current = nextFingerprint;
-    onHasUpdate();
+    void onHasUpdate();
   }, [latestUpdateData, onHasUpdate]);
 };

@@ -107,14 +107,14 @@ const DiscussionContent = ({ threadDetailQuery, discussionSearchKeyword = '' }: 
           {(canScrollUp || canScrollDown) && (
             <div className='fixed right-4 bottom-6 md:right-8 md:bottom-8 z-40 flex flex-col gap-2'>
               {canScrollUp && (
-                <Button type='button' variant='default' size='icon' onClick={scrollToTop} className='rounded-full shadow-sm' aria-label='Scroll ke atas'>
-                  <ArrowUp className='size-4' />
+                <Button type='button' variant='default' size='icon' onClick={scrollToTop} className='size-11 rounded-full border bg-primary text-white shadow-lg hover:bg-primary/90 md:size-12' aria-label='Scroll ke atas'>
+                  <ArrowUp className='size-5' />
                 </Button>
               )}
 
               {canScrollDown && (
-                <Button type='button' variant='default' size='icon' onClick={scrollToBottom} className='rounded-full shadow-sm' aria-label='Scroll ke bawah'>
-                  <ArrowDown className='size-4' />
+                <Button type='button' variant='default' size='icon' onClick={scrollToBottom} className='size-11 rounded-full border bg-primary text-white shadow-lg hover:bg-primary/90 md:size-12' aria-label='Scroll ke bawah'>
+                  <ArrowDown className='size-5' />
                 </Button>
               )}
             </div>

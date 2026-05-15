@@ -5,6 +5,7 @@ import type { TabsType } from '@/components/pages/Dosen/StudyGroup/TopikDetail/t
 import type { FilterWithInputRangeValue } from '@/components/shared/Filter/FilterWithInputRange';
 import type { TaskFilterValue } from '@/components/shared/Filter/TaskFilterDropdown';
 import { useDiscussionLatestUpdatePolling } from '@/components/shared/TopikDetail/hooks/useDiscussionLatestUpdatePolling';
+import { getUser } from '@/lib/authStorage';
 import { extractDiscussionText } from '@/lib/discussion-search';
 import type { ApiResponse } from '@/types/api';
 import type { Task } from '@/types/task';
@@ -12,6 +13,7 @@ import type { ThreadDetail } from '@/types/thread-post';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const TASK_FILTER_ALL = 'all' as const;
 
@@ -46,6 +48,13 @@ const getTabFromQuery = (tab: string | null): TabsType => {
   if (tab === 'discussion') return 'discussion';
   return 'todolist';
 };
+
+const getLatestThread = (threads: ThreadDetail[]) =>
+  [...threads].sort((a, b) => {
+    const firstDate = new Date(a.updatedAt).getTime();
+    const secondDate = new Date(b.updatedAt).getTime();
+    return secondDate - firstDate;
+  })[0];
 
 const TopikDetailContentBase = ({ idTopik, namaTopik, renderTabs }: TopikDetailContentBaseProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -125,8 +134,17 @@ const TopikDetailContentBase = ({ idTopik, namaTopik, renderTabs }: TopikDetailC
     select: (res) => res.data,
   });
 
-  const handleDiscussionHasUpdate = useCallback(() => {
-    void refetchThreadDetails();
+  const handleDiscussionHasUpdate = useCallback(async () => {
+    const result = await refetchThreadDetails();
+    if (!result.isSuccess) return;
+
+    const latestThread = getLatestThread(result.data ?? []);
+    if (latestThread?.author.nrp === getUser()?.nrp) return;
+
+    toast.success('Ada diskusi terbaru!', {
+      id: 'discussion-latest-update',
+      toasterId: 'global',
+    });
   }, [refetchThreadDetails]);
 
   useDiscussionLatestUpdatePolling({

@@ -1,3 +1,4 @@
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Circle from '@/components/ui/circle';
 import type { StudyGroupbyCourse } from '@/types/sg';
@@ -39,9 +40,21 @@ const StudyGroupList = ({ studygroups }: StudyGroupListProps) => {
               </div>
 
               <div className='flex flex-row items-center justify-between'>
-                <p className='text-accent text-xs md:text-sm'>
-                  {sg.totalAnggota} / {sg.kapasitas} Anggota ({sg.totalRequest} Requests)
-                </p>
+                <div className='flex flex-wrap items-center gap-2'>
+                  <Badge variant='outline' className='shadow-none border-accent bg-white text-primary '>
+                    Anggota: {sg.totalAnggota}/{sg.kapasitas}
+                  </Badge>
+                  {(sg.totalRequest ?? 0) > 0  && (
+                    <Badge variant='outline' className='border-accent bg-white text-primary shadow-none'>
+                      Request: {sg.totalRequest}
+                    </Badge>
+                  )}
+                  {(sg.totalReview ?? 0) > 0 && (
+                    <Badge variant='outline' className='border-accent bg-white text-primary shadow-none'>
+                      Review: {sg.totalReview}
+                    </Badge>
+                  )}
+                </div>
                 <Link to={`${sg.nama}/${sg.id}/edit`} className='text-sm text-primary  underline ml-2' onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
                   <Button variant={'ghost'} size='icon-sm' className='shadow-none  bg-primary w-7 h-7'>
                     <Edit size={15} className='text-white size-3.5' />
