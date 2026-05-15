@@ -21,8 +21,19 @@ export type SubmissionSummary = {
   tugasJudul: string;
 };
 
+export type PaginationMeta = {
+  page: number;
+  limit: number;
+  total_items: number;
+  total_pages: number;
+};
+
+export type SubmissionListResponse = {
+  data: SubmissionItem[];
+  pagination: PaginationMeta;
+};
+
 export const SubmissionService = {
-  // GET /api/submissions/{idAssignment}/summary (dummy — sesuaikan kalau BE ready)
   async getSummary(idAssignment: string): Promise<SubmissionSummary> {
     const res = await api.get<any>(`/submissions/${idAssignment}/summary`);
     const d = res.data?.data ?? res.data;
@@ -35,13 +46,25 @@ export const SubmissionService = {
     };
   },
 
-  // GET /api/submissions/{idAssignment}/all
-  async getAll(idAssignment: string): Promise<SubmissionItem[]> {
-    const res = await api.get<any>(`/submissions/${idAssignment}/all`);
+  // GET /api/submissions/{idAssignment}/all?page=1&limit=10
+  async getAll(
+    idAssignment: string,
+    page = 1,
+    limit = 10
+  ): Promise<SubmissionListResponse> {
+    const res = await api.get<any>(`/submissions/${idAssignment}/all`, {
+      params: { page, limit },
+    });
     const payload = res.data;
-    if (Array.isArray(payload?.data)) return payload.data;
-    if (Array.isArray(payload)) return payload;
-    return [];
+    return {
+      data: Array.isArray(payload?.data) ? payload.data : [],
+      pagination: payload?.pagination ?? {
+        page,
+        limit,
+        total_items: 0,
+        total_pages: 1,
+      },
+    };
   },
 
   // PATCH /api/submissions/assignments/{idAssignment}/submissions/{idSubmission}/grade
