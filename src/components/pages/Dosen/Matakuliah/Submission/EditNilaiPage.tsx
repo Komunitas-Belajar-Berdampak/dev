@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { useSubmissions } from "../hooks/useSubmissions";
 import { useAssignmentsByCourse } from "../hooks/useAssignmentsByCourse";
 import { SubmissionService } from "../services/submission.service";
+import { useQueryClient } from "@tanstack/react-query";
 import Title from "@/components/shared/Title";
 import { Icon } from "@iconify/react";
 
@@ -91,6 +92,7 @@ function Pagination({
 }
 
 export default function EditNilaiPage() {
+  const queryClient = useQueryClient();
   const { id: idCourse, assignmentId } = useParams<{
     id: string;
     assignmentId: string;
@@ -159,6 +161,12 @@ export default function EditNilaiPage() {
         style: { background: "#16a34a", color: "#ffffff", border: "none", alignItems: "flex-start" },
         descriptionClassName: "!text-white/90",
       });
+
+      // Sync nilai di halaman view submissions/edit tanpa harus refresh manual
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["submissions", assignmentId] }),
+        queryClient.invalidateQueries({ queryKey: ["nilai-mahasiswa", idCourse, undefined] }),
+      ]);
 
       setTimeout(() => {
         navigate(`/dosen/courses/${idCourse}/pertemuan/${assignmentId}/submissions/all`);

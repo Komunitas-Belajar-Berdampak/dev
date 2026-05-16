@@ -19,8 +19,11 @@ async function fetchNilaiMahasiswa(
   const results = await Promise.all(
     assignments.map(async (assignment) => {
       try {
-        const submissions = await SubmissionService.getAll(assignment.id);
-        const milik = submissions.find((s) => s.mahasiswa?.id === idMahasiswa);
+        const submissions = await SubmissionService.getAll(assignment.id, 1, 1000);
+        const milik = submissions.data.find(
+          (s) => s.mahasiswa?.id === idMahasiswa
+        );
+
         return {
           id: assignment.id,
           judul: assignment.judul,
@@ -48,5 +51,7 @@ export function useNilaiMahasiswa(idCourse?: string, idMahasiswa?: string) {
     queryKey: ["nilai-mahasiswa", idCourse, idMahasiswa],
     queryFn: () => fetchNilaiMahasiswa(idCourse as string, idMahasiswa as string),
     enabled: Boolean(idCourse) && Boolean(idMahasiswa),
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
 }
