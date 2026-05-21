@@ -17,6 +17,38 @@ export type MaterialFormPayload = {
   deskripsi: string;
 };
 
+function getExtensionFromFilename(filename: string) {
+  const clean = filename.split("?")[0].split("#")[0];
+  const parts = clean.split(".");
+  if (parts.length < 2) return "";
+  return `.${parts[parts.length - 1]}`;
+}
+
+function ensureNamaFileHasSameExtension(namaFile: string, file?: File | null) {
+  if (!file) return namaFile;
+
+  const extFromFile = getExtensionFromFilename(file.name);
+  if (!extFromFile) return namaFile;
+
+  const trimmed = namaFile.trim();
+
+  // if user already typed extension, keep as-is
+  if (trimmed.toLowerCase().endsWith(extFromFile.toLowerCase())) {
+    return trimmed;
+  }
+
+  // only append when user typed name without extension
+  const lower = trimmed.toLowerCase();
+  const extNoDot = extFromFile.slice(1).toLowerCase();
+  const lastDotIndex = lower.lastIndexOf(".");
+  const hasAnyExt = lastDotIndex > 0 && lastDotIndex < lower.length - 1;
+
+  // if it already looks like it has some extension, keep original to avoid surprises
+  if (hasAnyExt) return trimmed;
+
+  return `${trimmed}${extFromFile}`;
+}
+
 type Props = {
   open: boolean;
   mode: "add" | "edit";
@@ -85,9 +117,12 @@ export default function MaterialModal({
 
   const handleSubmit = () => {
     if (!validate()) return;
+
+    const namaFileFinal = ensureNamaFileHasSameExtension(namaFile, selectedFile);
+
     onSubmit({
       file: selectedFile ?? undefined,
-      namaFile,
+      namaFile: namaFileFinal,
       visibility,
       deskripsi,
     });
