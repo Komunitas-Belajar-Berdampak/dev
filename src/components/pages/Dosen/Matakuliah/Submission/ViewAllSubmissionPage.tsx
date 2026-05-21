@@ -5,10 +5,20 @@ import { useAssignmentsByCourse } from "../hooks/useAssignmentsByCourse";
 import { useDownloadSubmissions } from "../hooks/useDownloadSubmission";
 import Title from "@/components/shared/Title";
 import { Icon } from "@iconify/react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 const STORAGE_BASE_URL = import.meta.env.VITE_API_URL
   ? String(import.meta.env.VITE_API_URL).replace(/\/api\/?$/, "")
   : "";
+
 
 const PAGE_SIZE = 10;
 
@@ -186,6 +196,15 @@ function DownloadButton({
 }
 
 export default function ViewAllSubmissionPage() {
+  const [commentDialogOpen, setCommentDialogOpen] = useState(false);
+  const [commentDraft, setCommentDraft] = useState("");
+  const [savedComments, setSavedComments] = useState<Record<string, string>>({});
+  const [selectedSubmission, setSelectedSubmission] = useState<{
+    id: string;
+    mahasiswa: { nrp: string; nama: string } | undefined;
+  } | null>(null);
+
+
   const { id: idCourse, assignmentId } = useParams<{
     id: string;
     assignmentId: string;
@@ -225,6 +244,58 @@ export default function ViewAllSubmissionPage() {
 
   return (
     <div className="space-y-8">
+      <Dialog open={commentDialogOpen} onOpenChange={setCommentDialogOpen}>
+        <DialogContent className="sm:max-w-lg border-2 border-black shadow-[4px_4px_0_0_#000] rounded-xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon icon="mdi:message-text-outline" className="text-2xl text-primary" />
+              Komentar untuk Mahasiswa
+            </DialogTitle>
+            <DialogDescription>
+              {selectedSubmission?.mahasiswa?.nama ?? "Mahasiswa"} (NRP: {selectedSubmission?.mahasiswa?.nrp ?? "-"})
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="mt-2">
+            <label className="text-xs font-semibold text-primary">Isi komentar</label>
+            <textarea
+              value={commentDraft}
+              onChange={(e) => setCommentDraft(e.target.value)}
+              rows={5}
+              className="mt-2 w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+              placeholder="Tulis komentar dosen..."
+            />
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="border-2 border-black"
+              onClick={() => {
+                setCommentDialogOpen(false);
+              }}
+            >
+              Batal
+            </Button>
+            <Button
+              type="button"
+              className="bg-primary text-white border-2 border-black shadow-[3px_3px_0_0_#000]"
+              onClick={() => {
+                if (!selectedSubmission?.id) return;
+                setSavedComments((prev) => ({
+                  ...prev,
+                  [selectedSubmission.id]: commentDraft,
+                }));
+                setCommentDialogOpen(false);
+              }}
+            >
+              Simpan Komentar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Title title={judulTugas} items={breadcrumbItems} />
 
       <div className="rounded-2xl border border-gray-200 bg-white px-8 py-6 text-center">
@@ -269,12 +340,13 @@ export default function ViewAllSubmissionPage() {
                   <th className="text-left px-6 py-3 font-semibold text-primary">Nama</th>
                   <th className="text-left px-6 py-3 font-semibold text-primary">File Submission</th>
                   <th className="text-right px-6 py-3 font-semibold text-primary">Nilai</th>
+                  <th className="text-center px-6 py-3 font-semibold text-primary">Comment</th>
                 </tr>
               </thead>
               <tbody>
                 {submissions.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="text-center py-8 text-gray-400">
+                    <td colSpan={5} className="text-center py-8 text-gray-400">
                       Belum ada submission.
                     </td>
                   </tr>
@@ -302,6 +374,26 @@ export default function ViewAllSubmissionPage() {
                         </td>
                         <td className="px-6 py-4 text-right text-gray-700">
                           {s.grade ?? "-"}
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedSubmission({
+                                id: s.id ?? String(i),
+                                mahasiswa: s.mahasiswa,
+                              });
+                              setCommentDraft(savedComments[s.id ?? String(i)] ?? "");
+                              setCommentDialogOpen(true);
+                            }}
+                            className="inline-flex items-center justify-center"
+                            aria-label="Beri komentar"
+                          >
+                            <Icon
+                              icon="mdi:message-text-outline"
+                              className="text-primary text-xl hover:opacity-80"
+                            />
+                          </button>
                         </td>
                       </tr>
                     );
