@@ -91,9 +91,7 @@ export const FilePreviewModalMhs = ({
       ["txt", "md", "markdown", "rtf", "csv", "json", "xml"].includes(ext);
 
     if (isText) {
-      // Hanya fallback rendering sederhana via iframe agar BE mengirim content-type text dengan benar.
-      // Kalau server tidak mengatur content-type, browser bisa tetap menampilkan sebagai download.
-      return (
+       return (
         <iframe
           src={file}
           title={"materi-text"}
@@ -102,7 +100,6 @@ export const FilePreviewModalMhs = ({
       );
     }
 
-    // Fallback for unsupported types (docx, xlsx, pptx, etc.)
     return (
       <div className="flex flex-col items-center gap-4 py-12">
         <Icon icon="tabler:file-off" width={48} className="text-muted-foreground" />

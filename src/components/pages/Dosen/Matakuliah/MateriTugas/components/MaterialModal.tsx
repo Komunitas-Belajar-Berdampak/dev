@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Icon } from "@iconify/react";
 
 export type MaterialFormPayload = {
-  file?: File;                       // file asli — dikirim ke BE via FormData
+  file?: File;
   namaFile: string;
   visibility: "HIDE" | "VISIBLE";
   deskripsi: string;
@@ -32,18 +32,14 @@ function ensureNamaFileHasSameExtension(namaFile: string, file?: File | null) {
 
   const trimmed = namaFile.trim();
 
-  // if user already typed extension, keep as-is
   if (trimmed.toLowerCase().endsWith(extFromFile.toLowerCase())) {
     return trimmed;
   }
 
-  // only append when user typed name without extension
   const lower = trimmed.toLowerCase();
-  const extNoDot = extFromFile.slice(1).toLowerCase();
   const lastDotIndex = lower.lastIndexOf(".");
   const hasAnyExt = lastDotIndex > 0 && lastDotIndex < lower.length - 1;
 
-  // if it already looks like it has some extension, keep original to avoid surprises
   if (hasAnyExt) return trimmed;
 
   return `${trimmed}${extFromFile}`;
@@ -143,7 +139,6 @@ export default function MaterialModal({
               {mode === "add" && <span className="text-red-500">*</span>}
             </label>
 
-            {/* Tampilkan file existing saat edit dan belum ganti file */}
             {mode === "edit" && initial?.namaFile && !selectedFile && (
               <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
                 <Icon
