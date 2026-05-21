@@ -10,6 +10,7 @@ import { useMeetingDetail } from "@/components/pages/Dosen/Matakuliah/hooks/useM
 import { useMaterialsByCourse } from "@/components/pages/Dosen/Matakuliah/hooks/useMaterialsByCourse";
 import { useAssignmentsByCourse } from "@/components/pages/Dosen/Matakuliah/hooks/useAssignmentsByCourse";
 import { Button } from "@/components/ui/button";
+import { FilePreviewModalMhs } from "./FilePreviewModalMhs";
 
 function unwrapDeskripsi(val: any): string {
   if (!val) return "";
@@ -80,6 +81,8 @@ const MhsMeetingDetail = () => {
   const { data: assignments = [] } = useAssignmentsByCourse(idCourse);
 
   const [allMeetings, setAllMeetings] = useState<MeetingEntity[]>([]);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewFile, setPreviewFile] = useState<string>("");
   useEffect(() => {
     if (!idCourse) return;
     MeetingService.getMeetingsByCourseId(idCourse)
@@ -205,15 +208,29 @@ const MhsMeetingDetail = () => {
                     </p>
                   )}
                   {downloadUrl ? (
-                    <a
-                      href={downloadUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-blue-600 hover:underline inline-flex items-center gap-1"
-                    >
-                      <Icon icon="mdi:download" />
-                      Download
-                    </a>
+                    <div className="flex items-center gap-3">
+                      <a
+                        href={downloadUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-blue-600 hover:underline inline-flex items-center gap-1"
+                      >
+                        <Icon icon="mdi:download" />
+                        Download
+                      </a>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPreviewFile(downloadUrl);
+                          setPreviewOpen(true);
+                        }}
+                        className="text-sm text-blue-900 hover:underline inline-flex items-center gap-1"
+                      >
+                        <Icon icon="mdi:eye-outline" />
+                        Preview
+                      </button>
+                    </div>
                   ) : (
                     <p className="text-xs text-gray-400 italic">
                       File tidak tersedia
@@ -304,6 +321,15 @@ const MhsMeetingDetail = () => {
           })
         )}
       </div>
+
+      <FilePreviewModalMhs
+        open={previewOpen}
+        onOpenChange={(v) => {
+          setPreviewOpen(v);
+          if (!v) setPreviewFile("");
+        }}
+        file={previewFile}
+      />
 
       {/* PREV / NEXT */}
       <div className="z-50 flex justify-between pointer-events-none ">
