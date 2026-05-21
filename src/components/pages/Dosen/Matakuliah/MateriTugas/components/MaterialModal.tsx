@@ -11,11 +11,39 @@ import { Textarea } from "@/components/ui/textarea";
 import { Icon } from "@iconify/react";
 
 export type MaterialFormPayload = {
-  file?: File;                       // file asli — dikirim ke BE via FormData
+  file?: File;
   namaFile: string;
   visibility: "HIDE" | "VISIBLE";
   deskripsi: string;
 };
+
+function getExtensionFromFilename(filename: string) {
+  const clean = filename.split("?")[0].split("#")[0];
+  const parts = clean.split(".");
+  if (parts.length < 2) return "";
+  return `.${parts[parts.length - 1]}`;
+}
+
+function ensureNamaFileHasSameExtension(namaFile: string, file?: File | null) {
+  if (!file) return namaFile;
+
+  const extFromFile = getExtensionFromFilename(file.name);
+  if (!extFromFile) return namaFile;
+
+  const trimmed = namaFile.trim();
+
+  if (trimmed.toLowerCase().endsWith(extFromFile.toLowerCase())) {
+    return trimmed;
+  }
+
+  const lower = trimmed.toLowerCase();
+  const lastDotIndex = lower.lastIndexOf(".");
+  const hasAnyExt = lastDotIndex > 0 && lastDotIndex < lower.length - 1;
+
+  if (hasAnyExt) return trimmed;
+
+  return `${trimmed}${extFromFile}`;
+}
 
 type Props = {
   open: boolean;
@@ -85,9 +113,12 @@ export default function MaterialModal({
 
   const handleSubmit = () => {
     if (!validate()) return;
+
+    const namaFileFinal = ensureNamaFileHasSameExtension(namaFile, selectedFile);
+
     onSubmit({
       file: selectedFile ?? undefined,
-      namaFile,
+      namaFile: namaFileFinal,
       visibility,
       deskripsi,
     });
@@ -108,7 +139,6 @@ export default function MaterialModal({
               {mode === "add" && <span className="text-red-500">*</span>}
             </label>
 
-            {/* Tampilkan file existing saat edit dan belum ganti file */}
             {mode === "edit" && initial?.namaFile && !selectedFile && (
               <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
                 <Icon
