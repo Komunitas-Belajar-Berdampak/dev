@@ -100,30 +100,12 @@ const MhsMeetingDetail = () => {
       : null;
 
   const pertemuanNum = Number(pertemuan?.pertemuan ?? 0);
-  // const meetKey = pertemuanNum
-  //   ? `meet${String(pertemuanNum).padStart(2, "0")}`
-  //   : null;
 
-  // const materiPertemuan = pertemuanNum
-  //   ? (materials as any[]).filter((m: any) => {
-  //       if (m.pertemuan !== undefined && m.pertemuan !== null) {
-  //         return Number(m.pertemuan) === pertemuanNum;
-  //       }
-  //       if (meetKey) {
-  //         const p = String(m.pathFile ?? "");
-  //         return p.includes(`/${meetKey}/`) || p.includes(`${meetKey}/`);
-  //       }
-  //       return false;
-  //     })
-  //   : (materials as any[]);
-
-  const materiPertemuan = materials;
+  const materiPertemuan = materials.filter((m) => m.idMeeting === idMeeting);
 
   const tugasPertemuan = (assignments as any[]).filter(
     (a: any) => Number(a.pertemuan) === pertemuanNum,
   );
-
-  console.log("materials", materials);
 
   if (isLoading) return <MeetingDetailSkeleton />;
 
@@ -329,6 +311,7 @@ const MhsMeetingDetail = () => {
           if (!v) setPreviewFile("");
         }}
         file={previewFile}
+        title="Preview Materi"
       />
 
       {/* PREV / NEXT */}

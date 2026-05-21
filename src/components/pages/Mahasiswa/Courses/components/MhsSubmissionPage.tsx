@@ -324,6 +324,7 @@ const MhsSubmissionPage = () => {
           open={openFileModal}
           onOpenChange={setOpenFileModal}
           file={submission?.file || ""}
+          title="Preview File Tugas"
         />
       )}
     </div>
