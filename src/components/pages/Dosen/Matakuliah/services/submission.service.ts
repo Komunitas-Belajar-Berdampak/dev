@@ -11,6 +11,7 @@ export type SubmissionItem = {
   file: string;
   grade: number | null;
   gradeAt: string | null;
+  comment: string | null;
 };
 
 export type SubmissionSummary = {
@@ -46,7 +47,6 @@ export const SubmissionService = {
     };
   },
 
-  // GET /api/submissions/{idAssignment}/all?page=1&limit=10
   async getAll(
     idAssignment: string,
     page = 1,
@@ -67,7 +67,6 @@ export const SubmissionService = {
     };
   },
 
-  // PATCH /api/submissions/assignments/{idAssignment}/submissions/{idSubmission}/grade
   async updateGrade(
     idAssignment: string,
     idSubmission: string,
@@ -79,6 +78,17 @@ export const SubmissionService = {
         nilai,
         gradeAt: new Date().toISOString(),
       }
+    );
+  },
+
+  async updateComment(
+    idAssignment: string,
+    idSubmission: string,
+    comment: string | null
+  ): Promise<void> {
+    await api.patch(
+      `/submissions/assignments/${idAssignment}/submissions/${idSubmission}/comment`,
+      { comment }
     );
   },
 };
