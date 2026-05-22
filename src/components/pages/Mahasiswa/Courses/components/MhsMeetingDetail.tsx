@@ -100,26 +100,30 @@ const MhsMeetingDetail = () => {
       : null;
 
   const pertemuanNum = Number(pertemuan?.pertemuan ?? 0);
-  const meetKey = pertemuanNum
-    ? `meet${String(pertemuanNum).padStart(2, "0")}`
-    : null;
+  // const meetKey = pertemuanNum
+  //   ? `meet${String(pertemuanNum).padStart(2, "0")}`
+  //   : null;
 
-  const materiPertemuan = pertemuanNum
-    ? (materials as any[]).filter((m: any) => {
-        if (m.pertemuan !== undefined && m.pertemuan !== null) {
-          return Number(m.pertemuan) === pertemuanNum;
-        }
-        if (meetKey) {
-          const p = String(m.pathFile ?? "");
-          return p.includes(`/${meetKey}/`) || p.includes(`${meetKey}/`);
-        }
-        return false;
-      })
-    : (materials as any[]);
+  // const materiPertemuan = pertemuanNum
+  //   ? (materials as any[]).filter((m: any) => {
+  //       if (m.pertemuan !== undefined && m.pertemuan !== null) {
+  //         return Number(m.pertemuan) === pertemuanNum;
+  //       }
+  //       if (meetKey) {
+  //         const p = String(m.pathFile ?? "");
+  //         return p.includes(`/${meetKey}/`) || p.includes(`${meetKey}/`);
+  //       }
+  //       return false;
+  //     })
+  //   : (materials as any[]);
+
+  const materiPertemuan = materials;
 
   const tugasPertemuan = (assignments as any[]).filter(
     (a: any) => Number(a.pertemuan) === pertemuanNum,
   );
+
+  console.log("materials", materials);
 
   if (isLoading) return <MeetingDetailSkeleton />;
 
@@ -242,8 +246,10 @@ const MhsMeetingDetail = () => {
       <hr className="border-gray-200" />
 
       {/* TUGAS */}
-      <div className="space-y-4">
-        <h3 className="font-semibold text-blue-900 text-lg">Tugas</h3>
+      <div className="space-y-4 max-h-64 lg:max-h-80 overflow-y-auto">
+        <h3 className="font-semibold text-blue-900 text-lg">
+          Tugas {tugasPertemuan.length !== 0 && `(${tugasPertemuan.length})`}
+        </h3>
         {tugasPertemuan.length === 0 ? (
           <p className="text-sm text-gray-500">
             Belum ada tugas untuk pertemuan ini.
@@ -326,7 +332,7 @@ const MhsMeetingDetail = () => {
       />
 
       {/* PREV / NEXT */}
-      <div className="absolute bottom-12 left-0 right-0 z-50 flex justify-between px-12 pointer-events-none ">
+      <div className="z-50 flex justify-between pointer-events-none ">
         {prevMeeting ? (
           <Button
             onClick={() =>

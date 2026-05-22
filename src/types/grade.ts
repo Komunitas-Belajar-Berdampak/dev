@@ -19,6 +19,7 @@ export type MhsGrade = {
     };
     assignments: {
       id: string;
+      idMeeting: string;
       judul: string;
       tenggat: string;
       pertemuan: number;
