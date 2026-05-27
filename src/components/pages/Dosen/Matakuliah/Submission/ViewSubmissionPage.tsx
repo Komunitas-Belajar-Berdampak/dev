@@ -1,6 +1,9 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { toast } from "sonner";
 import { useSubmissionSummary } from "../hooks/useSubmissionSummary";
 import { useAssignmentsByCourse } from "../hooks/useAssignmentsByCourse";
+import { useUpdateAssignment } from "../hooks/useUpdateAssignment";
 import Title from "@/components/shared/Title";
 import ReactApexChart from "react-apexcharts";
 import { Icon } from "@iconify/react";
@@ -24,10 +27,62 @@ export default function ViewSubmissionPage() {
   const navigate = useNavigate();
 
   const { data: summary, isLoading } = useSubmissionSummary(assignmentId);
-  const { data: assignments = [] } = useAssignmentsByCourse(idCourse);
+  const { data: assignments = [], refetch: refetchAssignments } = useAssignmentsByCourse(idCourse);
+  const updateAssignment = useUpdateAssignment();
 
   const assignment = (assignments as any[]).find((a: any) => a.id === assignmentId);
   const judulTugas = assignment?.judul ?? summary?.tugasJudul ?? "Tugas";
+
+  // statusTenggat: true = deadline AKTIF (tidak bisa submit setelah lewat)
+  // statusTenggat: false = deadline DIBUKA (bisa submit meskipun sudah lewat)
+  const isDeadlineActive = assignment?.statusTenggat !== false;
+  const isPastDeadline = assignment?.tenggat ? new Date() > new Date(assignment.tenggat) : false;
+
+  const [isToggling, setIsToggling] = useState(false);
+
+  const toastIconSuccess = (
+    <Icon icon="lets-icons:check-fill" className="text-white text-lg shrink-0 mt-0.5" />
+  );
+  const toastIconError = (
+    <Icon icon="lets-icons:cancel-fill" className="text-white text-lg shrink-0 mt-0.5" />
+  );
+
+  const handleToggleDeadline = () => {
+    if (!assignmentId) return;
+    setIsToggling(true);
+    const newStatus = isDeadlineActive ? false : true;
+    updateAssignment.mutate(
+      {
+        idAssignment: assignmentId,
+        payload: { statusTenggat: newStatus },
+      },
+      {
+        onSuccess: () => {
+          refetchAssignments();
+          toast.success(
+            newStatus
+              ? "Pengumpulan dikunci! Mahasiswa tidak dapat submit setelah tenggat."
+              : "Pengumpulan dibuka! Mahasiswa masih bisa submit meskipun sudah melewati tenggat.",
+            {
+              icon: toastIconSuccess,
+              style: { background: "#16a34a", color: "#ffffff", border: "none" },
+            }
+          );
+          setIsToggling(false);
+        },
+        onError: (err: any) => {
+          toast.error(
+            err?.response?.data?.message ?? err?.message ?? "Gagal mengubah status pengumpulan.",
+            {
+              icon: toastIconError,
+              style: { background: "#dc2626", color: "#ffffff", border: "none" },
+            }
+          );
+          setIsToggling(false);
+        },
+      }
+    );
+  };
 
   const sudah = summary?.telahSubmit ?? 0;
   const belum = (summary?.totalMahasiswa ?? 0) - sudah;
@@ -166,6 +221,132 @@ export default function ViewSubmissionPage() {
                   <span className="text-sm font-bold text-gray-800">{String(s.value)}</span>
                 </div>
               ))}
+            </div>
+
+            {/* Akses Pengumpulan Setelah Tenggat Card */}
+            <div
+              className={[
+                "rounded-2xl border-2 overflow-hidden shadow-[5px_5px_0_0_#000] transition-all duration-300",
+                isDeadlineActive
+                  ? "border-black bg-white"
+                  : "border-green-600 bg-green-50",
+              ].join(" ")}
+            >
+              {/* Card Header */}
+              <div
+                className={[
+                  "flex items-center justify-between px-6 py-4 border-b-2",
+                  isDeadlineActive ? "border-black bg-gray-50" : "border-green-600 bg-green-100",
+                ].join(" ")}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={[
+                      "w-9 h-9 flex items-center justify-center rounded-full shrink-0",
+                      isDeadlineActive ? "bg-red-100" : "bg-green-200",
+                    ].join(" ")}
+                  >
+                    <Icon
+                      icon={isDeadlineActive ? "mdi:lock-outline" : "mdi:lock-open-outline"}
+                      className={[
+                        "text-lg",
+                        isDeadlineActive ? "text-red-600" : "text-green-700",
+                      ].join(" ")}
+                    />
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm text-gray-900">
+                      Akses Pengumpulan Setelah Tenggat
+                    </p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      Kendalikan apakah mahasiswa masih bisa submit setelah tenggat berlalu
+                    </p>
+                  </div>
+                </div>
+
+                {/* Status Badge */}
+                <div
+                  className={[
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full border-2 font-bold text-xs shrink-0",
+                    isDeadlineActive
+                      ? "border-red-400 bg-red-50 text-red-600"
+                      : "border-green-500 bg-green-50 text-green-700",
+                  ].join(" ")}
+                >
+                  <span
+                    className={[
+                      "w-2 h-2 rounded-full",
+                      isDeadlineActive ? "bg-red-500" : "bg-green-500 animate-pulse",
+                    ].join(" ")}
+                  />
+                  {isDeadlineActive ? "Dikunci" : "Dibuka"}
+                </div>
+              </div>
+
+              {/* Card Body */}
+              <div className="px-6 py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="space-y-1.5">
+                  {isDeadlineActive ? (
+                    <>
+                      <p className="text-sm font-semibold text-gray-800">
+                        {isPastDeadline
+                          ? "Tenggat sudah lewat — Pengumpulan dikunci"
+                          : "Tenggat belum lewat — Pengumpulan aktif sesuai tenggat"}
+                      </p>
+                      <p className="text-xs text-gray-500 max-w-sm">
+                        {isPastDeadline
+                          ? "Mahasiswa saat ini tidak dapat mengumpulkan tugas. Klik tombol di bawah untuk membuka kembali akses pengumpulan."
+                          : "Mahasiswa dapat mengumpulkan tugas hingga tenggat waktu yang sudah ditetapkan."}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm font-semibold text-green-800">
+                        Pengumpulan dibuka meskipun sudah melewati tenggat
+                      </p>
+                      <p className="text-xs text-green-700 max-w-sm">
+                        Mahasiswa masih dapat mengumpulkan tugas kapan saja. Klik tombol di kanan untuk mengunci kembali.
+                      </p>
+                    </>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  disabled={isToggling}
+                  onClick={handleToggleDeadline}
+                  className={[
+                    "inline-flex items-center gap-2 px-5 py-2.5 rounded-xl",
+                    "font-bold text-sm shrink-0",
+                    "border-2 border-black",
+                    "shadow-[4px_4px_0_0_#000]",
+                    "transition-all duration-150",
+                    "hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0_0_#000]",
+                    "active:translate-x-[4px] active:translate-y-[4px] active:shadow-none",
+                    "disabled:opacity-60 disabled:pointer-events-none",
+                    isDeadlineActive
+                      ? "bg-green-500 text-white"
+                      : "bg-red-500 text-white",
+                  ].join(" ")}
+                >
+                  {isToggling ? (
+                    <>
+                      <Icon icon="mdi:loading" className="animate-spin text-base" />
+                      Memproses...
+                    </>
+                  ) : isDeadlineActive ? (
+                    <>
+                      <Icon icon="mdi:lock-open-variant-outline" className="text-base" />
+                      Buka Pengumpulan
+                    </>
+                  ) : (
+                    <>
+                      <Icon icon="mdi:lock-outline" className="text-base" />
+                      Kunci Pengumpulan
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* CTA Button */}

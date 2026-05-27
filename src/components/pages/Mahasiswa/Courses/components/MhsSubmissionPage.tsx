@@ -43,7 +43,10 @@ const MhsSubmissionPage = () => {
   const { assignment } = useFetchAssignment(tugasId as string, idCourse as string);
 
   const hasSubmission = !!submission?.id;
-  const isPastDeadline = assignment?.tenggat ? new Date() > new Date(assignment.tenggat) : false;
+  // statusTenggat: false = dosen buka pengumpulan setelah tenggat → tidak dikunci
+  const isPastDeadline = assignment?.tenggat && assignment?.statusTenggat !== false
+    ? new Date() > new Date(assignment.tenggat)
+    : false;
 
   const { submitTugas, isPending } = usePostUpdateSubmission(hasSubmission, tugasId as string, () => form.setValue('file', undefined as any));
 
