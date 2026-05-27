@@ -4,9 +4,10 @@ export type Assignment = {
   judul: string;
   status: "HIDE" | "VISIBLE";
   statusTugas: boolean;
-  statusTenggat: boolean;
+  statusTenggat?: boolean;
   tenggat: string;
   deskripsi: {
     text: string;
   };
 };
+
