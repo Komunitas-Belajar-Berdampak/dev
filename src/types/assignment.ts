@@ -6,5 +6,8 @@ export type Assignment = {
   statusTugas: boolean;
   statusTenggat?: boolean;
   tenggat: string;
+  deskripsi: {
+    text: string;
+  };
 };
 
