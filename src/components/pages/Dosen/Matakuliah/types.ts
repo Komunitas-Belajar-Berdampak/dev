@@ -56,6 +56,7 @@ export type Assignment = {
   judul: string;
   pertemuan: number;
   statusTugas: boolean;
+  statusTenggat?: boolean;
   tenggat: string;
   status: BEStatus;
   pathLampiran?: string;

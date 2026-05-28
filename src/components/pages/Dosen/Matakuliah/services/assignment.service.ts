@@ -11,6 +11,7 @@ export type CreateAssignmentPayload = {
   judul: string;
   tenggat: string;
   statusTugas?: boolean;
+  statusTenggat?: boolean;
   status?: BEStatus;
   file?: File;                       // file lampiran opsional
   deskripsi?: string;
@@ -39,6 +40,7 @@ export const AssignmentService = {
 
     form.append("judul", payload.judul);
     form.append("statusTugas", String(payload.statusTugas ?? false));
+    if (payload.statusTenggat !== undefined) form.append("statusTenggat", String(payload.statusTenggat));
     form.append("tenggat", payload.tenggat);
     form.append("status", payload.status ?? "VISIBLE");
 
@@ -69,6 +71,7 @@ export const AssignmentService = {
 
     if (payload.judul !== undefined) form.append("judul", payload.judul);
     if (payload.statusTugas !== undefined) form.append("statusTugas", String(payload.statusTugas));
+    if (payload.statusTenggat !== undefined) form.append("statusTenggat", String(payload.statusTenggat));
     if (payload.tenggat !== undefined) form.append("tenggat", payload.tenggat);
     if (payload.status !== undefined) form.append("status", payload.status);
 
