@@ -54,6 +54,8 @@ const MhsSubmissionPage = () => {
   const isPastDeadline = assignment?.tenggat
     ? new Date() > new Date(assignment.tenggat)
     : false;
+  const isLateAllowed = assignment?.statusTenggat === false;
+  const isSubmissionLocked = isPastDeadline && !isLateAllowed;
 
   const { submitTugas, isPending } = usePostUpdateSubmission(
     hasSubmission,
@@ -82,6 +84,7 @@ const MhsSubmissionPage = () => {
   ];
 
   console.log("assignment", assignment);
+  console.log("submission", submission);
 
   return (
     <div className="space-y-6">
@@ -142,38 +145,104 @@ const MhsSubmissionPage = () => {
 
       {/* Existing Submission */}
       {!submissionLoading && hasSubmission && (
-        <div className="rounded-2xl border-2 border-green-500 bg-green-50 shadow-[4px_4px_0_0_#22c55e] px-6 py-4 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0">
-            <Icon icon="mdi:check" className="text-white text-xl" />
-          </div>
-          <div className="flex-1">
-            <p className="font-semibold text-green-800">
-              Tugas sudah dikumpulkan
-            </p>
-            <p className="text-xs text-green-700">
-              Dikumpulkan: {formatDate(submission?.submittedAt)}
-            </p>
-            {submission?.grade !== null && submission?.grade !== undefined && (
-              <p className="text-xs text-green-700 font-medium">
-                Nilai: {submission?.grade}
+        <div
+          className={`rounded-2xl border-2 px-6 py-4 ${
+            submission?.isLate
+              ? "border-amber-500 bg-amber-50 shadow-[4px_4px_0_0_#f59e0b]"
+              : "border-green-500 bg-green-50 shadow-[4px_4px_0_0_#22c55e]"
+          }`}
+        >
+          <div className="flex items-center gap-4">
+            <div
+              className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
+                submission?.isLate ? "bg-amber-500" : "bg-green-500"
+              }`}
+            >
+              <Icon
+                icon={
+                  submission?.isLate ? "mdi:clock-alert-outline" : "mdi:check"
+                }
+                className="text-white text-xl"
+              />
+            </div>
+            <div className="flex-1">
+              <p
+                className={`font-semibold ${
+                  submission?.isLate ? "text-amber-800" : "text-green-800"
+                }`}
+              >
+                {submission?.isLate
+                  ? "Tugas dikumpulkan (Terlambat)"
+                  : "Tugas sudah dikumpulkan"}
               </p>
+              <p
+                className={`text-xs ${
+                  submission?.isLate ? "text-amber-700" : "text-green-700"
+                }`}
+              >
+                Dikumpulkan: {formatDate(submission?.submittedAt)}
+              </p>
+              {submission?.grade !== null &&
+                submission?.grade !== undefined && (
+                  <p
+                    className={`text-xs font-medium ${
+                      submission?.isLate ? "text-amber-700" : "text-green-700"
+                    }`}
+                  >
+                    Nilai: {submission?.grade}
+                  </p>
+                )}
+            </div>
+            {submission?.file && (
+              <button
+                onClick={() => setOpenFileModal(true)}
+                className={`text-sm hover:underline flex items-center gap-1 ${
+                  submission?.isLate ? "text-amber-700" : "text-green-700"
+                }`}
+              >
+                <Icon icon="mdi:file-outline" />
+                Lihat file
+              </button>
             )}
           </div>
-          {submission?.file && (
-            <button
-              onClick={() => setOpenFileModal(true)}
-              className="text-sm text-green-700 hover:underline flex items-center gap-1"
-            >
-              <Icon icon="mdi:file-outline" />
-              Lihat file
-            </button>
+
+          {/* Teacher's comment */}
+          {submission?.comment && (
+            <div className="mt-4 rounded-xl border-2 border-black bg-white px-4 py-3">
+              <div className="flex items-center gap-2 mb-1">
+                <Icon
+                  icon="mdi:comment-text-outline"
+                  className="text-blue-900 shrink-0"
+                />
+                <span className="text-sm font-semibold text-blue-900">
+                  Komentar Dosen
+                </span>
+              </div>
+              <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                {submission.comment}
+              </p>
+            </div>
           )}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Late warning — past deadline but still allowed to submit */}
+        {isPastDeadline && isLateAllowed && (
+          <div className="rounded-2xl border-2 border-amber-300 bg-amber-50 px-6 py-4 flex items-center gap-3">
+            <Icon
+              icon="mdi:clock-alert-outline"
+              className="text-amber-500 text-xl shrink-0"
+            />
+            <p className="text-sm text-amber-700 font-medium">
+              Tenggat waktu sudah lewat. Tugas yang kamu kumpulkan akan ditandai
+              sebagai terlambat.
+            </p>
+          </div>
+        )}
+
         {/* Upload Area */}
-        {!isPastDeadline ? (
+        {!isSubmissionLocked ? (
           <Controller
             control={form.control}
             name="file"
@@ -243,8 +312,8 @@ const MhsSubmissionPage = () => {
                         Pilih file atau drag and drop di sini
                       </p>
                       <p className="text-xs text-gray-400">
-                        JPG, PNG, PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, CSV, ZIP
-                        — maks. 50MB
+                        JPG, PNG, PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, CSV, ZIP —
+                        maks. 50MB
                       </p>
                       <Button
                         type="button"
@@ -269,9 +338,7 @@ const MhsSubmissionPage = () => {
                   />
                 </div>
 
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
           />
@@ -299,7 +366,7 @@ const MhsSubmissionPage = () => {
             Kembali
           </Button>
 
-          {!isPastDeadline && (
+          {!isSubmissionLocked && (
             <Button
               type="submit"
               disabled={!selectedFile || isPending}
@@ -324,6 +391,7 @@ const MhsSubmissionPage = () => {
           open={openFileModal}
           onOpenChange={setOpenFileModal}
           file={submission?.file || ""}
+          title="Preview File Tugas"
         />
       )}
     </div>

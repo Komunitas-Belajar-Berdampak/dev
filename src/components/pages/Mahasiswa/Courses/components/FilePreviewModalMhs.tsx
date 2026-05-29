@@ -11,12 +11,14 @@ interface FilePreviewModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   file: string;
+  title?: string;
 }
 
 export const FilePreviewModalMhs = ({
   open,
   onOpenChange,
   file,
+  title = "Preview File",
 }: FilePreviewModalProps) => {
   const renderPreview = () => {
     const lower = file.toLowerCase();
@@ -117,7 +119,7 @@ export const FilePreviewModalMhs = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl">
         <DialogHeader>
-          <DialogTitle>{"Submission File Preview"}</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         {renderPreview()}
       </DialogContent>

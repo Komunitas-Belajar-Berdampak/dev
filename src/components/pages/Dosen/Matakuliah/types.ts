@@ -34,6 +34,7 @@ export interface DosenCourse {
 export type BEStatus = "HIDE" | "VISIBLE";
 
 export type Material = {
+  format: string;
   _id: string;
   id: string;
   idMeeting: string;
@@ -41,6 +42,7 @@ export type Material = {
   pathFile: string;
   namaFile: string;
   tipe: string;
+  visibility: string;
   status: BEStatus;
   createdAt: string;
   updatedAt: string;
