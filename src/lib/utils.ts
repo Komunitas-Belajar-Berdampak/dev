@@ -22,6 +22,19 @@ export async function fileToDataUrl(file: File) {
   });
 }
 
+/** Mengambil pesan error dari respons API (axios) dengan aman, tanpa `any`. */
+export function getApiErrorMessage(error: unknown, fallback: string): string {
+  if (typeof error === "object" && error !== null) {
+    const response = (error as { response?: { data?: { message?: unknown } } }).response;
+    const message = response?.data?.message;
+    if (typeof message === "string" && message.trim()) return message;
+
+    const errMessage = (error as { message?: unknown }).message;
+    if (typeof errMessage === "string" && errMessage.trim()) return errMessage;
+  }
+  return fallback;
+}
+
 export const formatDate = (date?: string) =>
   date
     ? new Date(date).toLocaleDateString("id-ID", {

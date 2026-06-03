@@ -8,6 +8,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { logout } from '@/api/auth';
 import { getUser, removeToken, removeUser } from '@/lib/authStorage';
+import NotificationBell from '@/components/shared/NotificationBell';
 import menuItems from './menu-items';
 
 const Header = () => {
@@ -15,6 +16,7 @@ const Header = () => {
   const queryClient = useQueryClient();
   const user = getUser();
   const nama = user?.nama;
+  const isMahasiswa = user?.namaRole === 'MAHASISWA';
 
   const logoutMutation = useMutation({
     mutationFn: logout,
@@ -35,6 +37,8 @@ const Header = () => {
           <p className='text-primary font-semibold text-sm md:text-base'>
             Hello, <span className='underline underline-offset-4'>{nama}</span>!
           </p>
+
+          {isMahasiswa && <NotificationBell />}
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
