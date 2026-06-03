@@ -33,7 +33,7 @@ const NotificationBell = () => {
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align='end' className='w-80 p-0 sm:w-96'>
+      <DropdownMenuContent align='center' className='w-80 p-0 sm:w-96'>
         <div className='flex items-center justify-between border-b border-black/5 px-3 py-2.5'>
           <p className='text-sm font-semibold text-foreground'>Notifikasi</p>
           {totalUnread > 0 && (

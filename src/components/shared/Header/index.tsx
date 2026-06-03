@@ -7,8 +7,8 @@ import { Fragment } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { logout } from '@/api/auth';
-import { getUser, removeToken, removeUser } from '@/lib/authStorage';
 import NotificationBell from '@/components/shared/NotificationBell';
+import { getUser, removeToken, removeUser } from '@/lib/authStorage';
 import menuItems from './menu-items';
 
 const Header = () => {
@@ -38,42 +38,44 @@ const Header = () => {
             Hello, <span className='underline underline-offset-4'>{nama}</span>!
           </p>
 
-          {isMahasiswa && <NotificationBell />}
+          <div className='flex gap-4'>
+            {isMahasiswa && <NotificationBell />}
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant={'outline'} size={'icon'} className='shadow-none'>
-                <Icon icon='iconamoon:profile-fill' className='text-primary' width={20} />
-              </Button>
-            </DropdownMenuTrigger>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant={'outline'} size={'icon'} className='shadow-none'>
+                  <Icon icon='iconamoon:profile-fill' className='text-primary' width={20} />
+                </Button>
+              </DropdownMenuTrigger>
 
-            <DropdownMenuContent align='start' className='w-46'>
-              <DropdownMenuGroup>
-                {menuItems.map((item, index) => {
-                  const isLast = index === menuItems.length - 2;
-                  const isLogout = item.title?.toLowerCase() === 'logout';
+              <DropdownMenuContent align='start' className='w-46'>
+                <DropdownMenuGroup>
+                  {menuItems.map((item, index) => {
+                    const isLast = index === menuItems.length - 2;
+                    const isLogout = item.title?.toLowerCase() === 'logout';
 
-                  return (
-                    <Fragment key={`${item.title}-${index}`}>
-                      {isLast && <DropdownMenuSeparator />}
+                    return (
+                      <Fragment key={`${item.title}-${index}`}>
+                        {isLast && <DropdownMenuSeparator />}
 
-                      {isLogout ? (
-                        <DropdownMenuItem disabled={logoutMutation.isPending} onSelect={() => logoutMutation.mutate()}>
-                          <span className='text-xs md:text-sm  flex items-center gap-2 w-full text-foreground/70'>{logoutMutation.isPending ? 'Logging out...' : item.title}</span>
-                        </DropdownMenuItem>
-                      ) : (
-                        <DropdownMenuItem asChild>
-                          <Link to={item.link} className='text-xs md:text-sm flex items-center gap-2 w-full text-foreground/70'>
-                            {item.title}
-                          </Link>
-                        </DropdownMenuItem>
-                      )}
-                    </Fragment>
-                  );
-                })}
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                        {isLogout ? (
+                          <DropdownMenuItem disabled={logoutMutation.isPending} onSelect={() => logoutMutation.mutate()}>
+                            <span className='text-xs md:text-sm  flex items-center gap-2 w-full text-foreground/70'>{logoutMutation.isPending ? 'Logging out...' : item.title}</span>
+                          </DropdownMenuItem>
+                        ) : (
+                          <DropdownMenuItem asChild>
+                            <Link to={item.link} className='text-xs md:text-sm flex items-center gap-2 w-full text-foreground/70'>
+                              {item.title}
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
+                      </Fragment>
+                    );
+                  })}
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </nav>
     </header>
