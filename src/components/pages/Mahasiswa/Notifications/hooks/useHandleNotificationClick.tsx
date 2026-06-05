@@ -23,7 +23,11 @@ const useHandleNotificationClick = (onBeforeNavigate?: () => void) => {
         if (/^https?:\/\//i.test(notification.link)) {
           window.location.assign(notification.link);
         } else {
-          navigate(notification.link);
+          // link dari BE relatif tanpa prefix role, mis.
+          // "courses/:id/meeting/:id/submission/:id" → "/mahasiswa/courses/..."
+          const path = notification.link.replace(/^\/+/, '');
+          const target = path.startsWith('mahasiswa/') ? `/${path}` : `/mahasiswa/${path}`;
+          navigate(target);
         }
       }
     },

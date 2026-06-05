@@ -9,5 +9,6 @@ export type Assignment = {
   deskripsi: {
     text: string;
   };
+  lampiran?: string;
 };
 
