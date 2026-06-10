@@ -140,6 +140,22 @@ const MhsSubmissionPage = () => {
               </span>
             </div>
           )}
+          {assignment?.lampiran && (
+            <div className="flex items-center gap-2">
+              <Icon icon="mdi:paperclip" className="text-blue-900 shrink-0" />
+              <span className="text-gray-500">Lampiran:</span>
+              <a
+                href={assignment.lampiran}
+                target="_blank"
+                rel="noopener noreferrer"
+                download
+                className="inline-flex items-center gap-1 font-medium text-blue-900 hover:underline"
+              >
+                <Icon icon="mdi:download" className="shrink-0" />
+                Unduh lampiran
+              </a>
+            </div>
+          )}
         </div>
       </div>
 

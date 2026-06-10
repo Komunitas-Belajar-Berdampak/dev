@@ -40,6 +40,7 @@ import MhsDashboard from '@/components/pages/Mahasiswa/Dashboard';
 import MhsGradeLayout from '@/components/pages/Mahasiswa/Grades';
 import MhsGradePage from '@/components/pages/Mahasiswa/Grades/components/MhsGradePage';
 import MhsGradeDetail from '@/components/pages/Mahasiswa/Grades/detail';
+import NotificationsPage from '@/components/pages/Mahasiswa/Notifications';
 import PrivateFileLayout from '@/components/pages/Mahasiswa/PrivateFile';
 import PrivateFilePage from '@/components/pages/Mahasiswa/PrivateFile/components/PrivateFilePage';
 import CreatePrivateFilePage from '@/components/pages/Mahasiswa/PrivateFile/create';
@@ -402,6 +403,10 @@ const routes: RouteObject[] = [
                 element: <MhsGradeDetail />,
               },
             ],
+          },
+          {
+            path: 'notifications',
+            element: <NotificationsPage />,
           },
             ],
           },

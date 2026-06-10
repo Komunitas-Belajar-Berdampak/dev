@@ -71,6 +71,7 @@ const menuItems: MenuItem[] = [
     icon: <Icon icon='akar-icons:dashboard' />,
     role: ['MAHASISWA'],
   },
+
   {
     title: 'Courses',
     path: '/mahasiswa/courses',
