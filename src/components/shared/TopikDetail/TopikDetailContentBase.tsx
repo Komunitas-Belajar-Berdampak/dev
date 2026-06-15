@@ -16,6 +16,12 @@ import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 const TASK_FILTER_ALL = 'all' as const;
+const EMPTY_DISCUSSION_DATE_FILTER = {
+  field: 'all',
+  keyword: '',
+  fromDate: '',
+  toDate: '',
+} satisfies FilterWithInputRangeValue<'all'>;
 
 type TopikDetailContentBaseProps = {
   idTopik: string;
@@ -29,6 +35,7 @@ type TopikDetailContentBaseProps = {
     onDiscussionSearchKeywordChange: (value: string) => void;
     discussionDateFilter: FilterWithInputRangeValue<'all'>;
     onDiscussionDateFilterChange: (value: FilterWithInputRangeValue<'all'>) => void;
+    clearDiscussionFilters: () => void;
     tasksQuery: {
       data: Task[];
       isLoading: boolean;
@@ -66,12 +73,7 @@ const TopikDetailContentBase = ({ idTopik, namaTopik, renderTabs }: TopikDetailC
     status: TASK_FILTER_ALL,
   });
 
-  const [discussionDateFilter, setDiscussionDateFilter] = useState<FilterWithInputRangeValue<'all'>>({
-    field: 'all',
-    keyword: '',
-    fromDate: '',
-    toDate: '',
-  });
+  const [discussionDateFilter, setDiscussionDateFilter] = useState<FilterWithInputRangeValue<'all'>>(EMPTY_DISCUSSION_DATE_FILTER);
   const [discussionSearchKeyword, setDiscussionSearchKeyword] = useState('');
 
   const handleTabChange = (newTab: TabsType) => {
@@ -89,9 +91,14 @@ const TopikDetailContentBase = ({ idTopik, namaTopik, renderTabs }: TopikDetailC
 
   useEffect(() => {
     setFilters({ memberId: TASK_FILTER_ALL, status: TASK_FILTER_ALL });
-    setDiscussionDateFilter({ field: 'all', keyword: '', fromDate: '', toDate: '' });
+    setDiscussionDateFilter(EMPTY_DISCUSSION_DATE_FILTER);
     setDiscussionSearchKeyword('');
   }, [idTopik]);
+
+  const clearDiscussionFilters = useCallback(() => {
+    setDiscussionDateFilter(EMPTY_DISCUSSION_DATE_FILTER);
+    setDiscussionSearchKeyword('');
+  }, []);
 
   useEffect(() => {
     const nextTab = getTabFromQuery(tabParam);
@@ -200,6 +207,7 @@ const TopikDetailContentBase = ({ idTopik, namaTopik, renderTabs }: TopikDetailC
         onDiscussionSearchKeywordChange: setDiscussionSearchKeyword,
         discussionDateFilter,
         onDiscussionDateFilterChange: setDiscussionDateFilter,
+        clearDiscussionFilters,
         tasksQuery,
         threadDetailQuery,
       })}

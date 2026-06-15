@@ -4,7 +4,12 @@ import { DialogClose, DialogFooter, DialogHeader, DialogTitle } from '@/componen
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-const DialogDeletePost = ({ postId, onClose }: { postId: string; onClose?: () => void }) => {
+type DialogDeletePostProps = {
+  postId: string;
+  onClose?: () => void;
+};
+
+const DialogDeletePost = ({ postId, onClose }: DialogDeletePostProps) => {
   const queryClient = useQueryClient();
 
   const { mutate, isPending } = useMutation({
@@ -19,24 +24,20 @@ const DialogDeletePost = ({ postId, onClose }: { postId: string; onClose?: () =>
     },
   });
 
-  const onDelete = () => {
-    mutate();
-  };
-
   return (
     <div className='space-y-4'>
       <DialogHeader>
-        <DialogTitle className='text-primary text-sm font-bold'>Hapus Discussion</DialogTitle>
+        <DialogTitle className='text-sm font-bold text-primary'>Hapus Discussion</DialogTitle>
       </DialogHeader>
 
       <p className='text-sm text-primary'>Apakah Anda yakin ingin menghapus discussion ini? karena tidak dapat dikembalikan.</p>
 
       <DialogFooter className='space-x-2'>
-        <Button variant='default' className='shadow-sm border px-5 w-full md:w-auto' onClick={onDelete} disabled={isPending}>
+        <Button variant='default' className='w-full border px-5 shadow-sm md:w-auto' onClick={() => mutate()} disabled={isPending}>
           Hapus
         </Button>
         <DialogClose asChild>
-          <Button variant='secondary' className='shadow-sm border bg-accent hover:opacity-85 w-full md:w-auto'>
+          <Button variant='secondary' className='w-full border bg-accent shadow-sm hover:opacity-85 md:w-auto'>
             Cancel
           </Button>
         </DialogClose>

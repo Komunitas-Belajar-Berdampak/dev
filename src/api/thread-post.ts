@@ -2,6 +2,11 @@ import { api } from '@/lib/axios';
 import type { ApiResponse } from '@/types/api';
 import type { Thread, ThreadDetail, ThreadLatestUpdate } from '@/types/thread-post';
 
+type PostPayload = {
+  konten: unknown;
+  parentPostId?: string | null;
+};
+
 const getThreadsByStudyGroup = async (studyGroupId: string, page: number = 1, limit: number = 20): Promise<ApiResponse<Thread[]>> => {
   const res = await api.get<ApiResponse<Thread[]>>(`/threads/sg/${studyGroupId}?page=${page}&limit=${limit}`);
 
@@ -25,8 +30,8 @@ const getThreadLatestUpdate = async (threadId: string): Promise<ApiResponse<Thre
   return res.data;
 };
 
-const addPost = async (threadId: string, payload: { konten: unknown }): Promise<ApiResponse<null>> => {
-  const res = await api.post<ApiResponse<null>>(`/threads/${threadId}`, payload);
+const addPost = async (threadId: string, payload: PostPayload): Promise<ApiResponse<ThreadDetail>> => {
+  const res = await api.post<ApiResponse<ThreadDetail>>(`/threads/${threadId}`, payload);
   return res.data;
 };
 

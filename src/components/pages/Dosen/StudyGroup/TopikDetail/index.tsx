@@ -15,7 +15,7 @@ const TopikPembahasanDetail = () => {
   return (
     <>
       <Title title='Study Groups' items={breadcrumbItems} />
-      <TopikPembahasanDetailContent idTopik={`${idTopik}`} namaTopik={`${namaTopik}`} />
+      <TopikPembahasanDetailContent idTopik={`${idTopik}`} namaTopik={`${namaTopik}`} idSg={`${idSg}`} />
     </>
   );
 };

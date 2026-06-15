@@ -4,14 +4,27 @@ import TopikPembahasanDetailTabs from './Tabs';
 type TopikPembahasanDetailContentProps = {
   idTopik: string;
   namaTopik: string;
+  idSg: string;
 };
 
-const TopikPembahasanDetailContent = ({ idTopik, namaTopik }: TopikPembahasanDetailContentProps) => {
+const TopikPembahasanDetailContent = ({ idTopik, namaTopik, idSg }: TopikPembahasanDetailContentProps) => {
   return (
     <TopikDetailContentBase
       idTopik={idTopik}
       namaTopik={namaTopik}
-      renderTabs={({ tab, onTabChange, filters, onFiltersChange, discussionSearchKeyword, onDiscussionSearchKeywordChange, discussionDateFilter, onDiscussionDateFilterChange, tasksQuery, threadDetailQuery }) => (
+      renderTabs={({
+        tab,
+        onTabChange,
+        filters,
+        onFiltersChange,
+        discussionSearchKeyword,
+        onDiscussionSearchKeywordChange,
+        discussionDateFilter,
+        onDiscussionDateFilterChange,
+        clearDiscussionFilters,
+        tasksQuery,
+        threadDetailQuery,
+      }) => (
         <TopikPembahasanDetailTabs
           tab={tab}
           onTabChange={onTabChange}
@@ -21,8 +34,11 @@ const TopikPembahasanDetailContent = ({ idTopik, namaTopik }: TopikPembahasanDet
           onDiscussionSearchKeywordChange={onDiscussionSearchKeywordChange}
           discussionDateFilter={discussionDateFilter}
           onDiscussionDateFilterChange={onDiscussionDateFilterChange}
+          clearDiscussionFilters={clearDiscussionFilters}
           tasksQuery={tasksQuery}
           threadDetailQuery={threadDetailQuery}
+          threadId={idTopik}
+          studyGroupId={idSg}
         />
       )}
     />

@@ -1,3 +1,4 @@
+import DiscussionContent from '@/components/shared/StudyGroupDiscussion/DiscussionContent';
 import FilterWithInputRange, { type FilterWithInputRangeValue } from '@/components/shared/Filter/FilterWithInputRange';
 import type { TaskFilterValue } from '@/components/shared/Filter/TaskFilterDropdown';
 import TaskFilterDropdown from '@/components/shared/Filter/TaskFilterDropdown';
@@ -10,7 +11,6 @@ import type { ThreadDetail } from '@/types/thread-post';
 import { Icon } from '@iconify/react';
 import { Link } from 'react-router-dom';
 import type { TabsType } from '../types';
-import DiscussionContent from './DiscussionContent';
 import ToDoListContent from './ToDoListContent';
 
 type TopikPembahasanDetailTabsProps = {
@@ -20,6 +20,7 @@ type TopikPembahasanDetailTabsProps = {
   onFiltersChange: (value: TaskFilterValue) => void;
   discussionSearchKeyword: string;
   onDiscussionSearchKeywordChange: (value: string) => void;
+  clearDiscussionFilters: () => void;
 
   discussionDateFilter: FilterWithInputRangeValue<'all'>;
   onDiscussionDateFilterChange: (value: FilterWithInputRangeValue<'all'>) => void;
@@ -37,6 +38,8 @@ type TopikPembahasanDetailTabsProps = {
     isError: boolean;
     error: Error | null;
   };
+  threadId: string;
+  studyGroupId: string;
 };
 
 const TopikPembahasanDetailTabs = ({
@@ -46,10 +49,13 @@ const TopikPembahasanDetailTabs = ({
   onFiltersChange,
   discussionSearchKeyword,
   onDiscussionSearchKeywordChange,
+  clearDiscussionFilters,
   discussionDateFilter,
   onDiscussionDateFilterChange,
   tasksQuery,
   threadDetailQuery,
+  threadId,
+  studyGroupId,
 }: TopikPembahasanDetailTabsProps) => {
   const memberOptions = Array.from(new Map(tasksQuery.data.flatMap((t) => t.mahasiswa).map((m) => [m.id, { id: m.id, nama: m.nama }])).values());
 
@@ -96,7 +102,13 @@ const TopikPembahasanDetailTabs = ({
           <ToDoListContent filters={filters} tasksQuery={tasksQuery} />
         </TabsContent>
         <TabsContent value='discussion'>
-          <DiscussionContent threadDetailQuery={threadDetailQuery} discussionSearchKeyword={discussionSearchKeyword} />
+          <DiscussionContent
+            threadId={threadId}
+            studyGroupId={studyGroupId}
+            threadDetailQuery={threadDetailQuery}
+            discussionSearchKeyword={discussionSearchKeyword}
+            clearDiscussionFilters={clearDiscussionFilters}
+          />
         </TabsContent>
       </Tabs>
     </div>

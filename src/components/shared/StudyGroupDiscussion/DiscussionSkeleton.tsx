@@ -2,19 +2,19 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 const DiscussionSkeleton = () => {
   return (
-    <div className='py-6 w-full rounded-xl border border-accent shadow-sm overflow-hidden p-4 '>
-      <div className='space-y-6 py-8 px-4'>
-        <div className='flex flex-row gap-6 w-full items-center'>
+    <div className='w-full overflow-hidden rounded-xl border border-accent p-4 py-6 shadow-sm'>
+      <div className='space-y-6 px-4 py-8'>
+        <div className='flex w-full flex-row items-center gap-6'>
           <div>
             <Skeleton className='h-14 w-14 rounded-full' />
           </div>
 
-          <div className='flex flex-col justify-center gap-2 w-1/2'>
+          <div className='flex w-1/2 flex-col justify-center gap-2'>
             <Skeleton className='h-5 w-35' />
             <Skeleton className='h-5 w-30' />
           </div>
 
-          <div className='w-full flex justify-end'>
+          <div className='flex w-full justify-end'>
             <Skeleton className='h-5 w-30' />
           </div>
         </div>

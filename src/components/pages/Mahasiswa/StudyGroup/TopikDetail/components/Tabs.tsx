@@ -1,4 +1,4 @@
-import DiscussionContent from '@/components/pages/Dosen/StudyGroup/TopikDetail/components/DiscussionContent';
+import DiscussionContent from '@/components/shared/StudyGroupDiscussion/DiscussionContent';
 import type { TabsType } from '@/components/pages/Dosen/StudyGroup/TopikDetail/types';
 import FilterWithInputRange, { type FilterWithInputRangeValue } from '@/components/shared/Filter/FilterWithInputRange';
 import type { TaskFilterValue } from '@/components/shared/Filter/TaskFilterDropdown';
@@ -21,6 +21,7 @@ type TabsProp = {
   onFiltersChange: (value: TaskFilterValue) => void;
   discussionSearchKeyword: string;
   onDiscussionSearchKeywordChange: (value: string) => void;
+  clearDiscussionFilters: () => void;
   discussionDateFilter: FilterWithInputRangeValue<'all'>;
   onDiscussionDateFilterChange: (value: FilterWithInputRangeValue<'all'>) => void;
   threadId: string;
@@ -48,6 +49,7 @@ const TopikPembahasanDetailTabs = ({
   onFiltersChange,
   discussionSearchKeyword,
   onDiscussionSearchKeywordChange,
+  clearDiscussionFilters,
   discussionDateFilter,
   onDiscussionDateFilterChange,
   threadId,
@@ -99,7 +101,13 @@ const TopikPembahasanDetailTabs = ({
         <ToDoListContent threadId={threadId} members={members} tasksQuery={tasksQuery} filters={filters} studyGroupId={studyGroupId} />
       </TabsContent>
       <TabsContent value='discussion'>
-        <DiscussionContent threadDetailQuery={threadDetailQuery} discussionSearchKeyword={discussionSearchKeyword} />
+        <DiscussionContent
+          threadId={threadId}
+          studyGroupId={studyGroupId}
+          threadDetailQuery={threadDetailQuery}
+          discussionSearchKeyword={discussionSearchKeyword}
+          clearDiscussionFilters={clearDiscussionFilters}
+        />
       </TabsContent>
     </Tabs>
   );
